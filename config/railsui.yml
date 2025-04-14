@@ -1,0 +1,24 @@
+--- !ruby/object:Railsui::Configuration
+application_name: Fleet Management
+support_email: info.meatean@gmail.com
+theme: hound
+pages:
+- about
+- pricing
+- dashboard
+- projects
+- project
+- messages
+- message
+- assignments
+- calendar
+- people
+- profile
+- activity
+- settings
+- notifications
+- billing
+- team
+- integrations
+body_classes: antialiased h-full bg-slate-50 dark:bg-slate-900 dark:text-slate-100
+  text-slate-800

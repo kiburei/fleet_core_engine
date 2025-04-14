@@ -1,0 +1,16 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Vehicle models" %>
+
+<h1>Vehicle models</h1>
+
+<div id="vehicle_models">
+  <% @vehicle_models.each do |vehicle_model| %>
+    <%= render vehicle_model %>
+    <p>
+      <%= link_to "Show this vehicle model", vehicle_model %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New vehicle model", new_vehicle_model_path %>

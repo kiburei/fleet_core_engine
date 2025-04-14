@@ -1,0 +1,12 @@
+<% content_for :title, "Editing fleet provider" %>
+
+<h1>Editing fleet provider</h1>
+
+<%= render "form", fleet_provider: @fleet_provider %>
+
+<br>
+
+<div>
+  <%= link_to "Show this fleet provider", @fleet_provider %> |
+  <%= link_to "Back to fleet providers", fleet_providers_path %>
+</div>

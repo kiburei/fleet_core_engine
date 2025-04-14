@@ -1,0 +1,2 @@
+class FleetProvider < ApplicationRecord
+end

@@ -1,0 +1,52 @@
+<%= form_with(model: fleet_provider) do |form| %>
+  <% if fleet_provider.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(fleet_provider.errors.count, "error") %> prohibited this fleet_provider from being saved:</h2>
+
+      <ul>
+        <% fleet_provider.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :name, style: "display: block" %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <%= form.label :registration_number, style: "display: block" %>
+    <%= form.text_field :registration_number %>
+  </div>
+
+  <div>
+    <%= form.label :physical_address, style: "display: block" %>
+    <%= form.text_field :physical_address %>
+  </div>
+
+  <div>
+    <%= form.label :phone_number, style: "display: block" %>
+    <%= form.text_field :phone_number %>
+  </div>
+
+  <div>
+    <%= form.label :email, style: "display: block" %>
+    <%= form.text_field :email %>
+  </div>
+
+  <div>
+    <%= form.label :license_status, style: "display: block" %>
+    <%= form.text_field :license_status %>
+  </div>
+
+  <div>
+    <%= form.label :license_expiry_date, style: "display: block" %>
+    <%= form.date_field :license_expiry_date %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

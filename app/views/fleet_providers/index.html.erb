@@ -1,0 +1,16 @@
+<p style="color: green"><%= notice %></p>
+
+<% content_for :title, "Fleet providers" %>
+
+<h1>Fleet providers</h1>
+
+<div id="fleet_providers">
+  <% @fleet_providers.each do |fleet_provider| %>
+    <%= render fleet_provider %>
+    <p>
+      <%= link_to "Show this fleet provider", fleet_provider %>
+    </p>
+  <% end %>
+</div>
+
+<%= link_to "New fleet provider", new_fleet_provider_path %>
