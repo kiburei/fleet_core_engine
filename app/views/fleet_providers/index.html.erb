@@ -123,16 +123,17 @@
               data-transition-leave-active="transition ease-in duration-300"
               data-transition-leave-from="transform opacity-100 scale-100"
               data-transition-leave-to="transform opacity-0 scale-95">
+              
               <li>
-                <%= link_to "#", class: "px-4 py-[.4rem] hover:text-primary-600 dark:hover:text-primary-300 group flex items-center justify-start gap-3" do %>
-                  <%= icon "pencil-square", class: "stroke-current size-5 text-slate-500 group-hover:text-primary-600 dark:group-hover:text-primary-400" %>
-                  <span>Edit</span>
+                <%= link_to fleet_provider_path(fleet_provider), class: "px-4 py-[.4rem] hover:text-primary-600 dark:hover:text-primary-300 group flex items-center justify-start gap-3" do %>
+                  <%= icon "paper-airplane", class: "stroke-current size-5 text-slate-500 group-hover:text-primary-600 dark:group-hover:text-primary-400" %>
+                  <span>Show</span>
                 <% end %>
               </li>
               <li>
-                <%= link_to "#", class: "px-4 py-[.4rem] hover:text-primary-600 dark:hover:text-primary-300 group flex items-center justify-start gap-3" do %>
-                  <%= icon "paper-airplane", class: "stroke-current size-5 text-slate-500 group-hover:text-primary-600 dark:group-hover:text-primary-400" %>
-                  <span>Message</span>
+                <%= link_to edit_fleet_provider_path(fleet_provider), class: "px-4 py-[.4rem] hover:text-primary-600 dark:hover:text-primary-300 group flex items-center justify-start gap-3" do %>
+                  <%= icon "pencil-square", class: "stroke-current size-5 text-slate-500 group-hover:text-primary-600 dark:group-hover:text-primary-400" %>
+                  <span>Edit</span>
                 <% end %>
               </li>
             </ul>

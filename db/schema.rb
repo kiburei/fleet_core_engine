@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_14_200413) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_15_065823) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -85,7 +85,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_14_200413) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "fleet_provider_id", null: false
     t.index ["driver_id"], name: "index_trips_on_driver_id"
+    t.index ["fleet_provider_id"], name: "index_trips_on_fleet_provider_id"
     t.index ["vehicle_id"], name: "index_trips_on_vehicle_id"
   end
 
@@ -118,6 +120,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_14_200413) do
   add_foreign_key "drivers", "fleet_providers"
   add_foreign_key "drivers", "vehicles"
   add_foreign_key "trips", "drivers"
+  add_foreign_key "trips", "fleet_providers"
   add_foreign_key "trips", "vehicles"
   add_foreign_key "vehicles", "fleet_providers"
   add_foreign_key "vehicles", "vehicle_models"

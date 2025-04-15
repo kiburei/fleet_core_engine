@@ -1,37 +1,48 @@
-<div id="<%= dom_id fleet_provider %>">
-  <p>
-    <strong>Name:</strong>
-    <%= fleet_provider.name %>
-  </p>
+<div class="max-w-4xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow space-y-6">
 
-  <p>
-    <strong>Registration number:</strong>
-    <%= fleet_provider.registration_number %>
-  </p>
+  <!-- Condensed Profile Header -->
+  <div class="flex items-center gap-4 mb-4">
+    <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center">
+      <%= image_tag "https://via.placeholder.com/80x80.png?text=Fleet", alt: "Fleet Logo", class: "object-cover w-full h-full" %>
+    </div>
+    <div>
+      <h1 class="text-xl font-semibold text-slate-900 dark:text-white"><%= fleet_provider.name %></h1>
+      <p class="text-xs text-slate-500 mt-0.5"><%= fleet_provider.registration_number %></p>
+    </div>
+  </div>
 
-  <p>
-    <strong>Physical address:</strong>
-    <%= fleet_provider.physical_address %>
-  </p>
+  <!-- Tighter Info Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+      <p class="text-xs text-slate-500">Phone</p>
+      <p class="text-sm text-slate-900 dark:text-white"><%= fleet_provider.phone_number %></p>
+    </div>
+    <div>
+      <p class="text-xs text-slate-500">Email</p>
+      <p class="text-sm text-slate-900 dark:text-white"><%= fleet_provider.email %></p>
+    </div>
+    <div>
+      <p class="text-xs text-slate-500">License Status</p>
+      <p class="text-sm text-slate-900 dark:text-white"><%= fleet_provider.license_status %></p>
+    </div>
+    <div>
+      <p class="text-xs text-slate-500">License Expiry</p>
+      <p class="text-sm text-slate-900 dark:text-white"><%= fleet_provider.license_expiry_date.strftime('%B %d, %Y') %></p>
+    </div>
+    <div class="sm:col-span-2">
+      <p class="text-xs text-slate-500">Physical Address</p>
+      <p class="text-sm text-slate-900 dark:text-white"><%= fleet_provider.physical_address %></p>
+    </div>
+  </div>
 
-  <p>
-    <strong>Phone number:</strong>
-    <%= fleet_provider.phone_number %>
-  </p>
 
-  <p>
-    <strong>Email:</strong>
-    <%= fleet_provider.email %>
-  </p>
-
-  <p>
-    <strong>License status:</strong>
-    <%= fleet_provider.license_status %>
-  </p>
-
-  <p>
-    <strong>License expiry date:</strong>
-    <%= fleet_provider.license_expiry_date %>
-  </p>
-
+  <!-- Related Models -->
+  <div class="border-t border-slate-200 dark:border-slate-600 pt-6">
+    <h2 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Fleet Summary</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <%= link_to "#{fleet_provider.vehicles.count} Vehicles", vehicles_path(fleet_provider), class: "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 p-4 rounded-md shadow text-center font-medium hover:bg-blue-100 dark:hover:bg-blue-800 transition" %>
+      <%= link_to "#{fleet_provider.drivers.count} Drivers", drivers_path(fleet_provider), class: "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-200 p-4 rounded-md shadow text-center font-medium hover:bg-green-100 dark:hover:bg-green-800 transition" %>
+      <%= link_to "#{fleet_provider.trips.count} Trips", trips_path(fleet_provider), class: "bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-200 p-4 rounded-md shadow text-center font-medium hover:bg-yellow-100 dark:hover:bg-yellow-800 transition" %>
+    </div>
+  </div>
 </div>
