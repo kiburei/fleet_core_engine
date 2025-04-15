@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  root "dashboard#index"
   resources :trips
   resources :drivers
   resources :vehicles
@@ -26,13 +27,13 @@ Rails.application.routes.draw do
   end
 
   if Rails.env.development?
-     # Visit the start page for Rails UI any time at /railsui/start
+    # Visit the start page for Rails UI any time at /railsui/start
     mount Railsui::Engine, at: "/railsui"
   end
 
   # Inherits from Railsui::PageController#index
   # To override, add your own page#index view or change to a new root
-  root action: :index, controller: "railsui/default"
+  # root action: :index, controller: "railsui/default"
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
