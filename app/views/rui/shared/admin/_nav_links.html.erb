@@ -1,8 +1,18 @@
-<!-- Add your own nav links here. Below are links to the default admin-based pages installed with Rails UI. -->
-<% Railsui::Pages.installed_pages.each do |page, details| %>
-  <% if respond_to?(details['path'].to_sym) && details['add_to_nav'] && details['namespace'] == 'admin' %>
-    <%= content_tag :li do %>
-      <%= nav_link_to details['title'], send(details['path'].to_sym), class: "rui-nav-link--admin" %>
-    <% end %>
-  <% end %>
-<% end %>
+<div class="hidden md:flex md:items-center md:gap-x-8">
+  <%= nav_link_to "Dashboard", root_path, class: "rui-nav-link--admin" %>
+  <%= nav_link_to "Fleet Providers", fleet_providers_path, class: "rui-nav-link--admin" %>
+  <%= nav_link_to "Vehicles", vehicles_path, class: "rui-nav-link--admin" %>
+  <%= nav_link_to "Drivers", drivers_path, class: "rui-nav-link--admin" %>
+  <%= nav_link_to "Trips", trips_path, class: "rui-nav-link--admin" %>
+  <%= nav_link_to "Vehicle Models", vehicle_models_path, class: "rui-nav-link--admin" %>
+</div>
+
+<!-- Mobile menu (rendered below hamburger button) -->
+<div class="mt-3 space-y-1 md:hidden">
+  <%= nav_link_to "Dashboard", root_path, class: "rui-nav-link--admin block" %>
+  <%= nav_link_to "Fleet Providers", fleet_providers_path, class: "rui-nav-link--admin block" %>
+  <%= nav_link_to "Vehicles", vehicles_path, class: "rui-nav-link--admin block" %>
+  <%= nav_link_to "Drivers", drivers_path, class: "rui-nav-link--admin block" %>
+  <%= nav_link_to "Trips", trips_path, class: "rui-nav-link--admin block" %>
+  <%= nav_link_to "Vehicle Models", vehicle_models_path, class: "rui-nav-link--admin block" %>
+</div>

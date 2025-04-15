@@ -1,3 +1,9 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Drivers" } do %>
+    <%= render "rui/shared/admin/create_dropdown" %>
+  <% end %>
+<% end%>
+
 <p style="color: green"><%= notice %></p>
 
 <% content_for :title, "Drivers" %>
