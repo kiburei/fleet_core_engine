@@ -4,6 +4,7 @@ class FleetProvidersController < ApplicationController
   # GET /fleet_providers or /fleet_providers.json
   def index
     @fleet_providers = FleetProvider.all
+    @fleet_provider = FleetProvider.new
   end
 
   # GET /fleet_providers/1 or /fleet_providers/1.json

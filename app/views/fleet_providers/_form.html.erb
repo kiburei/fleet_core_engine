@@ -1,52 +1,53 @@
-<%= form_with(model: fleet_provider) do |form| %>
-  <% if fleet_provider.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(fleet_provider.errors.count, "error") %> prohibited this fleet_provider from being saved:</h2>
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <%= form_with(model: fleet_provider, class: "space-y-6 bg-white dark:bg-slate-800 p-8 rounded-lg shadow") do |form| %>
+    <% if fleet_provider.errors.any? %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+        <h2 class="font-semibold mb-2"><%= pluralize(fleet_provider.errors.count, "error") %> prohibited this Fleet Provider from being saved:</h2>
+        <ul class="list-disc list-inside text-sm">
+          <% fleet_provider.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-      <ul>
-        <% fleet_provider.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <div>
+      <%= form.label :name, class: "block font-medium text-gray-700 dark:text-slate-200" %>
+      <%= form.text_field :name, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <div>
+      <%= form.label :registration_number, class: "block font-medium text-gray-700 dark:text-slate-200" %>
+      <%= form.text_field :registration_number, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <div>
+      <%= form.label :physical_address, class: "block font-medium text-gray-700 dark:text-slate-200" %>
+      <%= form.text_field :physical_address, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <div>
+      <%= form.label :phone_number, class: "block font-medium text-gray-700 dark:text-slate-200" %>
+      <%= form.text_field :phone_number, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <div>
+      <%= form.label :email, class: "block font-medium text-gray-700 dark:text-slate-200" %>
+      <%= form.email_field :email, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <div>
+      <%= form.label :license_status, class: "block font-medium text-gray-700 dark:text-slate-200" %>
+      <%= form.text_field :license_status, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <div>
+      <%= form.label :license_expiry_date, class: "block font-medium text-gray-700 dark:text-slate-200" %>
+      <%= form.date_field :license_expiry_date, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <div class="pt-4">
+      <%= form.submit "Save Fleet Provider", class: "btn btn-primary" %>
     </div>
   <% end %>
-
-  <div>
-    <%= form.label :name, style: "display: block" %>
-    <%= form.text_field :name %>
-  </div>
-
-  <div>
-    <%= form.label :registration_number, style: "display: block" %>
-    <%= form.text_field :registration_number %>
-  </div>
-
-  <div>
-    <%= form.label :physical_address, style: "display: block" %>
-    <%= form.text_field :physical_address %>
-  </div>
-
-  <div>
-    <%= form.label :phone_number, style: "display: block" %>
-    <%= form.text_field :phone_number %>
-  </div>
-
-  <div>
-    <%= form.label :email, style: "display: block" %>
-    <%= form.text_field :email %>
-  </div>
-
-  <div>
-    <%= form.label :license_status, style: "display: block" %>
-    <%= form.text_field :license_status %>
-  </div>
-
-  <div>
-    <%= form.label :license_expiry_date, style: "display: block" %>
-    <%= form.date_field :license_expiry_date %>
-  </div>
-
-  <div>
-    <%= form.submit %>
-  </div>
-<% end %>
+</div>
