@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_15_065823) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_16_084939) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -49,6 +49,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_15_065823) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "activities", force: :cascade do |t|
+    t.integer "vehicle_id", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["vehicle_id"], name: "index_activities_on_vehicle_id"
+  end
+
   create_table "drivers", force: :cascade do |t|
     t.string "first_name"
     t.string "middle_name"
@@ -73,6 +81,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_15_065823) do
     t.date "license_expiry_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "incidents", force: :cascade do |t|
+    t.integer "vehicle_id", null: false
+    t.date "incident_date"
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["vehicle_id"], name: "index_incidents_on_vehicle_id"
+  end
+
+  create_table "maintenances", force: :cascade do |t|
+    t.integer "vehicle_id", null: false
+    t.date "maintenance_date"
+    t.string "description"
+    t.decimal "maintenance_cost"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["vehicle_id"], name: "index_maintenances_on_vehicle_id"
   end
 
   create_table "trips", force: :cascade do |t|
@@ -117,8 +144,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_15_065823) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "activities", "vehicles"
   add_foreign_key "drivers", "fleet_providers"
   add_foreign_key "drivers", "vehicles"
+  add_foreign_key "incidents", "vehicles"
+  add_foreign_key "maintenances", "vehicles"
   add_foreign_key "trips", "drivers"
   add_foreign_key "trips", "fleet_providers"
   add_foreign_key "trips", "vehicles"

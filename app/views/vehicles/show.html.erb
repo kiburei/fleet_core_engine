@@ -1,10 +1,15 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Fleet Providers" } do %>
+  <div class="flex flex-wrap gap-4 mt-6">
+    <%= link_to "Edit", edit_vehicle_path(@vehicle), class: "btn btn-secondary" %>
+    <%= link_to "Back", vehicles_path, class: "btn btn-primary" %>
+    <%= button_to "Destroy", @vehicle, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger" %>
+  </div>
+  <% end %>
+<% end%>
+
 <p style="color: green"><%= notice %></p>
 
-<%= render @vehicle %>
-
-<div>
-  <%= link_to "Edit this vehicle", edit_vehicle_path(@vehicle) %> |
-  <%= link_to "Back to vehicles", vehicles_path %>
-
-  <%= button_to "Destroy this vehicle", @vehicle, method: :delete %>
+<div class="pt-4 px-4 sm:px-6 lg:px-8">
+  <%= render @vehicle %>
 </div>

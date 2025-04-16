@@ -1,3 +1,7 @@
+# Seed sample Vehicle Models for use in Kenya
+VehicleModel.create([
+  make: 'Toyota', model: "Toyota Hilux", category: "commercial", year: 2020, fuel_type: 'Diesel', capacity: 5, transmission: "Manual", body_type: "pickup", created_at: Time.now, updated_at: Time.now
+])
 # Seed sample FleetProviders
 FleetProvider.create([
   name: 'FleetProvider 1', registration_number: 'FP123456', physical_address: '123 Fleet St, Fleet City, FC 12345', email: 'fleet1@fleet', license_status: 'active', license_expiry_date: Date.today + rand(1..12).months, created_at: Time.now, updated_at: Time.now,

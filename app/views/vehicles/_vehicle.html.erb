@@ -1,22 +1,94 @@
-<div id="<%= dom_id vehicle %>">
-  <p>
-    <strong>Vehicle model:</strong>
-    <%= vehicle.vehicle_model_id %>
-  </p>
+<div class="max-w-5xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow space-y-8">
 
-  <p>
-    <strong>Registration number:</strong>
-    <%= vehicle.registration_number %>
-  </p>
+  <!-- Vehicle Header -->
+  <div class="flex justify-between items-start gap-6 flex-wrap sm:flex-nowrap">
+  <!-- Left: Image + Title -->
+  <div class="flex items-center gap-6">
+    <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center">
+      <%= image_tag "https://via.placeholder.com/100x100.png?text=Car", alt: "Vehicle Image", class: "object-cover w-full h-full" %>
+    </div>
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white"><%= @vehicle.registration_number %></h1>
+      <p class="text-sm text-slate-500 mt-1">Status: <%= @vehicle.status.capitalize %></p>
+    </div>
+  </div>
 
-  <p>
-    <strong>Status:</strong>
-    <%= vehicle.status %>
-  </p>
+  <!-- Right: Actions -->
+  <div class="flex gap-3 mt-4 sm:mt-0 sm:ml-auto">
+    <%= link_to "Assign Driver", "/", class: "btn btn-primary" %>
+    <%= link_to "Maintenance", "/", class: "btn btn-primary" %>
+  </div>
+</div>
 
-  <p>
-    <strong>Fleet provider:</strong>
-    <%= vehicle.fleet_provider_id %>
-  </p>
 
+  <!-- Info Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <p class="text-xs text-slate-500">Model</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= @vehicle.vehicle_model&.model %></p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <p class="text-xs text-slate-500">Make</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= @vehicle.vehicle_model&.make %></p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <%= link_to fleet_provider_path(@vehicle.fleet_provider) do %>
+        <p class="text-xs text-slate-500">Fleet Provider</p>
+        <p class="text-base font-medium text-slate-900 dark:text-white"><%= @vehicle.fleet_provider&.name %></p>
+      <% end %>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <p class="text-xs text-slate-500">Created At</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= @vehicle.created_at.strftime('%B %d, %Y') %></p>
+    </div>
+  </div>
+
+  <!-- Driver Info -->
+  <% if @vehicle.driver.present? %>
+    <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
+      <h2 class="text-lg font-semibold mb-2 text-slate-800 dark:text-white">Assigned Driver</h2>
+      <p class="text-sm"><strong>Name:</strong> <%= @vehicle.driver.full_name %></p>
+      <p class="text-sm"><strong>Phone:</strong> <%= @vehicle.driver.phone_number %></p>
+    </div>
+  <% end %>
+
+  <!-- Dashboard Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+    <!-- Maintenance Card -->
+    <%= link_to root_path(@vehicle), class: "bg-blue-500 dark:bg-blue-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
+      <p class="text-sm text-blue-800 dark:text-blue-300 font-semibold">Maintenances</p>
+      <p class="text-2xl font-bold text-blue-900 dark:text-blue-100 mt-1"><%= @vehicle.maintenances.count %></p>
+      <% total_cost = @vehicle.maintenances.sum(:maintenance_cost) %>
+      <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">Total Cost: <%= number_to_currency(total_cost, unit: "KES ") %></p>
+    <% end %>
+
+    <!-- Incidents Card -->
+    <%= link_to root_path(@vehicle), class: "bg-red-500 dark:bg-red-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
+      <p class="text-sm text-red-800 dark:text-red-300 font-semibold">Incidents</p>
+      <p class="text-2xl font-bold text-red-900 dark:text-red-100 mt-1"><%= @vehicle.incidents.count %></p>
+    <% end %>
+
+    <!-- Documents Card -->
+    <%= link_to root_path(@vehicle), class: "bg-green-500 dark:bg-green-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
+      <p class="text-sm text-green-800 dark:text-green-300 font-semibold">Documents</p>
+      <p class="text-2xl font-bold text-green-900 dark:text-green-100 mt-1"><%= rand(1..10) %></p>
+    <% end %>
+  </div>
+
+  <!-- Vehicle Activity Log -->
+  <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
+    <h2 class="text-lg font-semibold mb-3 text-slate-800 dark:text-white">Vehicle Activity Log</h2>
+    <% if @vehicle.activities.any? %>
+      <ul class="text-sm text-slate-700 dark:text-slate-300 space-y-1">
+        <% @vehicle.activities.order(created_at: :desc).limit(10).each do |activity| %>
+          <li>
+            <span class="text-xs text-slate-500"><%= activity.created_at.strftime('%b %d, %Y %H:%M') %></span>
+            — <%= activity.description %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-slate-500 text-sm">No activity recorded yet.</p>
+    <% end %>
+  </div>
 </div>

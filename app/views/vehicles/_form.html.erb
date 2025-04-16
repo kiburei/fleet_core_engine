@@ -1,37 +1,43 @@
-<%= form_with(model: vehicle) do |form| %>
-  <% if vehicle.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(vehicle.errors.count, "error") %> prohibited this vehicle from being saved:</h2>
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <%= form_with(model: vehicle, local: true, class: "space-y-6") do |form| %>
+    <% if vehicle.errors.any? %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+        <h2 class="font-semibold mb-2"><%= pluralize(vehicle.errors.count, "error") %> prohibited this vehicle from being saved:</h2>
+        <ul class="list-disc list-inside text-sm">
+          <% vehicle.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-      <ul>
-        <% vehicle.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <!-- Registration Number -->
+    <div>
+      <%= form.label :registration_number, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.text_field :registration_number, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <!-- Status -->
+    <div>
+      <%= form.label :status, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.select :status, options_for_select(["active", "inactive", "maintenance"], vehicle.status), {}, class: "form-select mt-1 block w-full" %>
+    </div>
+
+    <!-- Vehicle Model -->
+    <div>
+      <%= form.label :vehicle_model_id, "Vehicle Model", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.collection_select :vehicle_model_id, VehicleModel.all, :id, :model, { prompt: "Select a model" }, class: "form-select mt-1 block w-full" %>
+    </div>
+
+    <!-- Fleet Provider -->
+    <div>
+      <%= form.label :fleet_provider_id, "Fleet Provider", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.collection_select :fleet_provider_id, FleetProvider.all, :id, :name, { prompt: "Select a provider" }, class: "form-select mt-1 block w-full" %>
+    </div>
+
+    <!-- Submit -->
+    <div class="pt-4">
+      <%= form.submit "Save Vehicle", class: "btn btn-primary" %>
     </div>
   <% end %>
-
-  <div>
-    <%= form.label :vehicle_model_id, style: "display: block" %>
-    <%= form.text_field :vehicle_model_id %>
-  </div>
-
-  <div>
-    <%= form.label :registration_number, style: "display: block" %>
-    <%= form.text_field :registration_number %>
-  </div>
-
-  <div>
-    <%= form.label :status, style: "display: block" %>
-    <%= form.text_field :status %>
-  </div>
-
-  <div>
-    <%= form.label :fleet_provider_id, style: "display: block" %>
-    <%= form.text_field :fleet_provider_id %>
-  </div>
-
-  <div>
-    <%= form.submit %>
-  </div>
-<% end %>
+</div>
