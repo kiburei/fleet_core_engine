@@ -3,7 +3,14 @@ class DriversController < ApplicationController
 
   # GET /drivers or /drivers.json
   def index
-    @drivers = Driver.all
+    @driver = Driver.new
+
+    if params[:fleet_provider_id]
+      @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
+      @drivers = @fleet_provider.drivers.includes(:vehicle)
+    else
+      @drivers = Driver.includes(:vehicle, :fleet_provider).all
+    end
   end
 
   # GET /drivers/1 or /drivers/1.json

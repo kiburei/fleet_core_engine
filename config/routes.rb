@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :vehicle_models
   resources :fleet_providers do
     resources :vehicles, only: [ :index, :show ]
+    resources :drivers, only: [ :index, :show ]
   end
 
   namespace :rui do

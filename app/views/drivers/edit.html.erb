@@ -1,12 +1,11 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Drivers" } do %>
+  <%= link_to "Back to Drivers", drivers_path, class: "btn btn-primary" %>
+  <% end %>
+<% end%>
+
 <% content_for :title, "Editing driver" %>
 
-<h1>Editing driver</h1>
-
-<%= render "form", driver: @driver %>
-
-<br>
-
-<div>
-  <%= link_to "Show this driver", @driver %> |
-  <%= link_to "Back to drivers", drivers_path %>
+<div class="pt-4 px-4 sm:px-6 lg:px-8">
+  <%= render "form", driver: @driver %>
 </div>

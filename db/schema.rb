@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_16_084939) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_16_110659) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -67,6 +67,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_16_084939) do
     t.integer "fleet_provider_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "blood_group"
+    t.date "license_expiry_date"
+    t.string "license_status"
     t.index ["fleet_provider_id"], name: "index_drivers_on_fleet_provider_id"
     t.index ["vehicle_id"], name: "index_drivers_on_vehicle_id"
   end
@@ -89,6 +92,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_16_084939) do
     t.string "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "driver_id", null: false
+    t.index ["driver_id"], name: "index_incidents_on_driver_id"
     t.index ["vehicle_id"], name: "index_incidents_on_vehicle_id"
   end
 
@@ -147,6 +152,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_16_084939) do
   add_foreign_key "activities", "vehicles"
   add_foreign_key "drivers", "fleet_providers"
   add_foreign_key "drivers", "vehicles"
+  add_foreign_key "incidents", "drivers"
   add_foreign_key "incidents", "vehicles"
   add_foreign_key "maintenances", "vehicles"
   add_foreign_key "trips", "drivers"

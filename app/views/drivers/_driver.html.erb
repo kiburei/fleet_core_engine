@@ -1,37 +1,88 @@
-<div id="<%= dom_id driver %>">
-  <p>
-    <strong>First name:</strong>
-    <%= driver.first_name %>
-  </p>
+<div id="<%= dom_id driver %>" class="max-w-5xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+        <%= "#{driver.first_name} #{driver.last_name}" %>
+      </h2>
+      <p class="text-sm text-slate-500">License #: <%= driver.license_number %></p>
+    </div>
+  </div>
 
-  <p>
-    <strong>Middle name:</strong>
-    <%= driver.middle_name %>
-  </p>
+  <!-- Key Info -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <p class="text-xs text-slate-500">Phone Number</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= driver.phone_number %></p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <p class="text-xs text-slate-500">Blood Group</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= driver.blood_group || "N/A" %></p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <%= link_to fleet_provider_path(driver.fleet_provider) do %>
+        <p class="text-xs text-slate-500">Fleet Provider</p>
+        <p class="text-base font-medium text-slate-900 dark:text-white"><%= driver.fleet_provider&.name || "Unassigned" %></p>
+      <% end %>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <%= link_to vehicle_path(driver.vehicle) do %>
+        <p class="text-xs text-slate-500">Assigned Vehicle</p>
+        <p class="text-base font-medium text-slate-900 dark:text-white"><%= driver.vehicle&.registration_number || "Unassigned" %></p>
+      <% end %>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <p class="text-xs text-slate-500">License Expiry</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= driver.license_expiry_date&.strftime('%B %d, %Y') || "Not Set" %></p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <p class="text-xs text-slate-500">License Status</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= driver.license_status || "Unknown" %></p>
+    </div>
+  </div>
 
-  <p>
-    <strong>Last name:</strong>
-    <%= driver.last_name %>
-  </p>
+  <!-- Mini Dashboard Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Trips -->
+    <%= link_to root_path(driver), class: "bg-indigo-500 dark:bg-indigo-900/30 p-4 rounded-md shadow hover:shadow-md transition block" do %>
+      <p class="text-sm text-indigo-700 dark:text-indigo-200 font-semibold">Trips Taken</p>
+      <p class="text-2xl font-bold text-indigo-900 dark:text-indigo-100 mt-1"><%= driver.trips&.count || 0 %></p>
+    <% end %>
 
-  <p>
-    <strong>License number:</strong>
-    <%= driver.license_number %>
-  </p>
+    <!-- Incidents -->
+    <%= link_to root_path(driver), class: "bg-red-500 dark:bg-red-900/30 p-4 rounded-md shadow hover:shadow-md transition block" do %>
+      <p class="text-sm text-red-700 dark:text-red-200 font-semibold">Reported Incidents</p>
+      <p class="text-2xl font-bold text-red-900 dark:text-red-100 mt-1"><%= driver.incidents&.count || 0 %></p>
+    <% end %>
 
-  <p>
-    <strong>Phone number:</strong>
-    <%= driver.phone_number %>
-  </p>
+    <!-- Upcoming Renewal -->
+    <% renewal_days = driver.license_expiry_date ? (driver.license_expiry_date - Date.today).to_i : nil %>
+    <div class="bg-yellow-500 dark:bg-yellow-900/30 p-4 rounded-md shadow">
+      <p class="text-sm text-yellow-700 dark:text-yellow-200 font-semibold">License Renewal</p>
+      <p class="text-base font-bold text-yellow-900 dark:text-yellow-100 mt-1">
+        <% if renewal_days.present? %>
+          <%= renewal_days <= 0 ? "Expired" : "#{renewal_days} day(s) left" %>
+        <% else %>
+          Not Set
+        <% end %>
+      </p>
+    </div>
+  </div>
 
-  <p>
-    <strong>Vehicle:</strong>
-    <%= driver.vehicle_id %>
-  </p>
-
-  <p>
-    <strong>Fleet provider:</strong>
-    <%= driver.fleet_provider_id %>
-  </p>
-
+  <!-- Optional: Activity Timeline -->
+  <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm mt-4">
+    <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Recent Activity</h3>
+    <%# <% if driver.activities&.any? %>
+    <% if 1 > 2 %>
+      <ul class="text-sm space-y-1">
+        <% driver.activities.order(created_at: :desc).limit(5).each do |activity| %>
+          <li>
+            <span class="text-xs text-slate-500"><%= activity.created_at.strftime('%b %d, %Y %H:%M') %></span> — <%= activity.description %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-slate-500 text-sm">No recent activity logged.</p>
+    <% end %>
+  </div>
 </div>
