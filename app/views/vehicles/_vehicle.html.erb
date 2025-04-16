@@ -46,9 +46,11 @@
   <!-- Driver Info -->
   <% if @vehicle.driver.present? %>
     <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
-      <h2 class="text-lg font-semibold mb-2 text-slate-800 dark:text-white">Assigned Driver</h2>
-      <p class="text-sm"><strong>Name:</strong> <%= @vehicle.driver.full_name %></p>
-      <p class="text-sm"><strong>Phone:</strong> <%= @vehicle.driver.phone_number %></p>
+      <%= link_to driver_path(@vehicle.driver) do %>
+        <h2 class="text-lg font-semibold mb-2 text-slate-800 dark:text-white">Assigned Driver</h2>
+        <p class="text-sm"><strong>Name:</strong> <%= @vehicle.driver.full_name %></p>
+        <p class="text-sm"><strong>Phone:</strong> <%= @vehicle.driver.phone_number %></p>
+      <% end %>
     </div>
   <% end %>
 

@@ -1,13 +1,20 @@
 <div id="<%= dom_id driver %>" class="max-w-5xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow space-y-6">
   <!-- Header -->
   <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-    <div>
-      <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">
-        <%= "#{driver.first_name} #{driver.last_name}" %>
-      </h2>
-      <p class="text-sm text-slate-500">License #: <%= driver.license_number %></p>
+    <!-- Left: Image + Name/License -->
+    <div class="flex items-center gap-4">
+      <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center">
+        <%= image_tag "https://via.placeholder.com/100x100.png?text=DR", alt: "Driver Image", class: "object-cover w-full h-full" %>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+          <%= "#{driver.first_name} #{driver.last_name}" %>
+        </h2>
+        <p class="text-sm text-slate-500">License #: <%= driver.license_number %></p>
+      </div>
     </div>
   </div>
+
 
   <!-- Key Info -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
