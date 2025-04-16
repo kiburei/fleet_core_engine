@@ -40,7 +40,7 @@
   <div class="border-t border-slate-200 dark:border-slate-600 pt-6">
     <h2 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">Fleet Summary</h2>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <%= link_to "#{fleet_provider.vehicles.count} Vehicles", vehicles_path(fleet_provider), class: "bg-blue-500 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 p-4 rounded-md shadow text-center font-medium hover:bg-blue-100 dark:hover:bg-blue-800 transition" %>
+      <%= link_to "#{fleet_provider.vehicles.count} Vehicles", fleet_provider_vehicles_path(fleet_provider), class: "bg-blue-500 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 p-4 rounded-md shadow text-center font-medium hover:bg-blue-100 dark:hover:bg-blue-800 transition" %>
       <%= link_to "#{fleet_provider.drivers.count} Drivers", drivers_path(fleet_provider), class: "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-200 p-4 rounded-md shadow text-center font-medium hover:bg-green-100 dark:hover:bg-green-800 transition" %>
       <%= link_to "#{fleet_provider.trips.count} Trips", trips_path(fleet_provider), class: "bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-200 p-4 rounded-md shadow text-center font-medium hover:bg-yellow-100 dark:hover:bg-yellow-800 transition" %>
     </div>

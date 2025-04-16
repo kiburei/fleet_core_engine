@@ -3,8 +3,14 @@ class VehiclesController < ApplicationController
 
   # GET /vehicles or /vehicles.json
   def index
-    @vehicles = Vehicle.all
     @vehicle = Vehicle.new
+
+    if params[:fleet_provider_id]
+      @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
+      @vehicles = @fleet_provider.vehicles.includes(:vehicle_model)
+    else
+      @vehicles = Vehicle.includes(:vehicle_model, :fleet_provider).all
+    end
   end
 
   # GET /vehicles/1 or /vehicles/1.json

@@ -4,7 +4,9 @@ Rails.application.routes.draw do
   resources :drivers
   resources :vehicles
   resources :vehicle_models
-  resources :fleet_providers
+  resources :fleet_providers do
+    resources :vehicles, only: [ :index, :show ]
+  end
 
   namespace :rui do
     get "about", to: "pages#about"
