@@ -1,37 +1,94 @@
-<div id="<%= dom_id trip %>">
-  <p>
-    <strong>Vehicle:</strong>
-    <%= trip.vehicle_id %>
-  </p>
+<div class="max-w-5xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow space-y-6">
+  <!-- Page Title & Actions -->
+  <div class="flex justify-between items-start flex-wrap gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Trip Overview</h1>
+      <p class="text-sm text-slate-500">Trip ID: <%= @trip.id %></p>
+    </div>
+    <div class="flex gap-3">
+      <%= link_to "Edit", edit_trip_path(@trip), class: "btn btn-warning" %>
+      <%= link_to "Back", trips_path, class: "btn btn-primary" %>
+      <%= button_to "Delete", @trip, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger" %>
+    </div>
+  </div>
 
-  <p>
-    <strong>Driver:</strong>
-    <%= trip.driver_id %>
-  </p>
+  <!-- Trip Info Summary -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <%= link_to vehicle_path(@trip.vehicle)  do %>
+        <p class="text-xs text-slate-500">Vehicle</p>
+        <p class="text-base font-medium text-slate-900 dark:text-white"><%= @trip.vehicle&.registration_number || "Unassigned" %></p>
+      <% end %>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <%= link_to driver_path(@trip.driver) do %>
+        <p class="text-xs text-slate-500">Driver</p>
+        <p class="text-base font-medium text-slate-900 dark:text-white">
+          <%= [@trip.driver&.first_name, @trip.driver&.last_name].join(" ") %>
+        </p>
+      <% end %>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <p class="text-xs text-slate-500">Status</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white capitalize"><%= @trip.status || "Unknown" %></p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <p class="text-xs text-slate-500">Departure</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= @trip.departure_time&.strftime("%b %d, %Y %H:%M") %></p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <p class="text-xs text-slate-500">Arrival (est)</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= @trip.arrival_time&.strftime("%b %d, %Y %H:%M") %></p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded">
+      <p class="text-xs text-slate-500">Route</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= @trip.origin %> → <%= @trip.destination %></p>
+    </div>
+  </div>
 
-  <p>
-    <strong>Origin:</strong>
-    <%= trip.origin %>
-  </p>
+  <!-- Live Map Placeholder -->
+  <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
+    <h2 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Live Trip Map</h2>
+    <div class="w-full h-64 bg-slate-200 dark:bg-slate-600 flex items-center justify-center rounded">
+      <p class="text-slate-500">[ Map will render here — integrate with Mapbox or Google Maps ]</p>
+    </div>
+  </div>
 
-  <p>
-    <strong>Destination:</strong>
-    <%= trip.destination %>
-  </p>
+  <!-- Trip Manifest -->
+  <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
+    <h2 class="text-lg font-semibold text-slate-800 dark:text-white mb-3">Trip Manifest</h2>
 
-  <p>
-    <strong>Departure time:</strong>
-    <%= trip.departure_time %>
-  </p>
+    <% if @trip.manifest&.any? %>
+      <ul class="text-sm space-y-2">
+        <% @trip.manifest.manifest_items.each do |item| %>
+          <li class="flex justify-between border-b border-slate-200 dark:border-slate-600 pb-2">
+            <span class="text-slate-800 dark:text-white"><%= item.description %></span>
+            <span class="text-slate-500"><%= item.quantity %> <%= item.unit %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-slate-500 text-sm">No passengers or goods recorded yet.</p>
+    <% end %>
+  </div>
 
-  <p>
-    <strong>Arrival time:</strong>
-    <%= trip.arrival_time %>
-  </p>
+  <!-- Optional Metrics -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-emerald-500 dark:bg-emerald-900/40 p-4 rounded shadow">
+      <p class="text-sm font-semibold text-emerald-700 dark:text-emerald-200">Distance (est)</p>
+      <p class="text-xl font-bold text-emerald-900 dark:text-emerald-100 mt-1">75 km</p>
+    </div>
 
-  <p>
-    <strong>Status:</strong>
-    <%= trip.status %>
-  </p>
+    <div class="bg-blue-500 dark:bg-blue-900/40 p-4 rounded shadow">
+      <p class="text-sm font-semibold text-blue-700 dark:text-blue-200">Trip Duration (est)</p>
+      <p class="text-xl font-bold text-blue-900 dark:text-blue-100 mt-1">2 hrs 30 mins</p>
+    </div>
 
+    <div class="bg-yellow-500 dark:bg-yellow-900/40 p-4 rounded shadow">
+      <%= link_to fleet_provider_path(@trip.fleet_provider) do %>
+        <p class="text-sm font-semibold text-yellow-700 dark:text-yellow-200">Fleet Provider</p>
+        <p class="text-base font-medium text-yellow-900 dark:text-yellow-100 mt-1"><%= @trip.fleet_provider&.name || "N/A" %></p>
+      <% end %>
+    </div>
+  </div>
 </div>

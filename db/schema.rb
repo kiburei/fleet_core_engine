@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_16_110659) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_18_112502) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -107,6 +107,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_16_110659) do
     t.index ["vehicle_id"], name: "index_maintenances_on_vehicle_id"
   end
 
+  create_table "manifest_items", force: :cascade do |t|
+    t.integer "manifest_id", null: false
+    t.string "item_type"
+    t.string "description"
+    t.integer "quantity"
+    t.string "unit"
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["manifest_id"], name: "index_manifest_items_on_manifest_id"
+  end
+
+  create_table "manifests", force: :cascade do |t|
+    t.integer "trip_id", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["trip_id"], name: "index_manifests_on_trip_id"
+  end
+
   create_table "trips", force: :cascade do |t|
     t.integer "vehicle_id", null: false
     t.integer "driver_id", null: false
@@ -155,6 +175,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_16_110659) do
   add_foreign_key "incidents", "drivers"
   add_foreign_key "incidents", "vehicles"
   add_foreign_key "maintenances", "vehicles"
+  add_foreign_key "manifest_items", "manifests"
+  add_foreign_key "manifests", "trips"
   add_foreign_key "trips", "drivers"
   add_foreign_key "trips", "fleet_providers"
   add_foreign_key "trips", "vehicles"

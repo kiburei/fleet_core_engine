@@ -4,6 +4,7 @@ class TripsController < ApplicationController
   # GET /trips or /trips.json
   def index
     @trips = Trip.all
+    @trip = Trip.new
   end
 
   # GET /trips/1 or /trips/1.json
@@ -65,6 +66,6 @@ class TripsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def trip_params
-      params.expect(trip: [ :vehicle_id, :driver_id, :origin, :destination, :departure_time, :arrival_time, :status ])
+      params.expect(trip: [ :fleet_provider_id, :vehicle_id, :driver_id, :origin, :destination, :departure_time, :arrival_time, :status ])
     end
 end

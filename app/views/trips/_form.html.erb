@@ -1,52 +1,73 @@
-<%= form_with(model: trip) do |form| %>
-  <% if trip.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(trip.errors.count, "error") %> prohibited this trip from being saved:</h2>
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <%= form_with(model: trip, local: true, class: "space-y-6", html: { multipart: true }) do |form| %>
+    <% if trip.errors.any? %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <h2 class="font-semibold mb-2"><%= pluralize(trip.errors.count, "error") %> prohibited this trip from being saved:</h2>
+        <ul class="list-disc list-inside text-sm">
+          <% trip.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-      <ul>
-        <% trip.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <!-- Fleet -->
+    <div>
+      <%= form.label :fleet_provider_id, "Select Fleet Provider", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.collection_select :fleet_provider_id, FleetProvider.all, :id, :name,
+            { prompt: "Choose fleet" },
+            class: "form-select mt-1 block w-full" %>
+    </div>
+
+    <!-- Vehicle -->
+    <div>
+      <%= form.label :vehicle_id, "Select Vehicle", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.collection_select :vehicle_id, Vehicle.all, :id, :registration_number,
+            { prompt: "Choose vehicle" },
+            class: "form-select mt-1 block w-full" %>
+    </div>
+
+    <!-- Driver -->
+    <div>
+      <%= form.label :driver_id, "Assign Driver", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.collection_select :driver_id, Driver.all, :id, ->(d) { "#{d.first_name} #{d.last_name}" },
+            { prompt: "Choose driver" },
+            class: "form-select mt-1 block w-full" %>
+    </div>
+
+    <!-- Origin -->
+    <div>
+      <%= form.label :origin, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.text_field :origin, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <!-- Destination -->
+    <div>
+      <%= form.label :destination, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.text_field :destination, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <!-- Departure Time -->
+    <div>
+      <%= form.label :departure_time, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.datetime_local_field :departure_time, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <!-- Arrival Time -->
+    <div>
+      <%= form.label :arrival_time, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.datetime_local_field :arrival_time, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <!-- Status -->
+    <div>
+      <%= form.label :status, "Trip Status", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.select :status, ["scheduled", "active", "completed", "cancelled"], { prompt: "Choose status" }, class: "form-select mt-1 block w-full" %>
+    </div>
+
+    <!-- Submit -->
+    <div class="pt-4">
+      <%= form.submit "Save Trip", class: "btn btn-primary" %>
     </div>
   <% end %>
-
-  <div>
-    <%= form.label :vehicle_id, style: "display: block" %>
-    <%= form.text_field :vehicle_id %>
-  </div>
-
-  <div>
-    <%= form.label :driver_id, style: "display: block" %>
-    <%= form.text_field :driver_id %>
-  </div>
-
-  <div>
-    <%= form.label :origin, style: "display: block" %>
-    <%= form.text_field :origin %>
-  </div>
-
-  <div>
-    <%= form.label :destination, style: "display: block" %>
-    <%= form.text_field :destination %>
-  </div>
-
-  <div>
-    <%= form.label :departure_time, style: "display: block" %>
-    <%= form.datetime_field :departure_time %>
-  </div>
-
-  <div>
-    <%= form.label :arrival_time, style: "display: block" %>
-    <%= form.datetime_field :arrival_time %>
-  </div>
-
-  <div>
-    <%= form.label :status, style: "display: block" %>
-    <%= form.text_field :status %>
-  </div>
-
-  <div>
-    <%= form.submit %>
-  </div>
-<% end %>
+</div>
