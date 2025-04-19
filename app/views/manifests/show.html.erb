@@ -1,0 +1,11 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Manifest" } do %>
+  <%= link_to "Back to trip", trip_path(@manifest.trip), class: "btn btn-primary" %>
+  <% end %>
+<% end%>
+
+<p style="color: green"><%= notice %></p>
+
+<div class="pt-4 px-4 sm:px-6 lg:px-8">
+  <%= render @manifest %>
+</div>

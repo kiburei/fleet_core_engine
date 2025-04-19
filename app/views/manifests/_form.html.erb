@@ -1,0 +1,51 @@
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <%= form_with model: [@trip, @manifest], scope: :manifest, url: @manifest.persisted? ? trip_manifest_path(@trip) : trip_manifest_path(@trip), method: @manifest.persisted? ? :patch : :post, local: true, class: "space-y-6" do |f| %>
+
+    <% if @manifest.errors.any? %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <strong><%= pluralize(@manifest.errors.count, "error") %> prohibited this manifest from being saved:</strong>
+        <ul class="mt-2 list-disc list-inside text-sm">
+          <% @manifest.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- Notes -->
+    <div>
+      <%= f.label :notes, "General Notes", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= f.text_area :notes, rows: 3, class: "form-textarea mt-1 block w-full" %>
+    </div>
+
+    <h3 class="text-lg font-semibold text-slate-800 dark:text-white pt-4">Manifest Items</h3>
+
+    <div data-controller="manifest-items">
+      <div data-manifest-items-target="items" class="space-y-4">
+        <%= f.fields_for :manifest_items do |item_form| %>
+          <%= render "manifests/manifest_item_fields", f: item_form %>
+        <% end %>
+      </div>
+
+      <div class="mt-4">
+        <button type="button" class="btn btn-sm btn-secondary" data-action="click->manifest-items#addItem">
+          + Add Manifest Item
+        </button>
+      </div>
+
+      <template data-manifest-items-target="template">
+        <div data-manifest-item-wrapper data-new-record="true">
+          <%= f.fields_for :manifest_items, ManifestItem.new, child_index: "NEW_RECORD" do |item_form| %>
+            <%= render "manifests/manifest_item_fields", f: item_form %>
+          <% end %>
+        </div>
+      </template>
+    </div>
+
+    <!-- Submit -->
+    <div class="pt-4 flex justify-end">
+      <%= f.submit "Save Manifest", class: "btn btn-primary" %>
+    </div>
+
+  <% end %>
+</div>

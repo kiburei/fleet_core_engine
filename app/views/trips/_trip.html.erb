@@ -56,21 +56,63 @@
 
   <!-- Trip Manifest -->
   <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
-    <h2 class="text-lg font-semibold text-slate-800 dark:text-white mb-3">Trip Manifest</h2>
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Trip Manifest</h2>
 
-    <% if @trip.manifest&.any? %>
+      <% unless @trip.manifest&.persisted? %>
+        <div data-controller="railsui-modal">
+          <button type="button"
+                  data-action="click->railsui-modal#open"
+                  class="btn btn-primary">
+            Create Manifest
+          </button>
+
+          <div data-railsui-modal-target="container"
+              class="hidden fixed inset-0 z-50 overflow-y-auto"
+              aria-modal="true"
+              role="dialog"
+              data-action="keyup@window->railsui-modal#closeWithEsc">
+            <div class="h-screen w-full flex items-center justify-center">
+              <div data-railsui-modal-target="content"
+                  class="hidden max-w-3xl w-full bg-white dark:bg-slate-800 p-6 rounded-lg shadow-xl relative"
+                  data-transition-enter-active="transition ease-out duration-300"
+                  data-transition-enter-from="transform opacity-0 scale-95"
+                  data-transition-enter-to="transform opacity-100 scale-100"
+                  data-transition-leave-active="transition ease-in duration-300"
+                  data-transition-leave-from="transform opacity-100 scale-100"
+                  data-transition-leave-to="transform opacity-0 scale-95">
+
+                <button type="button"
+                        class="absolute top-2 right-2 w-8 h-8 bg-transparent hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center rounded-full group"
+                        data-action="click->railsui-modal#close">
+                  <%= icon "x-mark", class: "text-slate-400 size-6 group-hover:text-slate-600 dark:text-slate-200 dark:group-hover:text-white" %>
+                </button>
+
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">New Trip Manifest</h3>
+                <%= render "manifests/form", trip: @trip, manifest: @trip.build_manifest %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @trip.manifest.present? && @trip.manifest.manifest_items.any? %>
       <ul class="text-sm space-y-2">
         <% @trip.manifest.manifest_items.each do |item| %>
           <li class="flex justify-between border-b border-slate-200 dark:border-slate-600 pb-2">
-            <span class="text-slate-800 dark:text-white"><%= item.description %></span>
+            <span class="text-slate-800 dark:text-white">
+              <strong><%= item.item_type.titleize %>:</strong> <%= item.description %>
+            </span>
             <span class="text-slate-500"><%= item.quantity %> <%= item.unit %></span>
           </li>
         <% end %>
       </ul>
     <% else %>
-      <p class="text-slate-500 text-sm">No passengers or goods recorded yet.</p>
+      <p class="text-slate-500 text-sm">No manifest items recorded yet.</p>
     <% end %>
   </div>
+
 
   <!-- Optional Metrics -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">

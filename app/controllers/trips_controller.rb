@@ -9,6 +9,7 @@ class TripsController < ApplicationController
 
   # GET /trips/1 or /trips/1.json
   def show
+    @manifest = @trip.manifest || @trip.build_manifest
   end
 
   # GET /trips/new

@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   root "dashboard#index"
-  resources :trips
+  resources :trips do
+    resource :manifest, only: [ :new, :create, :edit, :update, :show ]
+  end
   resources :drivers
   resources :vehicles
   resources :vehicle_models

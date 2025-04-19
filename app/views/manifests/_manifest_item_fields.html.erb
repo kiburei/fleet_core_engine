@@ -1,0 +1,42 @@
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-700 p-4 rounded shadow relative mb-4" data-manifest-item-wrapper>
+  <!-- Item Type -->
+  <div>
+    <%= f.label :item_type, "Type", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+    <%= f.select :item_type, [["Passenger", "passenger"], ["Goods", "goods"], ["Crew", "crew"]],
+          {}, class: "form-select mt-1 block w-full" %>
+  </div>
+
+  <!-- Description -->
+  <div>
+    <%= f.label :description, "Description", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+    <%= f.text_field :description, class: "form-input mt-1 block w-full" %>
+  </div>
+
+  <!-- Quantity / Unit / Category -->
+  <div class="grid grid-cols-3 gap-2 items-end">
+    <div>
+      <%= f.label :quantity, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= f.number_field :quantity, class: "form-input mt-1 block w-full" %>
+    </div>
+    <div>
+      <%= f.label :unit, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= f.text_field :unit, class: "form-input mt-1 block w-full" %>
+    </div>
+    <div>
+      <%= f.label :category, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= f.text_field :category, class: "form-input mt-1 block w-full", placeholder: "Optional" %>
+    </div>
+  </div>
+
+  <!-- Remove (if persisted) -->
+  <% unless f.object.new_record? %>
+    <div class="absolute top-2 right-2">
+      <%= f.check_box :_destroy %>
+      <%= f.label :_destroy, "Remove", class: "text-sm text-red-500" %>
+    </div>
+  <% else %>
+    <div class="absolute top-2 right-2">
+      <button type="button" class="text-sm text-red-500" data-action="click->manifest-items#removeItem">Remove</button>
+    </div>
+  <% end %>
+</div>
