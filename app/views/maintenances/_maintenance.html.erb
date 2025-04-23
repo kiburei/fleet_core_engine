@@ -1,0 +1,103 @@
+<div class="max-w-6xl mx-auto p-6 space-y-8 bg-white dark:bg-slate-800 rounded-lg shadow">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Maintenance Record</h1>
+    <div class="flex gap-2">
+      <%= link_to "Invoice", root_path, class: "btn btn-primary" %>
+      <%= link_to "Payment", root_path, class: "btn btn-primary" %>
+      <%= link_to "Receipt", root_path, class: "btn btn-primary" %>
+    </div>
+  </div>
+
+  <!-- Vehicle Summary -->
+  <div class="flex items-center gap-6">
+    
+    <div>
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-white">
+        <%= link_to @maintenance.vehicle.registration_number, vehicle_path(@maintenance.vehicle) %>
+      </h2>
+      <p class="text-sm text-slate-500">
+        <%= @maintenance.vehicle.vehicle_model.model %>
+      </p>
+    </div>
+  </div>
+
+  <!-- Maintenance Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded shadow">
+      <p class="text-xs text-slate-500">Maintenance Type</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white capitalize"><%= @maintenance.maintenance_type %></p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded shadow">
+      <p class="text-xs text-slate-500">Service Date</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= @maintenance.maintenance_date.strftime("%B %d, %Y") %></p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded shadow">
+      <p class="text-xs text-slate-500">Odometer Reading</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= number_with_delimiter(@maintenance.odometer) %> km</p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded shadow">
+      <p class="text-xs text-slate-500">Next Service Due</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white">
+        <%= @maintenance.next_service_due&.strftime("%B %d, %Y") || "Not Set" %>
+      </p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded shadow">
+      <p class="text-xs text-slate-500">Service Provider</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= @maintenance.service_provider %></p>
+    </div>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded shadow">
+      <p class="text-xs text-slate-500">Cost</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white">
+        <%= number_to_currency(@maintenance.maintenance_cost) %>
+      </p>
+    </div>
+  </div>
+
+  <!-- Description -->
+  <% if @maintenance.description.present? %>
+    <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow">
+      <p class="text-xs text-slate-500 mb-1">Notes</p>
+      <p class="text-base text-slate-800 dark:text-white"><%= @maintenance.description %></p>
+    </div>
+  <% end %>
+
+  <!-- Task Table -->
+  <div class="mt-6">
+    <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Maintenance Tasks</h2>
+    <div class="overflow-auto rounded border border-slate-200 dark:border-slate-600">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-600 text-sm">
+        <thead class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-white">
+          <tr>
+            <th class="text-left px-4 py-2">Task</th>
+            <th class="text-left px-4 py-2">Parts Used</th>
+            <th class="text-left px-4 py-2">Technician</th>
+            <th class="text-left px-4 py-2">Cost</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700 text-slate-800 dark:text-slate-200">
+          <tr>
+            <td class="px-4 py-2">Oil Change</td>
+            <td class="px-4 py-2">5W-30 Oil, Oil Filter</td>
+            <td class="px-4 py-2">Jane Technician</td>
+            <td class="px-4 py-2">KES 3,500</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2">Tire Rotation</td>
+            <td class="px-4 py-2">N/A</td>
+            <td class="px-4 py-2">John Mechanic</td>
+            <td class="px-4 py-2">KES 1,000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 flex flex-wrap justify-end gap-2">
+      <%= button_to "#", class: "btn btn-default", disabled: true do %>Export<% end %>
+      <%= button_to "#", class: "btn btn-secondary", disabled: true do %>Download PDF<% end %>
+      <%= button_to "#", class: "btn btn-primary", disabled: true do %>Send via WhatsApp<% end %>
+    </div>
+  </div>
+</div>
