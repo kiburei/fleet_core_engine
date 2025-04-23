@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_23_214453) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_23_230015) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -93,6 +93,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_23_214453) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "driver_id", null: false
+    t.string "incident_type"
+    t.decimal "damage_cost", precision: 10, scale: 2
+    t.string "location"
+    t.string "report_reference"
     t.index ["driver_id"], name: "index_incidents_on_driver_id"
     t.index ["vehicle_id"], name: "index_incidents_on_vehicle_id"
   end

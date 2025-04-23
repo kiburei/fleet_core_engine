@@ -1,0 +1,62 @@
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <%= form_with model: incident, local: true, class: "space-y-6 max-w-3xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow" do |f| %>
+    <% if incident.errors.any? %>
+        <div class="text-red-600">
+        <h2><%= pluralize(incident.errors.count, "error") %> prevented saving:</h2>
+        <ul class="list-disc pl-6">
+            <% incident.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+            <% end %>
+        </ul>
+        </div>
+    <% end %>
+
+    <div>
+        <%= f.label :vehicle_id, "Vehicle", class: "block text-sm font-medium" %>
+        <%= f.collection_select :vehicle_id, Vehicle.all, :id, :registration_number, { prompt: "Select Vehicle" }, class: "form-select mt-1 block w-full" %>
+    </div>
+
+    <div>
+        <%= f.label :driver_id, "Driver", class: "block text-sm font-medium" %>
+        <%= f.collection_select :driver_id, Driver.all, :id, ->(d) { "#{d.first_name} #{d.last_name}" }, { prompt: "Select Driver" }, class: "form-select mt-1 block w-full" %>
+    </div>
+
+    <div>
+        <%= f.label :incident_date, class: "block text-sm font-medium" %>
+        <%= f.date_field :incident_date, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <div>
+        <%= f.label :incident_type, "Incident Type", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.select :incident_type,
+                Incident::INCIDENT_TYPES.map { |type| [type.titleize, type] },
+                { prompt: "Select Incident Type" },
+                class: "form-select mt-1 block w-full" %>
+    </div>
+
+
+    <div>
+        <%= f.label :damage_cost, class: "block text-sm font-medium" %>
+        <%= f.number_field :damage_cost, step: 0.01, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <div>
+        <%= f.label :location, class: "block text-sm font-medium" %>
+        <%= f.text_field :location, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <div>
+        <%= f.label :report_reference, class: "block text-sm font-medium" %>
+        <%= f.text_field :report_reference, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <div>
+        <%= f.label :description, class: "block text-sm font-medium" %>
+        <%= f.text_area :description, rows: 4, class: "form-textarea mt-1 block w-full" %>
+    </div>
+
+    <div class="pt-4 flex justify-end">
+        <%= f.submit "Save Incident", class: "btn btn-primary" %>
+    </div>
+    <% end %>
+</div>

@@ -1,9 +1,9 @@
 class Maintenance < ApplicationRecord
   belongs_to :vehicle
 
-  VALID_MAINTENANCE_TYPES = %w[service repair inspection]
+  valid_mainteance_types = %w[service repair inspection]
 
-  validates :maintenance_type, presence: true, inclusion: { in: VALID_MAINTENANCE_TYPES }
+  validates :maintenance_type, presence: true, inclusion: { in: valid_mainteance_types }
   validates :maintenance_date, :maintenance_cost, presence: true
 
   def service?

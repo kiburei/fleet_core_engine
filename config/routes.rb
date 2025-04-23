@@ -11,6 +11,7 @@ Rails.application.routes.draw do
     resources :drivers, only: [ :index, :show ]
   end
   resources :maintenances
+  resources :incidents
 
   namespace :rui do
     get "about", to: "pages#about"
