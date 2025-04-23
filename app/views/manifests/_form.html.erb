@@ -20,27 +20,27 @@
 
     <h3 class="text-lg font-semibold text-slate-800 dark:text-white pt-4">Manifest Items</h3>
 
-    <div data-controller="manifest-items">
-      <div data-manifest-items-target="items" class="space-y-4">
-        <%= f.fields_for :manifest_items do |item_form| %>
-          <%= render "manifests/manifest_item_fields", f: item_form %>
-        <% end %>
-      </div>
-
-      <div class="mt-4">
-        <button type="button" class="btn btn-sm btn-secondary" data-action="click->manifest-items#addItem">
-          + Add Manifest Item
-        </button>
-      </div>
-
-      <template data-manifest-items-target="template">
-        <div data-manifest-item-wrapper data-new-record="true">
-          <%= f.fields_for :manifest_items, ManifestItem.new, child_index: "NEW_RECORD" do |item_form| %>
-            <%= render "manifests/manifest_item_fields", f: item_form %>
-          <% end %>
-        </div>
-      </template>
+    <div id="manifest-items-wrapper" class="space-y-4">
+      <% f.fields_for :manifest_items do |item_form| %>
+        <%= render "manifests/manifest_item_fields", f: item_form %>
+      <% end %>
     </div>
+
+    <div class="mt-4">
+      <button type="button" class="btn btn-sm btn-secondary" onclick="addManifestItem()">
+        + Add Manifest Item
+      </button>
+    </div>
+
+    <template id="manifest-item-template">
+      <div class="mb-4">
+        <%=
+          fields_for :manifest_items, ManifestItem.new, child_index: "NEW_RECORD" do |item_form|
+            render "manifests/manifest_item_fields", f: item_form
+          end
+        %>
+      </div>
+    </template>
 
     <!-- Submit -->
     <div class="pt-4 flex justify-end">
@@ -49,3 +49,12 @@
 
   <% end %>
 </div>
+
+<script>
+  function addManifestItem() {
+    const wrapper = document.getElementById("manifest-items-wrapper")
+    const template = document.getElementById("manifest-item-template")
+    const html = template.innerHTML.replace(/NEW_RECORD/g, new Date().getTime())
+    wrapper.insertAdjacentHTML("beforeend", html)
+  }
+</script>

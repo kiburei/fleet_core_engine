@@ -10,6 +10,7 @@ class TripsController < ApplicationController
   # GET /trips/1 or /trips/1.json
   def show
     @manifest = @trip.manifest || @trip.build_manifest
+    1.times { @manifest.manifest_items.build } if @manifest.manifest_items.empty?
   end
 
   # GET /trips/new
