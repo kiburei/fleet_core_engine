@@ -99,14 +99,68 @@
 
     <% if @trip.manifest.present? && @trip.manifest.manifest_items.any? %>
       <ul class="text-sm space-y-2">
-        <% @trip.manifest.manifest_items.each do |item| %>
-          <li class="flex justify-between border-b border-slate-200 dark:border-slate-600 pb-2">
-            <span class="text-slate-800 dark:text-white">
-              <strong><%= item.item_type %>:</strong> <%= item.description %>
-            </span>
-            <span class="text-slate-500"><%= item.quantity %> <%= item.unit %></span>
-          </li>
-        <% end %>
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-lg space-y-6">
+
+          <!-- Header with Export Dropdown -->
+          <div class="flex justify-between items-center">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-white">Manifest Items</h2>
+
+            <div class="relative inline-block text-left" data-controller="railsui-dropdown">
+              <button type="button"
+                      data-action="click->railsui-dropdown#toggle click@window->railsui-dropdown#hide"
+                      class="btn btn-sm btn-primary flex items-center gap-2">
+                Export
+                <%= icon "chevron-down", class: "size-4 stroke-current" %>
+              </button>
+
+              <ul data-railsui-dropdown-target="menu"
+                  class="hidden origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white dark:bg-slate-700 ring-1 ring-black ring-opacity-5 z-10 text-sm text-slate-700 dark:text-white">
+                <li>
+                  <%= link_to "#", class: "block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600" do %>
+                    Export as PDF
+                  <% end %>
+                </li>
+                <li>
+                  <%= link_to "#", class: "block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600" do %>
+                    Share via WhatsApp
+                  <% end %>
+                </li>
+                <li>
+                  <%= link_to "#", class: "block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-600" do %>
+                    Download CSV
+                  <% end %>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Manifest Items Table -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border border-slate-200 dark:border-slate-700">
+              <thead class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                <tr>
+                  <th class="px-4 py-2 text-left">Type</th>
+                  <th class="px-4 py-2 text-left">Description</th>
+                  <th class="px-4 py-2 text-left">Quantity</th>
+                  <th class="px-4 py-2 text-left">Unit</th>
+                  <th class="px-4 py-2 text-left">Category</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-600">
+                <% @trip.manifest.manifest_items.each do |item| %>
+                  <tr>
+                    <td class="px-4 py-2"><%= item.item_type.capitalize %></td>
+                    <td class="px-4 py-2"><%= item.description %></td>
+                    <td class="px-4 py-2"><%= item.quantity %></td>
+                    <td class="px-4 py-2"><%= item.unit %></td>
+                    <td class="px-4 py-2"><%= item.category.presence || "-" %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </ul>
     <% else %>
       <p class="text-slate-500 text-sm">No manifest items recorded yet.</p>

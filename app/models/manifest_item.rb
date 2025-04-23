@@ -1,7 +1,7 @@
 class ManifestItem < ApplicationRecord
   belongs_to :manifest
 
-  item_type = %w[passenger cargo]
+  item_type = %w[passenger cargo crew]
 
   validates :item_type, presence: true, inclusion: { in: item_type }
 
@@ -11,5 +11,9 @@ class ManifestItem < ApplicationRecord
 
   def cargo?
     item_type == "cargo"
+  end
+
+  def crew?
+    item_type == "crew"
   end
 end

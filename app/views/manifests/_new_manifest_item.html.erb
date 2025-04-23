@@ -1,0 +1,3 @@
+<%= f.fields_for :manifest_items, ManifestItem.new, child_index: "NEW_RECORD" do |item_form| %>
+  <%= render "manifests/manifest_item_fields", f: item_form %>
+<% end %>

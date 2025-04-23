@@ -1,5 +1,5 @@
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-  <%= form_with model: [@trip, @manifest], scope: :manifest, url: @manifest.persisted? ? trip_manifest_path(@trip) : trip_manifest_path(@trip), method: @manifest.persisted? ? :patch : :post, local: true, class: "space-y-6" do |f| %>
+  <%= form_with model: [@trip, @manifest], url: @manifest.persisted? ? trip_manifest_path(@trip) : trip_manifest_path(@trip), method: @manifest.persisted? ? :patch : :post, local: true, class: "space-y-6" do |f| %>
 
     <% if @manifest.errors.any? %>
       <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -12,16 +12,10 @@
       </div>
     <% end %>
 
-    <!-- Notes -->
-    <div>
-      <%= f.label :notes, "General Notes", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-      <%= f.text_area :notes, rows: 3, class: "form-textarea mt-1 block w-full" %>
-    </div>
-
     <h3 class="text-lg font-semibold text-slate-800 dark:text-white pt-4">Manifest Items</h3>
 
     <div id="manifest-items-wrapper" class="space-y-4">
-      <% f.fields_for :manifest_items do |item_form| %>
+      <%= f.fields_for :manifest_items, ManifestItem.new do |item_form| %>
         <%= render "manifests/manifest_item_fields", f: item_form %>
       <% end %>
     </div>
@@ -33,14 +27,15 @@
     </div>
 
     <template id="manifest-item-template">
-      <div class="mb-4">
-        <%=
-          fields_for :manifest_items, ManifestItem.new, child_index: "NEW_RECORD" do |item_form|
-            render "manifests/manifest_item_fields", f: item_form
-          end
-        %>
-      </div>
+      <%= render("manifests/new_manifest_item", f: f) %>
     </template>
+
+
+    <!-- Notes -->
+    <div>
+      <%= f.label :notes, "General Notes", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= f.text_area :notes, rows: 3, class: "form-textarea mt-1 block w-full" %>
+    </div>
 
     <!-- Submit -->
     <div class="pt-4 flex justify-end">

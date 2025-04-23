@@ -16,7 +16,7 @@ class ManifestsController < ApplicationController
       @trip.update(status: "active")
       redirect_to trip_manifest_path(@trip), notice: "Manifest successfully created. Trip is now active."
     else
-      render :new, status: :unprocessable_entity
+      render :show, status: :unprocessable_entity
     end
   end
 
@@ -41,15 +41,8 @@ class ManifestsController < ApplicationController
 
   def manifest_params
     params.require(:manifest).permit(
-      :trip_id,
       :notes,
-      manifest_items_attributes: [
-        :id,
-        :item_type,
-        :name,
-        :quantity,
-        :_destroy
-      ]
+      manifest_items_attributes: [ :id, :item_type, :description, :quantity, :unit, :category, :_destroy ]
     )
   end
 end
