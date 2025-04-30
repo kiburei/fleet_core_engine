@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :users
   root "dashboard#index"
   resources :trips do
     resource :manifest, only: [ :new, :create, :edit, :update, :show ]
