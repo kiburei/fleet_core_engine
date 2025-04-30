@@ -92,12 +92,12 @@
                 <%= image_tag demo_avatar_url(id: vehicle.id, variant: vehicle.vehicle_model.make), alt: vehicle.vehicle_model.model, class: "rounded-full sm:size-10 size-14" %>
               <% end %>
             <% else %>
-              <%= link_to "#" do %>
+              <%= link_to vehicle_path(vehicle) do %>
                 <%= image_tag demo_avatar_url(id: vehicle.id, variant: vehicle.vehicle_model.model), alt: vehicle.vehicle_model.model, class: "rounded-full sm:size-10 size-14" %>
               <% end %>
             <% end %>
             <div>
-              <%= link_to vehicle.vehicle_model.model, "#", class: "sm:font-medium text-slate-900 hover:text-primary-600 sm:text-base text-lg font-semibold dark:text-slate-200" %>
+              <%= link_to vehicle.vehicle_model.model, vehicle_path(vehicle), class: "sm:font-medium text-slate-900 hover:text-primary-600 sm:text-base text-lg font-semibold dark:text-slate-200" %>
               <p class="text-slate-500 text-sm"><%= vehicle.vehicle_model.model %></p>
             </div>
           </div>

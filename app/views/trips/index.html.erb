@@ -92,12 +92,12 @@
                 <%= image_tag demo_avatar_url(id: trip.id, variant: "#{trip.origin} - #{trip.destination}"), alt: "#{trip.origin} - #{trip.destination}", class: "rounded-full sm:size-10 size-14" %>
               <% end %>
             <% else %>
-              <%= link_to "#" do %>
+              <%= link_to trip_path(trip) do %>
                 <%= image_tag demo_avatar_url(id: trip.id, variant: "#{trip.origin} - #{trip.destination}"), alt: "#{trip.origin} - #{trip.destination}", class: "rounded-full sm:size-10 size-14" %>
               <% end %>
             <% end %>
             <div>
-              <%= link_to "#{trip.origin} - #{trip.destination}", "#", class: "sm:font-medium text-slate-900 hover:text-primary-600 sm:text-base text-lg font-semibold dark:text-slate-200" %>
+              <%= link_to "#{trip.origin} - #{trip.destination}", trip_path(trip), class: "sm:font-medium text-slate-900 hover:text-primary-600 sm:text-base text-lg font-semibold dark:text-slate-200" %>
               <p class="text-slate-500 text-sm"><%= "#{trip.origin} - #{trip.destination}" %></p>
             </div>
           </div>
