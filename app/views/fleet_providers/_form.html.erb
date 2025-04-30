@@ -38,7 +38,10 @@
 
     <div>
       <%= form.label :license_status, class: "block font-medium text-gray-700 dark:text-slate-200" %>
-      <%= form.text_field :license_status, class: "form-input mt-1 block w-full" %>
+      <%= form.radio_button :license_status, "active", class: "form-radio mt-1" %>
+      <%= form.label :license_status_active, "Active", class: "ml-2" %>
+      <%= form.radio_button :license_status, "inactive", class: "form-radio mt-1" %>
+      <%= form.label :license_status_inactive, "Inactive", class: "ml-2" %>
     </div>
 
     <div>
