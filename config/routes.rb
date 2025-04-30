@@ -3,8 +3,12 @@ Rails.application.routes.draw do
   resources :trips do
     resource :manifest, only: [ :new, :create, :edit, :update, :show ]
   end
-  resources :drivers
-  resources :vehicles
+  resources :drivers do
+    resources :documents, only: [ :index, :new, :create, :show ]
+  end
+  resources :vehicles do
+    resources :documents, only: [ :index, :new, :create, :show ]
+  end
   resources :vehicle_models
   resources :fleet_providers do
     resources :vehicles, only: [ :index, :show ]

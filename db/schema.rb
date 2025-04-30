@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_23_230015) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_30_091647) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -55,6 +55,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_23_230015) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["vehicle_id"], name: "index_activities_on_vehicle_id"
+  end
+
+  create_table "documents", force: :cascade do |t|
+    t.string "title"
+    t.string "document_type"
+    t.date "issue_date"
+    t.date "expiry_date"
+    t.string "documentable_type", null: false
+    t.integer "documentable_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["documentable_type", "documentable_id"], name: "index_documents_on_documentable"
   end
 
   create_table "drivers", force: :cascade do |t|

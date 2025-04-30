@@ -1,0 +1,84 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Documents" } do %>
+    <!-- Modal Trigger -->
+    <div data-controller="railsui-modal">
+      <button type="button" data-action="click->railsui-modal#open" class="btn btn-primary">
+        New Document
+      </button>
+
+      <!-- Modal Content -->
+      <div aria-modal="true" role="dialog"
+           class="hidden fixed inset-0 z-50 overflow-y-auto"
+           data-railsui-modal-target="container"
+           data-action="keyup@window->railsui-modal#closeWithEsc">
+        <div class="h-screen w-full flex items-center justify-center">
+          <div data-railsui-modal-target="content"
+               class="hidden max-w-3xl w-full bg-white dark:bg-slate-800 p-8 rounded-lg shadow-xl relative"
+               data-transition-enter-active="transition ease-out duration-300"
+               data-transition-enter-from="transform opacity-0 scale-95"
+               data-transition-enter-to="transform opacity-100 scale-100"
+               data-transition-leave-active="transition ease-in duration-300"
+               data-transition-leave-from="transform opacity-100 scale-100"
+               data-transition-leave-to="transform opacity-0 scale-95">
+
+            <button type="button"
+                    class="absolute top-2 right-2 w-8 h-8 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-center rounded-full group"
+                    data-action="click->railsui-modal#close">
+              <%= icon "x-mark", class: "text-slate-500 size-6" %>
+            </button>
+
+            <h2 class="text-lg font-semibold mb-4 text-slate-800 dark:text-white">New Document</h2>
+
+            <div class="pt-4">
+              <%= render "form", document: @document %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
+<% content_for :title, "Documents" %>
+
+<div class="max-w-5xl mx-auto mt-8 space-y-6">
+  <h1 class="text-2xl font-bold text-slate-800 dark:text-white">
+    Documents for <%= @documentable.try(:registration_number) || @documentable.try(:name) %>
+  </h1>
+
+  <div class="bg-white dark:bg-slate-800 shadow rounded-lg p-6">
+    <% if @documents.any? %>
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr>
+            <th class="px-4 py-2">Title</th>
+            <th class="px-4 py-2">Type</th>
+            <th class="px-4 py-2">Issued</th>
+            <th class="px-4 py-2">Expires</th>
+            <th class="px-4 py-2">File</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @documents.each do |doc| %>
+            <tr class="border-t dark:border-slate-700">
+              <td class="px-4 py-2"><%= doc.title %></td>
+              <td class="px-4 py-2"><%= doc.document_type %></td>
+              <td class="px-4 py-2"><%= doc.issue_date %></td>
+              <td class="px-4 py-2"><%= doc.expiry_date %></td>
+              <td class="px-4 py-2">
+                <% if doc.file.attached? %>
+                    <%= link_to "View", rails_blob_path(doc.file, disposition: "inline"), target: "_blank", class: "text-blue-500 hover:underline" %> |
+                    <%= link_to "Download", rails_blob_path(doc.file, disposition: "attachment"), class: "text-green-500 hover:underline" %>
+                <% else %>
+                    <span class="text-slate-500">No file</span>
+                <% end %>
+                </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="text-slate-500">No documents found.</p>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+<% content_for :title, "New Document" %>
+
+<h1>New Document</h1>
+
+<%= render "form", document: @document %>
+
+<br>
+
+<div>
+  <%= link_to "Back to documents", vehicle_documents_path %>
+</div>

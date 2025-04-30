@@ -1,6 +1,7 @@
 <% content_for :header do %>
   <%= render "rui/shared/admin/nav", { header_title: "Drivers" } do %>
   <div class="flex flex-wrap gap-4 mt-6">
+    <%= link_to "Documents", driver_documents_path(@driver), class: "btn btn-primary" %>
     <%= link_to "Edit", edit_driver_path(@driver), class: "btn btn-secondary" %>
     <%= link_to "Back", drivers_path, class: "btn btn-primary" %>
     <%= button_to "Destroy", @driver, method: :delete, data: { confirm: "Are you sure?" }, class: "btn btn-danger" %>

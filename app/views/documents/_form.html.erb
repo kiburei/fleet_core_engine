@@ -1,0 +1,35 @@
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <%= form_with(model: [@documentable, @document], local: true, html: { multipart: true }) do |f| %>
+    <div class="space-y-4">
+        <div>
+        <%= f.label :title, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.text_field :title, class: "form-input mt-1 block w-full" %>
+        </div>
+
+        <div>
+        <%= f.label :document_type, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.text_field :document_type, class: "form-input mt-1 block w-full", placeholder: "e.g. Logbook, Insurance" %>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+            <%= f.label :issue_date, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+            <%= f.date_field :issue_date, class: "form-input mt-1 block w-full" %>
+        </div>
+        <div>
+            <%= f.label :expiry_date, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+            <%= f.date_field :expiry_date, class: "form-input mt-1 block w-full" %>
+        </div>
+        </div>
+
+        <div>
+        <%= f.label :file, "Attach Document File", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.file_field :file, class: "form-input mt-1 block w-full" %>
+        </div>
+
+        <div class="pt-4">
+        <%= f.submit "Save Document", class: "btn btn-primary" %>
+        </div>
+    </div>
+    <% end %>
+</div>
