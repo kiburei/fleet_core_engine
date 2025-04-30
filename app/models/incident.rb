@@ -1,4 +1,5 @@
 class Incident < ApplicationRecord
+  belongs_to :fleet_provider, optional: true
   belongs_to :vehicle
   belongs_to :driver, optional: true
 

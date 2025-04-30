@@ -12,6 +12,11 @@
     <% end %>
 
     <div>
+        <%= f.label :fleet_provider_id, "Fleet Provider", class: "block text-sm font-medium" %>
+        <%= f.collection_select :fleet_provider_id, FleetProvider.all, :id, :name, { prompt: "Select Fleet Provider" }, class: "form-select mt-1 block w-full" %>
+    </div>
+
+    <div>
         <%= f.label :vehicle_id, "Vehicle", class: "block text-sm font-medium" %>
         <%= f.collection_select :vehicle_id, Vehicle.all, :id, :registration_number, { prompt: "Select Vehicle" }, class: "form-select mt-1 block w-full" %>
     </div>

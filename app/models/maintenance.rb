@@ -1,5 +1,6 @@
 class Maintenance < ApplicationRecord
   belongs_to :vehicle
+  belongs_to :fleet_provider, optional: true
 
   has_many :documents, as: :documentable, dependent: :destroy
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_30_172011) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_30_210047) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -109,7 +109,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_30_172011) do
     t.decimal "damage_cost", precision: 10, scale: 2
     t.string "location"
     t.string "report_reference"
+    t.integer "fleet_provider_id", null: false
     t.index ["driver_id"], name: "index_incidents_on_driver_id"
+    t.index ["fleet_provider_id"], name: "index_incidents_on_fleet_provider_id"
     t.index ["vehicle_id"], name: "index_incidents_on_vehicle_id"
   end
 
@@ -124,6 +126,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_30_172011) do
     t.string "service_provider"
     t.integer "odometer"
     t.date "next_service_due"
+    t.integer "fleet_provider_id", null: false
+    t.index ["fleet_provider_id"], name: "index_maintenances_on_fleet_provider_id"
     t.index ["vehicle_id"], name: "index_maintenances_on_vehicle_id"
   end
 
@@ -182,7 +186,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_30_172011) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "fleet_provider_id", null: false
+    t.integer "fleet_provider_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["fleet_provider_id"], name: "index_users_on_fleet_provider_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -226,7 +230,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_30_172011) do
   add_foreign_key "drivers", "fleet_providers"
   add_foreign_key "drivers", "vehicles"
   add_foreign_key "incidents", "drivers"
+  add_foreign_key "incidents", "fleet_providers"
   add_foreign_key "incidents", "vehicles"
+  add_foreign_key "maintenances", "fleet_providers"
   add_foreign_key "maintenances", "vehicles"
   add_foreign_key "manifest_items", "manifests"
   add_foreign_key "manifests", "trips"

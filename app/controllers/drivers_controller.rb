@@ -9,25 +9,47 @@ class DriversController < ApplicationController
       @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
       @drivers = @fleet_provider.drivers.includes(:vehicle)
     else
-      @drivers = Driver.includes(:vehicle, :fleet_provider).all
+      @drivers = if current_user.admin?
+                    Driver.all.includes(:vehicle)
+      else
+                    Driver.where(fleet_provider_id: current_user.fleet_provider_id).includes(:vehicle)
+      end
     end
   end
 
   # GET /drivers/1 or /drivers/1.json
   def show
+    if current_user.fleet_provider_id != @driver.fleet_provider_id && !current_user.admin?
+      redirect_to drivers_path, alert: "You are not authorized to view this driver."
+      nil
+    end
   end
 
   # GET /drivers/new
   def new
+    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+      redirect_to drivers_path, alert: "You are not authorized to create drivers."
+      return
+    end
     @driver = Driver.new
   end
 
   # GET /drivers/1/edit
   def edit
+    if current_user.fleet_provider_id != @driver.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+      redirect_to drivers_path, alert: "You are not authorized to edit this driver."
+      nil
+    end
   end
 
   # POST /drivers or /drivers.json
   def create
+    # only fleet provider admin can and fleet provider manager can create drivers
+    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+      redirect_to drivers_path, alert: "You are not authorized to create drivers."
+      return
+    end
+
     @driver = Driver.new(driver_params)
 
     respond_to do |format|
@@ -43,6 +65,11 @@ class DriversController < ApplicationController
 
   # PATCH/PUT /drivers/1 or /drivers/1.json
   def update
+    if current_user.fleet_provider_id != @driver.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+      redirect_to drivers_path, alert: "You are not authorized to update this driver."
+      return
+    end
+
     respond_to do |format|
       if @driver.update(driver_params)
         format.html { redirect_to @driver, notice: "Driver was successfully updated." }
@@ -56,6 +83,11 @@ class DriversController < ApplicationController
 
   # DELETE /drivers/1 or /drivers/1.json
   def destroy
+    if current_user.fleet_provider_id != @driver.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+      redirect_to drivers_path, alert: "You are not authorized to destroy this driver."
+      return
+    end
+
     @driver.destroy!
 
     respond_to do |format|

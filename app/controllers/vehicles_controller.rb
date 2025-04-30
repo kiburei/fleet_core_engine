@@ -9,25 +9,47 @@ class VehiclesController < ApplicationController
       @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
       @vehicles = @fleet_provider.vehicles.includes(:vehicle_model)
     else
-      @vehicles = Vehicle.includes(:vehicle_model, :fleet_provider).all
+      @vehicles = if current_user.admin?
+                   Vehicle.all.includes(:vehicle_model)
+      else
+                   Vehicle.where(fleet_provider_id: current_user.fleet_provider_id).includes(:vehicle_model)
+      end
     end
   end
 
   # GET /vehicles/1 or /vehicles/1.json
   def show
+    if current_user.fleet_provider_id != @vehicle.fleet_provider_id && !current_user.admin?
+      redirect_to vehicles_path, alert: "You are not authorized to view this vehicle."
+      nil
+    end
   end
 
   # GET /vehicles/new
   def new
+    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+      redirect_to vehicles_path, alert: "You are not authorized to create vehicles."
+      return
+    end
     @vehicle = Vehicle.new
   end
 
   # GET /vehicles/1/edit
   def edit
+    if current_user.fleet_provider_id != @vehicle.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+      redirect_to vehicles_path, alert: "You are not authorized to edit this vehicle."
+      nil
+    end
   end
 
   # POST /vehicles or /vehicles.json
   def create
+    # only fleet provider admin can and fleet provider manager can create vehicles
+    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+      redirect_to vehicles_path, alert: "You are not authorized to create vehicles."
+      return
+    end
+
     @vehicle = Vehicle.new(vehicle_params)
 
     respond_to do |format|
@@ -43,6 +65,11 @@ class VehiclesController < ApplicationController
 
   # PATCH/PUT /vehicles/1 or /vehicles/1.json
   def update
+    if current_user.fleet_provider_id != @vehicle.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+      redirect_to vehicles_path, alert: "You are not authorized to update this vehicle."
+      return
+    end
+
     respond_to do |format|
       if @vehicle.update(vehicle_params)
         format.html { redirect_to @vehicle, notice: "Vehicle was successfully updated." }
@@ -56,6 +83,10 @@ class VehiclesController < ApplicationController
 
   # DELETE /vehicles/1 or /vehicles/1.json
   def destroy
+    if current_user.fleet_provider_id != @vehicle.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+      redirect_to vehicles_path, alert: "You are not authorized to destroy this vehicle."
+      return
+    end
     @vehicle.destroy!
 
     respond_to do |format|

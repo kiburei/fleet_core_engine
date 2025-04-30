@@ -1,70 +1,75 @@
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-    <%= form_with(model: maintenance, local: true) do |f| %>
-        <% if maintenance.errors.any? %>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <strong><%= pluralize(maintenance.errors.count, "error") %> prevented this record from saving:</strong>
-            <ul class="mt-2 list-disc list-inside text-sm">
-                <% maintenance.errors.full_messages.each do |message| %>
-                <li><%= message %></li>
-                <% end %>
-            </ul>
-            </div>
-        <% end %>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <!-- Vehicle -->
-            <div>
-            <%= f.label :vehicle_id, "Vehicle", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-            <%= f.collection_select :vehicle_id, Vehicle.all, :id, :registration_number, { prompt: "Select a vehicle" }, class: "form-select mt-1 block w-full" %>
-            </div>
-
-            <!-- Maintenance Type -->
-            <div>
-            <%= f.label :maintenance_type, "Type", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-            <%= f.select :maintenance_type, [["Service", "service"], ["Repair", "repair"], ["Inspection", "inspection"]], {}, class: "form-select mt-1 block w-full" %>
-            </div>
-
-            <!-- Maintenance Date -->
-            <div>
-            <%= f.label :maintenance_date, "Maintenance Date", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-            <%= f.date_field :maintenance_date, class: "form-input mt-1 block w-full" %>
-            </div>
-
-            <!-- Next Service Due -->
-            <div>
-            <%= f.label :next_service_due, "Next Service Due", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-            <%= f.date_field :next_service_due, class: "form-input mt-1 block w-full" %>
-            </div>
-
-            <!-- Cost -->
-            <div>
-            <%= f.label :maintenance_cost, "Cost (KES)", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-            <%= f.number_field :maintenance_cost, step: "0.01", class: "form-input mt-1 block w-full" %>
-            </div>
-
-            <!-- Odometer -->
-            <div>
-            <%= f.label :odometer, "Odometer Reading (km)", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-            <%= f.number_field :odometer, class: "form-input mt-1 block w-full" %>
-            </div>
-
-            <!-- Service Provider -->
-            <div class="sm:col-span-2">
-            <%= f.label :service_provider, "Service Provider", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-            <%= f.text_field :service_provider, class: "form-input mt-1 block w-full" %>
-            </div>
-        </div>
-
-        <!-- Description -->
-        <div class="mt-6">
-            <%= f.label :description, "Description", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-            <%= f.text_area :description, rows: 4, class: "form-textarea mt-1 block w-full" %>
-        </div>
-
-        <!-- Submit -->
-        <div class="mt-6 text-right">
-            <%= f.submit maintenance.new_record? ? "Create Maintenance" : "Update Maintenance", class: "btn btn-primary" %>
-        </div>
+  <%= form_with(model: maintenance, local: true) do |f| %>
+    <% if maintenance.errors.any? %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <strong><%= pluralize(maintenance.errors.count, "error") %> prevented this record from saving:</strong>
+        <ul class="mt-2 list-disc list-inside text-sm">
+          <% maintenance.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
     <% end %>
 
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <!-- Fleet Provider -->
+      <div>
+        <%= f.label :fleet_provider_id, "Fleet Provider", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.collection_select :fleet_provider_id, FleetProvider.all, :id, :name, { prompt: "Select a fleet provider" }, class: "form-select mt-1 block w-full" %>
+      </div>
+
+      <!-- Vehicle -->
+      <div>
+        <%= f.label :vehicle_id, "Vehicle", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.collection_select :vehicle_id, Vehicle.all, :id, :registration_number, { prompt: "Select a vehicle" }, class: "form-select mt-1 block w-full" %>
+      </div>
+
+      <!-- Maintenance Type -->
+      <div>
+        <%= f.label :maintenance_type, "Type", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.select :maintenance_type, [["Service", "service"], ["Repair", "repair"], ["Inspection", "inspection"]], {}, class: "form-select mt-1 block w-full" %>
+      </div>
+
+      <!-- Maintenance Date -->
+      <div>
+        <%= f.label :maintenance_date, "Maintenance Date", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.date_field :maintenance_date, class: "form-input mt-1 block w-full" %>
+      </div>
+
+      <!-- Next Service Due -->
+      <div>
+        <%= f.label :next_service_due, "Next Service Due", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.date_field :next_service_due, class: "form-input mt-1 block w-full" %>
+      </div>
+
+      <!-- Cost -->
+      <div>
+        <%= f.label :maintenance_cost, "Cost (KES)", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.number_field :maintenance_cost, step: "0.01", class: "form-input mt-1 block w-full" %>
+      </div>
+
+      <!-- Odometer -->
+      <div>
+        <%= f.label :odometer, "Odometer Reading (km)", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.number_field :odometer, class: "form-input mt-1 block w-full" %>
+      </div>
+
+      <!-- Service Provider -->
+      <div class="sm:col-span-2">
+        <%= f.label :service_provider, "Service Provider", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.text_field :service_provider, class: "form-input mt-1 block w-full" %>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="mt-6">
+      <%= f.label :description, "Description", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= f.text_area :description, rows: 4, class: "form-textarea mt-1 block w-full" %>
+    </div>
+
+    <!-- Submit -->
+    <div class="mt-6 text-right">
+      <%= f.submit maintenance.new_record? ? "Create Maintenance" : "Update Maintenance", class: "btn btn-primary" %>
+    </div>
+  <% end %>
 </div>
