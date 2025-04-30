@@ -1,42 +1,45 @@
-<div id="<%= dom_id vehicle_model %>">
-  <p>
-    <strong>Make:</strong>
-    <%= vehicle_model.make %>
-  </p>
+<div id="<%= dom_id vehicle_model %>" class="max-w-4xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow space-y-6">
+  <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Vehicle Model Details</h2>
 
-  <p>
-    <strong>Model:</strong>
-    <%= vehicle_model.model %>
-  </p>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <p class="text-xs text-slate-500">Make</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle_model.make %></p>
+    </div>
 
-  <p>
-    <strong>Category:</strong>
-    <%= vehicle_model.category %>
-  </p>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <p class="text-xs text-slate-500">Model</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle_model.model %></p>
+    </div>
 
-  <p>
-    <strong>Year:</strong>
-    <%= vehicle_model.year %>
-  </p>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <p class="text-xs text-slate-500">Category</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle_model.category %></p>
+    </div>
 
-  <p>
-    <strong>Fuel type:</strong>
-    <%= vehicle_model.fuel_type %>
-  </p>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <p class="text-xs text-slate-500">Year</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle_model.year %></p>
+    </div>
 
-  <p>
-    <strong>Transmission:</strong>
-    <%= vehicle_model.transmission %>
-  </p>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <p class="text-xs text-slate-500">Fuel Type</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle_model.fuel_type %></p>
+    </div>
 
-  <p>
-    <strong>Body type:</strong>
-    <%= vehicle_model.body_type %>
-  </p>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <p class="text-xs text-slate-500">Transmission</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle_model.transmission %></p>
+    </div>
 
-  <p>
-    <strong>Capacity:</strong>
-    <%= vehicle_model.capacity %>
-  </p>
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <p class="text-xs text-slate-500">Body Type</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle_model.body_type %></p>
+    </div>
 
+    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
+      <p class="text-xs text-slate-500">Capacity</p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle_model.capacity %></p>
+    </div>
+  </div>
 </div>

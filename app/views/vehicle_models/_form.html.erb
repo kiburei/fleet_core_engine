@@ -1,57 +1,60 @@
-<%= form_with(model: vehicle_model) do |form| %>
-  <% if vehicle_model.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(vehicle_model.errors.count, "error") %> prohibited this vehicle_model from being saved:</h2>
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <%= form_with(model: vehicle_model, class: "max-w-3xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow space-y-6") do |form| %>
+    <% if vehicle_model.errors.any? %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <h2 class="font-semibold"><%= pluralize(vehicle_model.errors.count, "error") %> prohibited this vehicle model from being saved:</h2>
+        <ul class="mt-2 list-disc list-inside text-sm">
+          <% vehicle_model.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-      <ul>
-        <% vehicle_model.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <%= form.label :make, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= form.text_field :make, class: "form-input mt-1 block w-full" %>
+      </div>
+
+      <div>
+        <%= form.label :model, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= form.text_field :model, class: "form-input mt-1 block w-full" %>
+      </div>
+
+      <div>
+        <%= form.label :category, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= form.text_field :category, class: "form-input mt-1 block w-full" %>
+      </div>
+
+      <div>
+        <%= form.label :year, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= form.number_field :year, class: "form-input mt-1 block w-full" %>
+      </div>
+
+      <div>
+        <%= form.label :fuel_type, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= form.text_field :fuel_type, class: "form-input mt-1 block w-full" %>
+      </div>
+
+      <div>
+        <%= form.label :transmission, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= form.text_field :transmission, class: "form-input mt-1 block w-full" %>
+      </div>
+
+      <div>
+        <%= form.label :body_type, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= form.text_field :body_type, class: "form-input mt-1 block w-full" %>
+      </div>
+
+      <div>
+        <%= form.label :capacity, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= form.number_field :capacity, class: "form-input mt-1 block w-full" %>
+      </div>
     </div>
-  <% end %>
 
-  <div>
-    <%= form.label :make, style: "display: block" %>
-    <%= form.text_field :make %>
-  </div>
-
-  <div>
-    <%= form.label :model, style: "display: block" %>
-    <%= form.text_field :model %>
-  </div>
-
-  <div>
-    <%= form.label :category, style: "display: block" %>
-    <%= form.text_field :category %>
-  </div>
-
-  <div>
-    <%= form.label :year, style: "display: block" %>
-    <%= form.number_field :year %>
-  </div>
-
-  <div>
-    <%= form.label :fuel_type, style: "display: block" %>
-    <%= form.text_field :fuel_type %>
-  </div>
-
-  <div>
-    <%= form.label :transmission, style: "display: block" %>
-    <%= form.text_field :transmission %>
-  </div>
-
-  <div>
-    <%= form.label :body_type, style: "display: block" %>
-    <%= form.text_field :body_type %>
-  </div>
-
-  <div>
-    <%= form.label :capacity, style: "display: block" %>
-    <%= form.number_field :capacity %>
-  </div>
-
-  <div>
-    <%= form.submit %>
-  </div>
+    <div class="pt-4 flex justify-end">
+      <%= form.submit "Save Vehicle Model", class: "btn btn-primary" %>
+    </div>
 <% end %>
+</div>

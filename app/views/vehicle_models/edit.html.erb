@@ -1,12 +1,10 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Vehicle Model" } do %>
+  <%= link_to "Back to vehicle models", vehicle_models_path, class: "btn btn-primary" %>
+  <% end %>
+<% end%>
 <% content_for :title, "Editing vehicle model" %>
 
-<h1>Editing vehicle model</h1>
-
-<%= render "form", vehicle_model: @vehicle_model %>
-
-<br>
-
-<div>
-  <%= link_to "Show this vehicle model", @vehicle_model %> |
-  <%= link_to "Back to vehicle models", vehicle_models_path %>
+<div class="pt-4 px-4 sm:px-6 lg:px-8">
+  <%= render "form", vehicle_model: @vehicle_model %>
 </div>
