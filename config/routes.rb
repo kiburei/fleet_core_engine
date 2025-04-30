@@ -13,8 +13,11 @@ Rails.application.routes.draw do
   resources :fleet_providers do
     resources :vehicles, only: [ :index, :show ]
     resources :drivers, only: [ :index, :show ]
+    resources :documents, only: [ :index, :new, :create, :show ]
   end
-  resources :maintenances
+  resources :maintenances do
+    resources :documents, only: [ :index, :new, :create, :show ]
+  end
   resources :incidents
 
   namespace :rui do

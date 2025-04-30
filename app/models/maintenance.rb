@@ -1,6 +1,8 @@
 class Maintenance < ApplicationRecord
   belongs_to :vehicle
 
+  has_many :documents, as: :documentable, dependent: :destroy
+
   valid_mainteance_types = %w[service repair inspection]
 
   validates :maintenance_type, presence: true, inclusion: { in: valid_mainteance_types }
