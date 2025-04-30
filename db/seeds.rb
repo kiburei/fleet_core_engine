@@ -1,4 +1,21 @@
-# db/seeds.rb
+# Seed roles
+Role.create!([
+  { name: 'admin' },
+  { name: 'fleet_provider_admin' },
+  { name: 'fleet_provider_manager' },
+  { name: 'fleet_provider_owner' },
+  { name: 'fleet_provider_user' },
+  { name: 'fleet_provider_driver' }
+])
+
+# Seed admin user
+User.create!([
+  { first_name: 'Admin', last_name: 'User', email: 'admin@admin', password: 'password', password_confirmation: 'password', phone_number: '0712345678', fleet_provider_id: nil }
+])
+# Assign admin role to the admin user
+admin_user = User.find_by(email: 'admin@admin')
+admin_user.add_role(:admin)
+
 
 # Seed sample Vehicle Models for use in Kenya
 VehicleModel.create!([

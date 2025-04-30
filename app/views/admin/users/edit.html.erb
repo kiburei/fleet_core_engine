@@ -1,0 +1,41 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Edit #{@user.full_name} Roles" } do %>
+  <div class="flex flex-wrap gap-4 mt-6">
+    <%= link_to "Back", admin_users_path, class: "btn btn-primary" %>
+  </div>
+  <% end %>
+<% end%>
+
+<p style="color: green"><%= notice %></p>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-4xl mx-auto p-6 bg-white dark:bg-slate-800 rounded-lg shadow">
+    <h1 class="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Edit User Roles</h1>
+
+    <%= form_with model: @user, url: admin_user_path(@user), method: :patch, local: true do |f| %>
+        <div class="mb-4">
+        <p class="text-sm text-slate-500">User Email:</p>
+        <p class="font-medium text-slate-900 dark:text-white"><%= @user.email %></p>
+        </div>
+
+        <div class="mb-4">
+        <%= f.label :fleet_provider_id, "Fleet Provider", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+        <%= f.collection_select :fleet_provider_id, FleetProvider.all, :id, :name, { prompt: "Assign Fleet Provider" }, class: "form-select mt-1 block w-full" %>
+        </div>
+
+        <div class="mb-6">
+        <p class="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Roles</p>
+        <% Role.all.each do |role| %>
+            <label class="inline-flex items-center space-x-2">
+            <%= check_box_tag "user[role_ids][]", role.id, @user.has_role?(role.name), id: "role_#{role.id}", class: "form-checkbox text-indigo-600" %>
+            <span class="text-sm text-slate-800 dark:text-slate-100"><%= role.name.titleize %></span>
+            </label><br>
+        <% end %>
+        </div>
+
+        <div class="flex justify-end">
+        <%= f.submit "Update User", class: "btn btn-primary" %>
+        </div>
+    <% end %>
+    </div>
+</div>

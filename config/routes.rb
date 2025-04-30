@@ -21,6 +21,10 @@ Rails.application.routes.draw do
   end
   resources :incidents
 
+  namespace :admin do
+    resources :users, only: [ :index, :edit, :show, :update ]
+  end
+
   namespace :rui do
     get "about", to: "pages#about"
     get "pricing", to: "pages#pricing"

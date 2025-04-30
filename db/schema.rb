@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_30_210047) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_30_212827) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -187,6 +187,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_30_210047) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "fleet_provider_id"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "other_name"
+    t.string "phone_number"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["fleet_provider_id"], name: "index_users_on_fleet_provider_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

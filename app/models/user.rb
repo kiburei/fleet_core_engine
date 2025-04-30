@@ -19,6 +19,10 @@ class User < ApplicationRecord
     end
   end
 
+  def full_name
+    ([ first_name, last_name ] - [ "" ]).compact.join(" ")
+  end
+
   def admin?
     has_role?(:admin)
   end

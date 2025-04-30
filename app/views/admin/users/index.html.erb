@@ -1,0 +1,79 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "User Management" } do %>
+        <!-- Modal Trigger -->
+    <div data-controller="railsui-modal">
+      <button type="button" data-action="click->railsui-modal#open" class="btn btn-primary">
+        New User
+      </button>
+
+      <!-- Modal Content -->
+      <div aria-modal="true" role="dialog"
+        class="hidden fixed inset-0 z-50 overflow-y-auto"
+        data-railsui-modal-target="container"
+        data-action="keyup@window->railsui-modal#closeWithEsc">
+        <div class="h-screen w-full flex items-center justify-center">
+          <div data-railsui-modal-target="content"
+              class="hidden max-w-3xl w-full bg-white dark:bg-slate-800 p-8 rounded-lg shadow-xl relative"
+              data-transition-enter-active="transition ease-out duration-300"
+              data-transition-enter-from="transform opacity-0 scale-95"
+              data-transition-enter-to="transform opacity-100 scale-100"
+              data-transition-leave-active="transition ease-in duration-300"
+              data-transition-leave-from="transform opacity-100 scale-100"
+              data-transition-leave-to="transform opacity-0 scale-95">
+            
+            <button type="button"
+              class="absolute top-2 right-2 w-8 h-8 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-center rounded-full group"
+              data-action="click->railsui-modal#close">
+              <%= icon "x-mark", class: "text-slate-500 size-6" %>
+            </button>
+
+            <h2 class="text-lg font-semibold mb-4 text-slate-800 dark:text-white">Invite User</h2>
+
+            <div class="pt-4">
+              <%# <%= render "form", driver: @driver %> 
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end%>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <% if notice %>
+    <p class="mb-4 text-green-600 font-medium"><%= notice %></p>
+  <% end %>
+
+  <div class="overflow-x-auto bg-white dark:bg-slate-800 rounded-lg shadow">
+    <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+      <thead class="bg-slate-100 dark:bg-slate-700">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Email</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Roles</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Fleet</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+        <% @users.each do |user| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-white">
+              <%= user.full_name || user.email.split('@').first.titleize %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500"><%= user.email %></td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+              <%= user.roles.map(&:name).join(", ") %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+              <%= user.fleet_provider&.name || "N/A" %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <%= link_to "Edit Roles", edit_admin_user_path(user), class: "text-blue-600 hover:underline" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
