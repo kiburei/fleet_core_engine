@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_30_124941) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_30_172011) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -147,6 +147,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_30_124941) do
     t.index ["trip_id"], name: "index_manifests_on_trip_id"
   end
 
+  create_table "roles", force: :cascade do |t|
+    t.string "name"
+    t.string "resource_type"
+    t.integer "resource_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id"
+    t.index ["name"], name: "index_roles_on_name"
+    t.index ["resource_type", "resource_id"], name: "index_roles_on_resource"
+  end
+
   create_table "trips", force: :cascade do |t|
     t.integer "vehicle_id", null: false
     t.integer "driver_id", null: false
@@ -171,8 +182,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_30_124941) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "fleet_provider_id", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["fleet_provider_id"], name: "index_users_on_fleet_provider_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  end
+
+  create_table "users_roles", id: false, force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "role_id"
+    t.index ["role_id"], name: "index_users_roles_on_role_id"
+    t.index ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id"
+    t.index ["user_id"], name: "index_users_roles_on_user_id"
   end
 
   create_table "vehicle_models", force: :cascade do |t|
@@ -212,6 +233,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_30_124941) do
   add_foreign_key "trips", "drivers"
   add_foreign_key "trips", "fleet_providers"
   add_foreign_key "trips", "vehicles"
+  add_foreign_key "users", "fleet_providers"
   add_foreign_key "vehicles", "fleet_providers"
   add_foreign_key "vehicles", "vehicle_models"
 end

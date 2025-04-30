@@ -1,0 +1,39 @@
+<div class="min-h-screen bg-gray-100 dark:bg-slate-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white dark:bg-slate-800 p-8 rounded-lg shadow-lg">
+    <div class="text-center">
+      <%= image_tag "https://img.icons8.com/clouds/100/add-user-group-man-man.png", class: "mx-auto h-12 w-auto" %>
+      <h2 class="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">Create your account</h2>
+      <p class="mt-2 text-sm text-gray-600 dark:text-slate-300">
+        Start managing your fleet today
+      </p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+      <div class="rounded-md shadow-sm space-y-4">
+        <div>
+          <%= f.label :email, class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
+          <%= f.email_field :email, autofocus: true, class: "appearance-none rounded w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+        </div>
+
+        <div>
+          <%= f.label :password, class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
+          <%= f.password_field :password, autocomplete: "new-password", class: "appearance-none rounded w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+        </div>
+
+        <div>
+          <%= f.label :password_confirmation, class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
+          <%= f.password_field :password_confirmation, class: "appearance-none rounded w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <%= f.submit "Sign up", class: "btn btn-primary w-full" %>
+      </div>
+    <% end %>
+
+    <div class="text-sm text-center text-gray-600 dark:text-slate-300 mt-6">
+      Already have an account?
+      <%= link_to "Log in", new_session_path(resource_name), class: "font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-300" %>
+    </div>
+  </div>
+</div>

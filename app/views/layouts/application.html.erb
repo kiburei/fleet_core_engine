@@ -28,8 +28,6 @@
   <%= render "rui/shared/flash" %>
     <% if content_for(:header).present? %>
       <%= yield :header %>
-    <% else %>
-      <%= render "rui/shared/nav" %>
     <% end %>
     <%= yield %>
   <%= railsui_launcher if Rails.env.development? %>

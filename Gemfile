@@ -20,8 +20,10 @@ gem "cssbundling-rails"
 gem "jbuilder"
 # Use RailsUI Template
 gem "railsui"
-# Use Devise for authentication [
+# Use Devise for authentication
 gem "devise", "~> 4.9"
+# Role management for Ruby on Rails
+gem "rolify"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
