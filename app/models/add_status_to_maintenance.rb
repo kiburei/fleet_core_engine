@@ -1,0 +1,2 @@
+class AddStatusToMaintenance < ApplicationRecord
+end

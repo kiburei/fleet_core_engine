@@ -4,20 +4,19 @@ class MaintenancesController < ApplicationController
   def index
     @maintenance = Maintenance.new
 
-    if params[:fleet_provider_id]
-      @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
-      @maintenances = @fleet_provider.maintenances.includes(:vehicle)
+    if params[:vehicle_id]
+      @maintenances = Maintenance.where(vehicle_id: params[:vehicle_id]).includes(:vehicle)
     else
       @maintenances = if current_user.admin?
                         Maintenance.all.includes(:vehicle)
       else
-                        Maintenance.where(fleet_provider_id: current_user.fleet_provider_id).includes(:vehicle)
+                        Maintenance.where(fleet_provider_id: current_user.fleet_providers).includes(:vehicle)
       end
     end
   end
 
   def new
-    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager? || !current_user.fleet_provider_user?
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager? || current_user.fleet_provider_user?
       redirect_to maintenances_path, alert: "You are not authorized to create maintenance records."
       return
     end
@@ -25,7 +24,7 @@ class MaintenancesController < ApplicationController
   end
 
   def show
-    if current_user.fleet_provider_id != @maintenance.fleet_provider_id && !current_user.admin?
+    unless current_user.fleet_providers.include?(@maintenance.fleet_provider) || current_user.admin? || current_user.fleet_provider_user? || current_user.fleet_provider_manager?
       redirect_to maintenances_path, alert: "You are not authorized to view this maintenance record."
       nil
     end
@@ -33,7 +32,7 @@ class MaintenancesController < ApplicationController
 
   def create
     # only fleet provider admin can and fleet provider manager can create maintenance records
-    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager? || !current_user.fleet_provider_user?
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager? || current_user.fleet_provider_user?
       redirect_to maintenances_path, alert: "You are not authorized to create maintenance records."
       return
     end

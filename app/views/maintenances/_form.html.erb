@@ -12,16 +12,27 @@
     <% end %>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      <!-- Fleet Provider -->
+      <!-- Fleet Provider Select -->
       <div>
         <%= f.label :fleet_provider_id, "Fleet Provider", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-        <%= f.collection_select :fleet_provider_id, FleetProvider.all, :id, :name, { prompt: "Select a fleet provider" }, class: "form-select mt-1 block w-full" %>
+        <%= f.collection_select :fleet_provider_id,
+            !params[:vehicle_id].nil? ? [Vehicle.find(params[:vehicle_id]).fleet_provider] : current_user.fleet_providers,
+            :id, :name,
+            { prompt: "Select a provider" },
+            { id: "fleet_provider_select", class: "form-select mt-1 block w-full", onchange: "filterVehicles()" } %>
       </div>
 
-      <!-- Vehicle -->
+      <!-- Vehicle Select -->
       <div>
         <%= f.label :vehicle_id, "Vehicle", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-        <%= f.collection_select :vehicle_id, Vehicle.all, :id, :registration_number, { prompt: "Select a vehicle" }, class: "form-select mt-1 block w-full" %>
+        <select name="maintenance[vehicle_id]" id="vehicle_select" class="form-select mt-1 block w-full">
+          <option value="">Select a vehicle</option>
+          <% (params[:vehicle_id].present? ? [Vehicle.find(params[:vehicle_id])] : Vehicle.includes(:fleet_provider)).each do |v| %>
+            <option value="<%= v.id %>" data-fleet-id="<%= v.fleet_provider_id %>">
+              <%= v.registration_number %>
+            </option>
+          <% end %>
+        </select>
       </div>
 
       <!-- Maintenance Type -->
@@ -73,3 +84,26 @@
     </div>
   <% end %>
 </div>
+
+
+<script>
+  function filterVehicles() {
+    const selectedFleetId = document.getElementById("fleet_provider_select").value;
+    const vehicleSelect = document.getElementById("vehicle_select");
+    const options = vehicleSelect.querySelectorAll("option");
+
+    options.forEach(option => {
+      if (!option.dataset.fleetId) return; // skip default
+      option.style.display = option.dataset.fleetId === selectedFleetId ? "block" : "none";
+    });
+
+    vehicleSelect.value = ""; // reset selection
+  }
+
+  // Run once if fleet provider pre-selected (e.g. on edit form)
+  document.addEventListener("DOMContentLoaded", function () {
+    if (document.getElementById("fleet_provider_select").value) {
+      filterVehicles();
+    }
+  });
+</script>
