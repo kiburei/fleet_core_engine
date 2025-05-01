@@ -1,12 +1,13 @@
 class User < ApplicationRecord
+  has_many :fleet_provider_users
+  has_many :fleet_providers, through: :fleet_provider_users
+
   rolify before_add: :before_add_method
   after_create :assign_default_role
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
-
-  belongs_to :fleet_provider, optional: true
 
   def before_add_method(role)
     # Custom logic before adding a role

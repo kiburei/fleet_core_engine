@@ -2,6 +2,11 @@
   <%= render "rui/shared/admin/nav", { header_title: "Documents" } do %>
     <!-- Modal Trigger -->
     <div data-controller="railsui-modal">
+      <%= link_to(
+          "Back",
+          polymorphic_path(@documentable),
+          class: "btn btn-primary"
+        ) %>
       <button type="button" data-action="click->railsui-modal#open" class="btn btn-primary">
         New Document
       </button>
@@ -43,7 +48,12 @@
 
 <div class="max-w-5xl mx-auto mt-8 space-y-6">
   <h1 class="text-2xl font-bold text-slate-800 dark:text-white">
-    Documents for <%= @documentable.try(:registration_number) || @documentable.try(:full_name) %>
+    Documents for 
+    <%= link_to(
+          (@documentable.try(:registration_number) || @documentable.try(:full_name) || @documentable.try(:name) || "Record"),
+          polymorphic_path(@documentable),
+          class: "text-blue-600 hover:underline"
+        ) %>
   </h1>
 
   <div class="bg-white dark:bg-slate-800 shadow rounded-lg p-6">

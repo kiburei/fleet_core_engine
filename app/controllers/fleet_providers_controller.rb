@@ -4,12 +4,13 @@ class FleetProvidersController < ApplicationController
   # GET /fleet_providers or /fleet_providers.json
   def index
     @fleet_provider = FleetProvider.new
-    @fleet_providers = current_user.admin? ? FleetProvider.all : FleetProvider.where(id: current_user.fleet_provider_id)
+    @fleet_providers = current_user.admin? ? FleetProvider.all : current_user.fleet_providers
   end
 
   # GET /fleet_providers/1 or /fleet_providers/1.json
   def show
-    if current_user.fleet_provider_id != @fleet_provider.id && !current_user.admin?
+    # user can only view their own fleet providers
+    unless current_user.fleet_providers.include?(@fleet_provider) || !current_user.fleet_provider_admin?
       redirect_to fleet_providers_path, alert: "You are not authorized to view this fleet provider."
       nil
     end
@@ -26,7 +27,7 @@ class FleetProvidersController < ApplicationController
 
   # GET /fleet_providers/1/edit
   def edit
-    if current_user.fleet_provider_id != @fleet_provider.id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to fleet_providers_path, alert: "You are not authorized to edit this fleet provider."
       nil
     end
@@ -55,7 +56,7 @@ class FleetProvidersController < ApplicationController
 
   # PATCH/PUT /fleet_providers/1 or /fleet_providers/1.json
   def update
-    if current_user.fleet_provider_id != @fleet_provider.id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to fleet_providers_path, alert: "You are not authorized to update this fleet provider."
       nil
     end
@@ -73,7 +74,7 @@ class FleetProvidersController < ApplicationController
 
   # DELETE /fleet_providers/1 or /fleet_providers/1.json
   def destroy
-    if current_user.fleet_provider_id != @fleet_provider.id && !current_user.fleet_provider_admin?
+    unless current_user.fleet_providers.include?(@fleet_provider) && !current_user.fleet_provider_admin?
       redirect_to fleet_providers_path, alert: "You are not authorized to delete this fleet provider."
       return
     end
