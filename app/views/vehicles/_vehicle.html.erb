@@ -5,7 +5,17 @@
   <!-- Left: Image + Title -->
   <div class="flex items-center gap-6">
     <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center">
-      <%= image_tag "https://via.placeholder.com/100x100.png?text=Car", alt: "Vehicle Image", class: "object-cover w-full h-full" %>
+      <% if vehicle.logo.attached? %>
+                <%= image_tag url_for(vehicle.logo), alt: vehicle.registration_number,
+                    class: "rounded-full sm:size-10 size-14 object-cover bg-slate-100" %>
+              <% else %>
+                <% reg_number = vehicle.registration_number.to_s %>
+                <div class="flex flex-col items-center justify-center bg-white text-black border border-gray-300 rounded sm:w-15 sm:h-15 w-14 h-14 shadow-inner leading-tight text-center tracking-wider"
+                    style="font-family: 'Courier New', Courier, monospace; font-weight: bold;">
+                  <span class="text-xs-5"><%= reg_number[0, 3] %></span>
+                  <span class="text-xs-5"><%= reg_number[3..] %></span>
+                </div>
+              <% end %>
     </div>
     <div>
       <h1 class="text-2xl font-bold text-slate-900 dark:text-white"><%= @vehicle.registration_number %></h1>
@@ -17,7 +27,7 @@
   <div class="flex gap-3 mt-4 sm:mt-0 sm:ml-auto">
     <%= link_to "Documents", vehicle_documents_path(@vehicle), class: "btn btn-primary" %>
     <%= link_to "Assign Driver", "/", class: "btn btn-primary" %>
-    <%= link_to "Maintenance", "/", class: "btn btn-primary" %>
+    <%= link_to "Lease/Hire", "/", class: "btn btn-primary" %>
   </div>
 </div>
 
@@ -58,7 +68,7 @@
   <!-- Dashboard Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
     <!-- Maintenance Card -->
-    <%= link_to root_path(@vehicle), class: "bg-blue-500 dark:bg-blue-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
+    <%= link_to vehicle_maintenances_path(@vehicle), class: "bg-blue-500 dark:bg-blue-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
       <p class="text-sm text-blue-800 dark:text-blue-300 font-semibold">Maintenances</p>
       <p class="text-2xl font-bold text-blue-900 dark:text-blue-100 mt-1"><%= @vehicle.maintenances.count %></p>
       <% total_cost = @vehicle.maintenances.sum(:maintenance_cost) %>
@@ -66,15 +76,15 @@
     <% end %>
 
     <!-- Incidents Card -->
-    <%= link_to root_path(@vehicle), class: "bg-red-500 dark:bg-red-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
+    <%= link_to vehicle_incidents_path(@vehicle), class: "bg-red-500 dark:bg-red-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
       <p class="text-sm text-red-800 dark:text-red-300 font-semibold">Incidents</p>
       <p class="text-2xl font-bold text-red-900 dark:text-red-100 mt-1"><%= @vehicle.incidents.count %></p>
     <% end %>
 
     <!-- Documents Card -->
-    <%= link_to root_path(@vehicle), class: "bg-green-500 dark:bg-green-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
+    <%= link_to vehicle_documents_path(@vehicle), class: "bg-green-500 dark:bg-green-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
       <p class="text-sm text-green-800 dark:text-green-300 font-semibold">Documents</p>
-      <p class="text-2xl font-bold text-green-900 dark:text-green-100 mt-1"><%= rand(1..10) %></p>
+      <p class="text-2xl font-bold text-green-900 dark:text-green-100 mt-1"><%= @vehicle.documents.count %></p>
     <% end %>
   </div>
 

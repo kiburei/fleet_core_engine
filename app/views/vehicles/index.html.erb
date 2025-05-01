@@ -84,18 +84,25 @@
     <ul class="divide-y divide-slate-300/80 dark:divide-slate-600">
       <% if @vehicles.present? %>
         <% @vehicles.each do | vehicle | %>
+          <% status = {
+                    "active" => "bg-green-500",
+                    "inactive" => "bg-amber-500",
+                    "pending" => "bg-red-500"
+                  } %>
           <!-- vehicle start -->
           <li
-            class="px-4 py-5 sm:text-base text-sm items-start grid grid-cols-2 sm:grid-cols-12 gap-3 sm:gap-0 before:content-[''] before:absolute relative before:left-2 before:h-[calc(100%-30px)] before:w-2 before:rounded-full before:bottom-1 before:top-4 pl-8 before:flex before:flex-col before:items-center before:justify-center hover:bg-slate-50 transition ease-in-out duration-200 dark:hover:bg-slate-800 before:bg-amber-500">
+            class="px-4 py-5 sm:text-base text-sm items-start grid grid-cols-2 sm:grid-cols-12 gap-3 sm:gap-0 before:content-[''] before:absolute relative before:left-2 before:h-[calc(100%-30px)] before:w-2 before:rounded-full before:bottom-1 before:top-4 pl-8 before:flex before:flex-col before:items-center before:justify-center hover:bg-slate-50 transition ease-in-out duration-200 dark:hover:bg-slate-800 before:<%= status[vehicle.status] || 'bg-red-500' %>">
             <div class="flex items-center gap-3 sm:col-span-3 sm:mb-0 mb-4 col-span-2">
-              <% if respond_to?(:admin_profile_path) %>
-                <%= link_to admin_profile_path do %>
-                  <%= image_tag demo_avatar_url(id: vehicle.id, variant: vehicle.vehicle_model.make), alt: vehicle.vehicle_model.model, class: "rounded-full sm:size-10 size-14" %>
-                <% end %>
+              <% if vehicle.logo.attached? %>
+                <%= image_tag url_for(vehicle.logo), alt: vehicle.registration_number,
+                    class: "rounded-full sm:size-10 size-14 object-cover bg-slate-100" %>
               <% else %>
-                <%= link_to vehicle_path(vehicle) do %>
-                  <%= image_tag demo_avatar_url(id: vehicle.id, variant: vehicle.vehicle_model.model), alt: vehicle.vehicle_model.model, class: "rounded-full sm:size-10 size-14" %>
-                <% end %>
+                <% reg_number = vehicle.registration_number.to_s %>
+                <div class="flex flex-col items-center justify-center bg-white text-black border border-gray-300 rounded sm:w-10 sm:h-10 w-14 h-14 shadow-inner leading-tight text-center tracking-wider"
+                    style="font-family: 'Courier New', Courier, monospace; font-weight: bold;">
+                  <span class="text-xs"><%= reg_number[0, 3] %></span>
+                  <span class="text-xs"><%= reg_number[3..] %></span>
+                </div>
               <% end %>
               <div>
                 <%= link_to vehicle.vehicle_model.model, vehicle_path(vehicle), class: "sm:font-medium text-slate-900 hover:text-primary-600 sm:text-base text-lg font-semibold dark:text-slate-200" %>
@@ -113,10 +120,6 @@
             <div class="sm:col-span-2 col-span-1">
               <p><%= vehicle.vehicle_model.transmission %></p>
               <p class="text-sm text-slate-500">Expiry</p>
-            </div>
-            <div class="sm:col-span-2 col-span-1">
-              <p><%= rand(1..100) %></p>
-              <p class="text-sm text-slate-500">Fleet Size</p>
             </div>
             <div data-controller="railsui-dropdown" class="sm:col-span-1 relative col-span-2">
               <div class="flex justify-end">

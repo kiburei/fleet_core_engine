@@ -9,6 +9,8 @@ Rails.application.routes.draw do
   end
   resources :vehicles do
     resources :documents, only: [ :index, :new, :create, :show ]
+    resources :maintenances, only: [ :index, :new, :create, :show ]
+    resources :incidents, only: [ :index, :new, :create, :show ]
   end
   resources :vehicle_models
   resources :fleet_providers do

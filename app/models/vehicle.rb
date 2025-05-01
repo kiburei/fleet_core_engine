@@ -1,4 +1,6 @@
 class Vehicle < ApplicationRecord
+  has_one_attached :logo
+
   has_one :driver
 
   belongs_to :vehicle_model
