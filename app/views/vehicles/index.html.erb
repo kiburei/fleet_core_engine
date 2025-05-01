@@ -82,73 +82,75 @@
 <div class="px-4 mb-16">
   <div class="container mx-auto rounded-lg border border-slate-300/80 shadow shadow-slate-100 dark:shadow-slate-950 mt-6 bg-white dark:bg-slate-800 dark:border-slate-600/80">
     <ul class="divide-y divide-slate-300/80 dark:divide-slate-600">
-      <% @vehicles.each do | vehicle | %>
-        <!-- vehicle start -->
-        <li
-          class="px-4 py-5 sm:text-base text-sm items-start grid grid-cols-2 sm:grid-cols-12 gap-3 sm:gap-0 before:content-[''] before:absolute relative before:left-2 before:h-[calc(100%-30px)] before:w-2 before:rounded-full before:bottom-1 before:top-4 pl-8 before:flex before:flex-col before:items-center before:justify-center hover:bg-slate-50 transition ease-in-out duration-200 dark:hover:bg-slate-800 before:bg-amber-500">
-          <div class="flex items-center gap-3 sm:col-span-3 sm:mb-0 mb-4 col-span-2">
-            <% if respond_to?(:admin_profile_path) %>
-              <%= link_to admin_profile_path do %>
-                <%= image_tag demo_avatar_url(id: vehicle.id, variant: vehicle.vehicle_model.make), alt: vehicle.vehicle_model.model, class: "rounded-full sm:size-10 size-14" %>
-              <% end %>
-            <% else %>
-              <%= link_to vehicle_path(vehicle) do %>
-                <%= image_tag demo_avatar_url(id: vehicle.id, variant: vehicle.vehicle_model.model), alt: vehicle.vehicle_model.model, class: "rounded-full sm:size-10 size-14" %>
-              <% end %>
-            <% end %>
-            <div>
-              <%= link_to vehicle.vehicle_model.model, vehicle_path(vehicle), class: "sm:font-medium text-slate-900 hover:text-primary-600 sm:text-base text-lg font-semibold dark:text-slate-200" %>
-              <p class="text-slate-500 text-sm"><%= vehicle.vehicle_model.model %></p>
-            </div>
-          </div>
-          <div class="sm:col-span-2 col-span-1">
-            <p><%= vehicle.registration_number %></p>
-            <p class="text-sm text-slate-500">reg no</p>
-          </div>
-          <div class="sm:col-span-2 col-span-1">
-            <p><%= vehicle.fleet_provider.name %></p>
-            <p class="text-sm text-slate-500">fleet provider</p>
-          </div>
-          <div class="sm:col-span-2 col-span-1">
-            <p><%= vehicle.vehicle_model.transmission %></p>
-            <p class="text-sm text-slate-500">Expiry</p>
-          </div>
-          <div class="sm:col-span-2 col-span-1">
-            <p><%= rand(1..100) %></p>
-            <p class="text-sm text-slate-500">Fleet Size</p>
-          </div>
-          <div data-controller="railsui-dropdown" class="sm:col-span-1 relative col-span-2">
-            <div class="flex justify-end">
-              <button data-action="click->railsui-dropdown#toggle click@window->railsui-dropdown#hide"
-                class="-mt-1 block group p-2 rounded-lg focus:ring-4 focus:ring-primary-50 dark:focus:ring-slate-600/50">
-                <%= icon "cog-6-tooth", class: "size-6 stroke-current text-slate-500 group-hover:text-primary-600 dark:group-hover:text-primary-400" %>
-              </button>
-            </div>
-            <ul data-railsui-dropdown-target="menu"
-              class="hidden transition transform origin-to-right absolute right-0 top-10 bg-white rounded-lg shadow-xl shadow-slate-900/10 border border-slate-200 md:w-[200px] w-full z-50 py-2 dark:bg-slate-700 dark:shadow-slate-900/50 dark:border-slate-500/60 md:text-sm text-base font-medium text-slate-600 dark:text-slate-200"
-              data-transition-enter-active="transition ease-out duration-300"
-              data-transition-enter-from="transform opacity-0 scale-95"
-              data-transition-enter-to="transform opacity-100 scale-100"
-              data-transition-leave-active="transition ease-in duration-300"
-              data-transition-leave-from="transform opacity-100 scale-100"
-              data-transition-leave-to="transform opacity-0 scale-95">
-              
-              <li>
-                <%= link_to vehicle_path(vehicle), class: "px-4 py-[.4rem] hover:text-primary-600 dark:hover:text-primary-300 group flex items-center justify-start gap-3" do %>
-                  <%= icon "paper-airplane", class: "stroke-current size-5 text-slate-500 group-hover:text-primary-600 dark:group-hover:text-primary-400" %>
-                  <span>Show</span>
+      <% if @vehicles.present? %>
+        <% @vehicles.each do | vehicle | %>
+          <!-- vehicle start -->
+          <li
+            class="px-4 py-5 sm:text-base text-sm items-start grid grid-cols-2 sm:grid-cols-12 gap-3 sm:gap-0 before:content-[''] before:absolute relative before:left-2 before:h-[calc(100%-30px)] before:w-2 before:rounded-full before:bottom-1 before:top-4 pl-8 before:flex before:flex-col before:items-center before:justify-center hover:bg-slate-50 transition ease-in-out duration-200 dark:hover:bg-slate-800 before:bg-amber-500">
+            <div class="flex items-center gap-3 sm:col-span-3 sm:mb-0 mb-4 col-span-2">
+              <% if respond_to?(:admin_profile_path) %>
+                <%= link_to admin_profile_path do %>
+                  <%= image_tag demo_avatar_url(id: vehicle.id, variant: vehicle.vehicle_model.make), alt: vehicle.vehicle_model.model, class: "rounded-full sm:size-10 size-14" %>
                 <% end %>
-              </li>
-              <li>
-                <%= link_to edit_vehicle_path(vehicle), class: "px-4 py-[.4rem] hover:text-primary-600 dark:hover:text-primary-300 group flex items-center justify-start gap-3" do %>
-                  <%= icon "pencil-square", class: "stroke-current size-5 text-slate-500 group-hover:text-primary-600 dark:group-hover:text-primary-400" %>
-                  <span>Edit</span>
+              <% else %>
+                <%= link_to vehicle_path(vehicle) do %>
+                  <%= image_tag demo_avatar_url(id: vehicle.id, variant: vehicle.vehicle_model.model), alt: vehicle.vehicle_model.model, class: "rounded-full sm:size-10 size-14" %>
                 <% end %>
-              </li>
-            </ul>
-          </div>
-        </li>
-        <!-- person end -->
+              <% end %>
+              <div>
+                <%= link_to vehicle.vehicle_model.model, vehicle_path(vehicle), class: "sm:font-medium text-slate-900 hover:text-primary-600 sm:text-base text-lg font-semibold dark:text-slate-200" %>
+                <p class="text-slate-500 text-sm"><%= vehicle.vehicle_model.model %></p>
+              </div>
+            </div>
+            <div class="sm:col-span-2 col-span-1">
+              <p><%= vehicle.registration_number %></p>
+              <p class="text-sm text-slate-500">reg no</p>
+            </div>
+            <div class="sm:col-span-2 col-span-1">
+              <p><%= vehicle.fleet_provider.name %></p>
+              <p class="text-sm text-slate-500">fleet provider</p>
+            </div>
+            <div class="sm:col-span-2 col-span-1">
+              <p><%= vehicle.vehicle_model.transmission %></p>
+              <p class="text-sm text-slate-500">Expiry</p>
+            </div>
+            <div class="sm:col-span-2 col-span-1">
+              <p><%= rand(1..100) %></p>
+              <p class="text-sm text-slate-500">Fleet Size</p>
+            </div>
+            <div data-controller="railsui-dropdown" class="sm:col-span-1 relative col-span-2">
+              <div class="flex justify-end">
+                <button data-action="click->railsui-dropdown#toggle click@window->railsui-dropdown#hide"
+                  class="-mt-1 block group p-2 rounded-lg focus:ring-4 focus:ring-primary-50 dark:focus:ring-slate-600/50">
+                  <%= icon "cog-6-tooth", class: "size-6 stroke-current text-slate-500 group-hover:text-primary-600 dark:group-hover:text-primary-400" %>
+                </button>
+              </div>
+              <ul data-railsui-dropdown-target="menu"
+                class="hidden transition transform origin-to-right absolute right-0 top-10 bg-white rounded-lg shadow-xl shadow-slate-900/10 border border-slate-200 md:w-[200px] w-full z-50 py-2 dark:bg-slate-700 dark:shadow-slate-900/50 dark:border-slate-500/60 md:text-sm text-base font-medium text-slate-600 dark:text-slate-200"
+                data-transition-enter-active="transition ease-out duration-300"
+                data-transition-enter-from="transform opacity-0 scale-95"
+                data-transition-enter-to="transform opacity-100 scale-100"
+                data-transition-leave-active="transition ease-in duration-300"
+                data-transition-leave-from="transform opacity-100 scale-100"
+                data-transition-leave-to="transform opacity-0 scale-95">
+                
+                <li>
+                  <%= link_to vehicle_path(vehicle), class: "px-4 py-[.4rem] hover:text-primary-600 dark:hover:text-primary-300 group flex items-center justify-start gap-3" do %>
+                    <%= icon "paper-airplane", class: "stroke-current size-5 text-slate-500 group-hover:text-primary-600 dark:group-hover:text-primary-400" %>
+                    <span>Show</span>
+                  <% end %>
+                </li>
+                <li>
+                  <%= link_to edit_vehicle_path(vehicle), class: "px-4 py-[.4rem] hover:text-primary-600 dark:hover:text-primary-300 group flex items-center justify-start gap-3" do %>
+                    <%= icon "pencil-square", class: "stroke-current size-5 text-slate-500 group-hover:text-primary-600 dark:group-hover:text-primary-400" %>
+                    <span>Edit</span>
+                  <% end %>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <!-- person end -->
+        <% end %>
       <% end %>
     </ul>
   </div>

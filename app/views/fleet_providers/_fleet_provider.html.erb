@@ -3,7 +3,11 @@
   <!-- Condensed Profile Header -->
   <div class="flex items-center gap-4 mb-4">
     <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center">
-      <%= image_tag "https://via.placeholder.com/80x80.png?text=Fleet", alt: "Fleet Logo", class: "object-cover w-full h-full" %>
+      <%= image_tag(
+              fleet_provider.logo.attached? ? url_for(fleet_provider.logo) : demo_avatar_url(id: fleet_provider.id, variant: fleet_provider.name),
+              alt: fleet_provider.name,
+              class: "object-cover w-full h-full"
+            ) %>
     </div>
     <div>
       <h1 class="text-xl font-semibold text-slate-900 dark:text-white"><%= fleet_provider.name %></h1>

@@ -49,6 +49,11 @@
       <%= form.date_field :license_expiry_date, class: "form-input mt-1 block w-full" %>
     </div>
 
+    <div class="mt-4">
+      <%= form.label :logo, "Upload Logo", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.file_field :logo, class: "mt-1 block w-full" %>
+    </div>
+
     <div class="pt-4">
       <%= form.submit "Save Fleet Provider", class: "btn btn-primary" %>
     </div>

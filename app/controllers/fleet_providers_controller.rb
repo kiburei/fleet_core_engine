@@ -95,6 +95,6 @@ class FleetProvidersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def fleet_provider_params
-      params.expect(fleet_provider: [ :name, :registration_number, :physical_address, :phone_number, :email, :license_status, :license_expiry_date ])
+      params.expect(fleet_provider: [ :name, :registration_number, :physical_address, :phone_number, :email, :license_status, :license_expiry_date, :logo ])
     end
 end

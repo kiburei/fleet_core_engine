@@ -32,7 +32,11 @@
     <!--Only Fleet Provider -->
     <div>
       <%= form.label :fleet_provider_id, "Fleet Provider", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-      <%= form.collection_select :fleet_provider_id, FleetProvider.all, :id, :name, { prompt: "Select a provider" }, class: "form-select mt-1 block w-full" %>
+      <%= form.collection_select :fleet_provider_id,
+            @fleet_provider.present? ? [@fleet_provider] : current_user.fleet_providers,
+            :id, :name,
+            { prompt: "Select a provider" },
+            class: "form-select mt-1 block w-full" %>
     </div>
 
     <!-- Submit -->
