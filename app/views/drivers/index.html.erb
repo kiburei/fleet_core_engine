@@ -114,8 +114,13 @@
             <p class="text-sm text-slate-500">fleet provider</p>
           </div>
           <div class="sm:col-span-2 col-span-1">
-            <p><%= driver.vehicle.registration_number %></p>
-            <p class="text-sm text-slate-500">Vehicle</p>
+            <% if !driver.vehicle.nil? %>
+              <p><%= driver.vehicle.registration_number %></p>
+              <p class="text-sm text-slate-500">Vehicle</p>
+            <% else %>
+              <p class="text-slate-500">No Vehicle Assigned</p>
+              <p class="text-sm text-slate-500">Vehicle</p>
+            <% end %>
           </div>
           <div data-controller="railsui-dropdown" class="sm:col-span-1 relative col-span-2">
             <div class="flex justify-end">

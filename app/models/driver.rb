@@ -1,5 +1,7 @@
 class Driver < ApplicationRecord
-  belongs_to :vehicle
+  has_one_attached :profile_picture
+
+  belongs_to :vehicle, optional: true
   belongs_to :fleet_provider
 
   has_many :trips

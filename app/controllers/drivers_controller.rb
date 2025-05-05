@@ -12,14 +12,14 @@ class DriversController < ApplicationController
       @drivers = if current_user.admin?
                     Driver.all.includes(:vehicle)
       else
-                    Driver.where(fleet_provider_id: current_user.fleet_provider_id).includes(:vehicle)
+                    Driver.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle)
       end
     end
   end
 
   # GET /drivers/1 or /drivers/1.json
   def show
-    if current_user.fleet_provider_id != @driver.fleet_provider_id && !current_user.admin?
+    unless current_user.fleet_providers.include?(@driver.fleet_provider) || current_user.admin?
       redirect_to drivers_path, alert: "You are not authorized to view this driver."
       nil
     end
@@ -27,7 +27,7 @@ class DriversController < ApplicationController
 
   # GET /drivers/new
   def new
-    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to drivers_path, alert: "You are not authorized to create drivers."
       return
     end
@@ -36,7 +36,7 @@ class DriversController < ApplicationController
 
   # GET /drivers/1/edit
   def edit
-    if current_user.fleet_provider_id != @driver.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to drivers_path, alert: "You are not authorized to edit this driver."
       nil
     end
@@ -45,7 +45,7 @@ class DriversController < ApplicationController
   # POST /drivers or /drivers.json
   def create
     # only fleet provider admin can and fleet provider manager can create drivers
-    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to drivers_path, alert: "You are not authorized to create drivers."
       return
     end
@@ -65,7 +65,7 @@ class DriversController < ApplicationController
 
   # PATCH/PUT /drivers/1 or /drivers/1.json
   def update
-    if current_user.fleet_provider_id != @driver.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to drivers_path, alert: "You are not authorized to update this driver."
       return
     end
@@ -83,7 +83,7 @@ class DriversController < ApplicationController
 
   # DELETE /drivers/1 or /drivers/1.json
   def destroy
-    if current_user.fleet_provider_id != @driver.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to drivers_path, alert: "You are not authorized to destroy this driver."
       return
     end
@@ -104,6 +104,6 @@ class DriversController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def driver_params
-      params.expect(driver: [ :first_name, :middle_name, :last_name, :license_number, :phone_number, :vehicle_id, :fleet_provider_id ])
+      params.expect(driver: [ :first_name, :middle_name, :last_name, :license_number, :phone_number, :vehicle_id, :profile_picture, :fleet_provider_id ])
     end
 end
