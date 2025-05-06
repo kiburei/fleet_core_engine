@@ -11,20 +11,20 @@ class IncidentsController < ApplicationController
       @incidents = if current_user.admin?
                     Incident.all.includes(:vehicle, :driver).order(incident_date: :desc)
       else
-                    Incident.where(fleet_provider_id: current_user.fleet_provider_id).includes(:vehicle, :driver).order(incident_date: :desc)
+                    Incident.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle, :driver).order(incident_date: :desc)
       end
     end
   end
 
   def show
-    if current_user.fleet_provider_id != @incident.fleet_provider_id && !current_user.admin?
+    unless current_user.fleet_providers.include?(@incident.fleet_provider) || current_user.admin?
       redirect_to incidents_path, alert: "You are not authorized to view this incident."
       nil
     end
   end
 
   def new
-    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager? || !current_user.fleet_provider_user? || !current_user.fleet_provider_driver?
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager? || current_user.fleet_provider_user? || current_user.fleet_provider_driver?
       redirect_to incidents_path, alert: "You are not authorized to create incidents."
       return
     end
@@ -32,7 +32,7 @@ class IncidentsController < ApplicationController
   end
 
   def edit
-    if current_user.fleet_provider_id != @incident.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@incident.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to incidents_path, alert: "You are not authorized to edit this incident."
       nil
     end
@@ -40,7 +40,7 @@ class IncidentsController < ApplicationController
 
   def create
     # only fleet provider admin can and fleet provider manager can create incidents
-    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager? || !current_user.fleet_provider_user? || !current_user.fleet_provider_driver?
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager? || current_user.fleet_provider_user? || current_user.fleet_provider_driver?
       redirect_to incidents_path, alert: "You are not authorized to create incidents."
       return
     end
@@ -54,7 +54,7 @@ class IncidentsController < ApplicationController
   end
 
   def update
-    if current_user.fleet_provider_id != @incident.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@incident.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to incidents_path, alert: "You are not authorized to update this incident."
       return
     end
@@ -67,7 +67,7 @@ class IncidentsController < ApplicationController
   end
 
   def destroy
-    if current_user.fleet_provider_id != @incident.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@incident.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to incidents_path, alert: "You are not authorized to delete this incident."
       return
     end
@@ -83,6 +83,19 @@ class IncidentsController < ApplicationController
   end
 
   def incident_params
-    params.require(:incident).permit(:fleet_provider_id, :vehicle_id, :driver_id, :incident_date, :incident_type, :damage_cost, :location, :report_reference, :description)
+    base = params.require(:incident).permit(
+      :fleet_provider_id,
+      :incident_date,
+      :incident_type,
+      :damage_cost,
+      :location,
+      :report_reference,
+      :description
+    )
+
+    base[:assigned_vehicle] = params.require(:assigned_vehicle).permit(:vehicle_id)
+    base[:assigned_driver] = params.require(:assigned_driver).permit(:driver_id)
+
+    base
   end
 end

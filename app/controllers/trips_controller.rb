@@ -57,22 +57,12 @@ class TripsController < ApplicationController
     vehicle_id = params.dig(:assigned_vehicle, :vehicle_id)
     driver_id  = params.dig(:assigned_driver, :driver_id)
 
-
-    puts "Vehicle ID: #{vehicle_id}"
-    puts "Driver ID: #{driver_id}"
-
-    trip = Trip.where(status: %w[scheduled in_progress])
-    .where("vehicle_id = :v_id OR driver_id = :d_id", v_id: vehicle_id, d_id: driver_id)
-
-    puts trip.inspect
-
     if Trip.where(status: %w[scheduled in_progress])
           .where("vehicle_id = :v_id OR driver_id = :d_id", v_id: vehicle_id, d_id: driver_id)
           .exists?
       redirect_to trips_path, alert: "A trip already exists for this vehicle or driver that is not completed or cancelled."
       return
     end
-
 
     @trip = Trip.new(trip_params)
 

@@ -26,7 +26,7 @@ class DocumentsController < ApplicationController
   private
 
   def set_documentable
-    klass = [ Vehicle, Driver, FleetProvider, Maintenance ].detect { |c| params["#{c.name.underscore}_id"] }
+    klass = [ Vehicle, Driver, FleetProvider, Maintenance, Incident ].detect { |c| params["#{c.name.underscore}_id"] }
     @documentable = klass.find(params["#{klass.name.underscore}_id"])
   end
 

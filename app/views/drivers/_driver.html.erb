@@ -66,7 +66,7 @@
     <% end %>
 
     <!-- Incidents -->
-    <%= link_to root_path(driver), class: "bg-red-500 dark:bg-red-900/30 p-4 rounded-md shadow hover:shadow-md transition block" do %>
+    <%= link_to driver_incidents_path(driver), class: "bg-red-500 dark:bg-red-900/30 p-4 rounded-md shadow hover:shadow-md transition block" do %>
       <p class="text-sm text-red-700 dark:text-red-200 font-semibold">Reported Incidents</p>
       <p class="text-2xl font-bold text-red-900 dark:text-red-100 mt-1"><%= driver.incidents&.count || 0 %></p>
     <% end %>

@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   end
   resources :drivers do
     resources :documents, only: [ :index, :new, :create, :show ]
+    resources :incidents, only: [ :index, :new, :create, :show ]
   end
   resources :vehicles do
     resources :documents, only: [ :index, :new, :create, :show ]
@@ -18,11 +19,14 @@ Rails.application.routes.draw do
     resources :drivers, only: [ :index, :show ]
     resources :documents, only: [ :index, :new, :create, :show ]
     resources :trips, only: [ :index, :show, :new, :create ]
+    resources :incidents, only: [ :index, :new, :create, :show ]
   end
   resources :maintenances do
     resources :documents, only: [ :index, :new, :create, :show ]
   end
-  resources :incidents
+  resources :incidents do
+    resources :documents, only: [ :index, :new, :create, :show ]
+  end
 
   namespace :admin do
     resources :users, only: [ :index, :edit, :show, :update ]
