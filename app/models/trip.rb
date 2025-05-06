@@ -10,8 +10,14 @@ class Trip < ApplicationRecord
   status = %w[scheduled in_progress completed cancelled]
 
   validates :status, presence: true, inclusion: { in: status }
+  validates :vehicle, presence: true
+  validates :driver, presence: true
+  validates :origin, presence: true
 
   after_initialize :set_default_status, if: :new_record?
+
+  # virtual attribute for form inputs
+  attr_accessor :assigned_vehicle, :assigned_driver
 
   def set_default_status
     self.status ||= "scheduled"
@@ -31,5 +37,14 @@ class Trip < ApplicationRecord
 
   def cancelled?
     status == "cancelled"
+  end
+
+  # Accept nested param assignment
+  def assigned_vehicle=(attrs)
+    self.vehicle_id = attrs[:vehicle_id] if attrs.present?
+  end
+
+  def assigned_driver=(attrs)
+    self.driver_id = attrs[:driver_id] if attrs.present?
   end
 end

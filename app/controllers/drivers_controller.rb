@@ -36,7 +36,7 @@ class DriversController < ApplicationController
 
   # GET /drivers/1/edit
   def edit
-    unless current_user.fleet_providers.include?(@fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@driver.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to drivers_path, alert: "You are not authorized to edit this driver."
       nil
     end
@@ -65,7 +65,7 @@ class DriversController < ApplicationController
 
   # PATCH/PUT /drivers/1 or /drivers/1.json
   def update
-    unless current_user.fleet_providers.include?(@fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@driver.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to drivers_path, alert: "You are not authorized to update this driver."
       return
     end
@@ -83,7 +83,7 @@ class DriversController < ApplicationController
 
   # DELETE /drivers/1 or /drivers/1.json
   def destroy
-    unless current_user.fleet_providers.include?(@fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@driver.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to drivers_path, alert: "You are not authorized to destroy this driver."
       return
     end

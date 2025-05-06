@@ -17,6 +17,7 @@ Rails.application.routes.draw do
     resources :vehicles, only: [ :index, :show ]
     resources :drivers, only: [ :index, :show ]
     resources :documents, only: [ :index, :new, :create, :show ]
+    resources :trips, only: [ :index, :show, :new, :create ]
   end
   resources :maintenances do
     resources :documents, only: [ :index, :new, :create, :show ]

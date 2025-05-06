@@ -46,14 +46,14 @@ class MaintenancesController < ApplicationController
   end
 
   def edit
-    if current_user.fleet_provider_id != @maintenance.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@maintenance.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to maintenances_path, alert: "You are not authorized to edit this maintenance record."
       nil
     end
   end
 
   def update
-    if current_user.fleet_provider_id != @maintenance.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@maintenance.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to maintenances_path, alert: "You are not authorized to update this maintenance record."
       nil
     end

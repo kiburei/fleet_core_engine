@@ -12,14 +12,14 @@ class TripsController < ApplicationController
       @trips = if current_user.admin?
                  Trip.all.includes(:vehicle, :driver)
       else
-                 Trip.where(fleet_provider_id: current_user.fleet_provider_id).includes(:vehicle, :driver)
+                 Trip.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle, :driver)
       end
     end
   end
 
   # GET /trips/1 or /trips/1.json
   def show
-    if current_user.fleet_provider_id != @trip.fleet_provider_id && !current_user.admin?
+    unless current_user.fleet_providers.include?(@trip.fleet_provider) || current_user.admin?
       redirect_to trips_path, alert: "You are not authorized to view this trip."
       nil
     end
@@ -30,7 +30,7 @@ class TripsController < ApplicationController
 
   # GET /trips/new
   def new
-    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager? || !current_user.fleet_provider_driver? || !current_user.fleet_provider_user?
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to trips_path, alert: "You are not authorized to create trips."
       return
     end
@@ -39,7 +39,7 @@ class TripsController < ApplicationController
 
   # GET /trips/1/edit
   def edit
-    if current_user.fleet_provider_id != @trip.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@trip.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to trips_path, alert: "You are not authorized to edit this trip."
       nil
     end
@@ -48,10 +48,31 @@ class TripsController < ApplicationController
   # POST /trips or /trips.json
   def create
     # only fleet provider admin can and fleet provider manager can create trips and fleet provider user can create trips
-    if !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager? || !current_user.fleet_provider_user?
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to trips_path, alert: "You are not authorized to create trips."
       return
     end
+
+    # check if trip already exists for the same vehicle or driver and is not completed
+    vehicle_id = params.dig(:assigned_vehicle, :vehicle_id)
+    driver_id  = params.dig(:assigned_driver, :driver_id)
+
+
+    puts "Vehicle ID: #{vehicle_id}"
+    puts "Driver ID: #{driver_id}"
+
+    trip = Trip.where(status: %w[scheduled in_progress])
+    .where("vehicle_id = :v_id OR driver_id = :d_id", v_id: vehicle_id, d_id: driver_id)
+
+    puts trip.inspect
+
+    if Trip.where(status: %w[scheduled in_progress])
+          .where("vehicle_id = :v_id OR driver_id = :d_id", v_id: vehicle_id, d_id: driver_id)
+          .exists?
+      redirect_to trips_path, alert: "A trip already exists for this vehicle or driver that is not completed or cancelled."
+      return
+    end
+
 
     @trip = Trip.new(trip_params)
 
@@ -68,7 +89,7 @@ class TripsController < ApplicationController
 
   # PATCH/PUT /trips/1 or /trips/1.json
   def update
-    if current_user.fleet_provider_id != @trip.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@trip.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to trips_path, alert: "You are not authorized to update this trip."
       return
     end
@@ -85,7 +106,7 @@ class TripsController < ApplicationController
 
   # DELETE /trips/1 or /trips/1.json
   def destroy
-    if current_user.fleet_provider_id != @trip.fleet_provider_id && !current_user.fleet_provider_admin? || !current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@trip.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to trips_path, alert: "You are not authorized to destroy this trip."
       return
     end
@@ -105,6 +126,18 @@ class TripsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def trip_params
-      params.expect(trip: [ :fleet_provider_id, :vehicle_id, :driver_id, :origin, :destination, :departure_time, :arrival_time, :status ])
+      base = params.require(:trip).permit(
+        :fleet_provider_id,
+        :origin,
+        :destination,
+        :departure_time,
+        :arrival_time,
+        :status
+      )
+
+      base[:assigned_vehicle] = params.require(:assigned_vehicle).permit(:vehicle_id)
+      base[:assigned_driver] = params.require(:assigned_driver).permit(:driver_id)
+
+      base
     end
 end

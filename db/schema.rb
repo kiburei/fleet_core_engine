@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_05_223301) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_05_234312) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -179,7 +179,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_05_223301) do
     t.string "destination"
     t.datetime "departure_time"
     t.datetime "arrival_time"
-    t.string "status"
+    t.string "status", default: "scheduled", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "fleet_provider_id", null: false

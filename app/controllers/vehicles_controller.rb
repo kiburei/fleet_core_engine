@@ -36,7 +36,7 @@ class VehiclesController < ApplicationController
 
   # GET /vehicles/1/edit
   def edit
-    unless current_user.fleet_providers.include?(@fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@vehicle.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to vehicles_path, alert: "You are not authorized to edit this vehicle."
       nil
     end
@@ -65,7 +65,7 @@ class VehiclesController < ApplicationController
 
   # PATCH/PUT /vehicles/1 or /vehicles/1.json
   def update
-    unless current_user.fleet_providers.include?(@fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
+    unless current_user.fleet_providers.include?(@vehicle.fleet_provider) || current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
       redirect_to vehicles_path, alert: "You are not authorized to update this vehicle."
       return
     end
