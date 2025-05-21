@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_05_234312) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_21_164807) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -183,6 +183,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_05_234312) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "fleet_provider_id", null: false
+    t.boolean "trackable", default: false
+    t.boolean "has_manifest", default: false
     t.index ["driver_id"], name: "index_trips_on_driver_id"
     t.index ["fleet_provider_id"], name: "index_trips_on_fleet_provider_id"
     t.index ["vehicle_id"], name: "index_trips_on_vehicle_id"

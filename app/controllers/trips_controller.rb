@@ -122,7 +122,9 @@ class TripsController < ApplicationController
         :destination,
         :departure_time,
         :arrival_time,
-        :status
+        :status,
+        :trackable,
+        :has_manifest
       )
 
       base[:assigned_vehicle] = params.require(:assigned_vehicle).permit(:vehicle_id)

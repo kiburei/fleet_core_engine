@@ -47,15 +47,18 @@
   </div>
 
   <!-- Live Map Placeholder -->
-  <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
-    <h2 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Live Trip Map</h2>
-    <div class="w-full h-64 bg-slate-200 dark:bg-slate-600 flex items-center justify-center rounded">
-      <p class="text-slate-500">[ Map will render here — integrate with Mapbox or Google Maps ]</p>
+  <% if @trip.trackable? %>
+    <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Live Trip Map</h2>
+      <div class="w-full h-64 bg-slate-200 dark:bg-slate-600 flex items-center justify-center rounded">
+        <p class="text-slate-500">[ Map will render here — integrate with Mapbox or Google Maps ]</p>
+      </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Trip Manifest -->
-  <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
+  <% if @trip.has_manifest %>
+    <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
     <div class="flex justify-between items-center mb-3">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Trip Manifest</h2>
 
@@ -96,6 +99,7 @@
         </div>
       <% end %>
     </div>
+  <% end %>
 
     <% if @trip.manifest.present? && @trip.manifest.manifest_items.any? %>
       <ul class="text-sm space-y-2">
