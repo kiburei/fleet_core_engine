@@ -99,7 +99,6 @@
         </div>
       <% end %>
     </div>
-  <% end %>
 
     <% if @trip.manifest.present? && @trip.manifest.manifest_items.any? %>
       <ul class="text-sm space-y-2">
@@ -152,7 +151,7 @@
               </thead>
               <tbody class="divide-y divide-slate-200 dark:divide-slate-600">
                 <% @trip.manifest.manifest_items.each do |item| %>
-                  <tr>
+                  <tr>  
                     <td class="px-4 py-2"><%= item.item_type.capitalize %></td>
                     <td class="px-4 py-2"><%= item.description %></td>
                     <td class="px-4 py-2"><%= item.quantity %></td>
@@ -171,6 +170,7 @@
     <% else %>
       <p class="text-slate-500 text-sm">No manifest items recorded yet.</p>
     <% end %>
+  <% end %>
   </div>
 
 
