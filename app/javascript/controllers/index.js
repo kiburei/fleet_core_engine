@@ -1,18 +1,19 @@
-import { Application } from "@hotwired/stimulus"
-import { definitionsFromContext } from "@hotwired/stimulus-webpack-helpers"
+import { application } from "./application"
 
-const application = Application.start()
+// Load all the controllers within this directory and all subdirectories. 
+// Controller files must be named *_controller.js.
+const standardControllers = require.context('.', true, /_controller\.js$/)
+standardControllers.keys().forEach((controllerPath) => {
+  if (controllerPath.includes('railsui/')) return
+  const controller = standardControllers(controllerPath)
+  const controllerName = controllerPath
+    .replace(/^\.\//, '')
+    .replace(/_controller\.js$/, '')
+    .replace(/\//g, '--')
+  application.register(controllerName, controller.default)
+})
 
-// Register standard controllers
-const context = require.context(".", true, /_controller\.js$/)
-application.load(definitionsFromContext(context))
+// Import railsui controllers explicitly
+import "./railsui"
 
-// Register railsui controllers if they exist
-try {
-  const railsuiContext = require.context("./railsui", true, /_controller\.js$/)
-  application.load(definitionsFromContext(railsuiContext))
-} catch (e) {
-  console.log("No Railsui controllers found")
-}
-
-export default application
+export { application }

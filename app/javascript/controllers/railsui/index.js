@@ -1,13 +1,33 @@
 import { application } from "../application"
 
-import ComboSelectController from "./combo_select_controller";
-application.register("combo-select", ComboSelectController);
-import DashboardController from "./dashboard_controller";
-application.register("dashboard", DashboardController);
-import NavController from "./nav_controller";
-application.register("nav", NavController);
+// Import local controllers
+import ComboSelectController from "./combo_select_controller"
+import DashboardController from "./dashboard_controller"
+import NavController from "./nav_controller"
+import DropdownController from "./dropdown_controller"
 
-import { RailsuiClipboard, RailsuiCountUp, RailsuiCombobox, RailsuiDateRangePicker, RailsuiDropdown, RailsuiModal, RailsuiRange, RailsuiReadMore,RailsuiSelectAll, RailsuiTabs, RailsuiToast, RailsuiToggle, RailsuiTooltip } from 'railsui-stimulus'
+// Register local controllers
+application.register("combo-select", ComboSelectController)
+application.register("dashboard", DashboardController)
+application.register("nav", NavController)
+application.register("dropdown", DropdownController)
+
+// Import and register railsui-stimulus controllers
+import { 
+  RailsuiClipboard, 
+  RailsuiCountUp, 
+  RailsuiCombobox, 
+  RailsuiDateRangePicker, 
+  RailsuiDropdown, 
+  RailsuiModal, 
+  RailsuiRange, 
+  RailsuiReadMore,
+  RailsuiSelectAll, 
+  RailsuiTabs, 
+  RailsuiToast, 
+  RailsuiToggle, 
+  RailsuiTooltip 
+} from 'railsui-stimulus'
 
 application.register('railsui-clipboard', RailsuiClipboard)
 application.register('railsui-count-up', RailsuiCountUp)
