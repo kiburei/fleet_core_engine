@@ -61,11 +61,14 @@ Rails.application.routes.draw do
   # To override, add your own page#index view or change to a new root
   # root action: :index, controller: "railsui/default"
 
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  # Add routes for railsui stylesheets
+  get "/stylesheets/railsui/theme", to: "assets#railsui_theme"
+  get "/stylesheets/railsui/actiontext", to: "assets#railsui_actiontext"
+  get "/stylesheets/railsui/buttons", to: "assets#railsui_buttons"
+  get "/stylesheets/railsui/headings", to: "assets#railsui_headings"
+  get "/stylesheets/railsui/forms", to: "assets#railsui_forms"
+  get "/stylesheets/railsui/navigation", to: "assets#railsui_navigation"
+  get "/service-worker.js", to: "assets#service_worker"
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
@@ -73,4 +76,8 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
+  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  get "up" => "rails/health#show", as: :rails_health_check
 end

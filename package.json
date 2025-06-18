@@ -17,6 +17,7 @@
     "apexcharts": "^4.5.0",
     "railsui-stimulus": "^1.0.8",
     "stimulus-use": "^0.52.3",
+    "stimulus-vite-helpers": "^3.0.1",
     "tailwindcss": "^4.1.4",
     "tippy.js": "^6.3.7",
     "trix": "^2.1.13"
