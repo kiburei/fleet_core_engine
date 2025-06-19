@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_21_164807) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_19_103614) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -162,6 +162,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_21_164807) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["trip_id"], name: "index_manifests_on_trip_id"
+  end
+
+  create_table "marketplace_products", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.decimal "price"
+    t.string "category"
+    t.string "target_audience"
+    t.boolean "active"
+    t.boolean "featured"
+    t.string "tags"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "roles", force: :cascade do |t|

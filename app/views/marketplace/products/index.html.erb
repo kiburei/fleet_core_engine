@@ -1,0 +1,48 @@
+<% content_for :title, "Marketplace" %>
+
+<!-- Banner Section -->
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-br from-blue-600 to-purple-700 text-white py-16 px-6 rounded-xl shadow-xl mb-12 overflow-hidden">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-10">
+    <!-- Hero Text -->
+    <div>
+      <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
+        Welcome to the Fleet Marketplace
+      </h1>
+      <p class="mt-4 text-lg text-white/90">
+        Discover exclusive services for fleets, drivers, and businesses — from insurance to tracking systems, maintenance packages, and more.
+      </p>
+      <div class="mt-6">
+        <%= link_to "Browse Products", "#products-grid", class: "inline-block bg-white text-blue-700 font-semibold px-6 py-3 rounded-full shadow hover:bg-blue-100 transition" %>
+      </div>
+    </div>
+
+    <!-- Hero Image -->
+    <div class="hidden md:block">
+      <img src="https://unsplash.com/photos/a-sign-that-reads-market-on-top-of-a-building-WcaGmLNdPOI" alt="Fleet Marketplace" class="w-full h-auto drop-shadow-lg">
+    </div>
+  </div>
+</section>
+
+
+<!-- Product Grid -->
+<section id="products-grid" class="max-w-7xl mx-auto px-6 mb-20">
+  <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Featured Products</h2>
+  
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    <% 8.times do |i| %>
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
+        <div class="bg-gray-100 dark:bg-slate-700 aspect-[4/3]">
+          <img src="https://placehold.co/400x300?text=Product+#{i+1}" alt="Product #{i+1}" class="w-full h-full object-cover">
+        </div>
+        <div class="p-4">
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Product Title #{i+1}</h3>
+          <p class="text-sm text-slate-500 mb-2">Short product description goes here.</p>
+          <p class="text-primary font-bold mb-3">KES 1,999</p>
+          <button class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 transition">Add to Cart</button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>
+

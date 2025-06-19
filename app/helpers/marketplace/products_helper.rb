@@ -1,0 +1,2 @@
+module Marketplace::ProductsHelper
+end

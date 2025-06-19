@@ -32,6 +32,10 @@ Rails.application.routes.draw do
     resources :users, only: [ :index, :edit, :show, :update ]
   end
 
+  namespace :marketplace do
+    resources :products
+  end
+
   namespace :rui do
     get "about", to: "pages#about"
     get "pricing", to: "pages#pricing"

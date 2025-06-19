@@ -1,0 +1,11 @@
+<% content_for :title, "New product" %>
+
+<h1>New product</h1>
+
+<%= render "form", marketplace_product: @marketplace_product %>
+
+<br>
+
+<div>
+  <%= link_to "Back to products", marketplace_products_path %>
+</div>
