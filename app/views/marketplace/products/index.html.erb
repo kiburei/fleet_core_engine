@@ -19,7 +19,7 @@
 
     <!-- Hero Image -->
     <div class="hidden md:block">
-      <img src="https://unsplash.com/photos/a-sign-that-reads-market-on-top-of-a-building-WcaGmLNdPOI" alt="Fleet Marketplace" class="w-full h-auto drop-shadow-lg">
+      <%# <%= image_tag "hero-image.jpg", alt: "Hero Banner", class: "w-full h-auto drop-shadow-lg" %>
     </div>
   </div>
 </section>
@@ -46,3 +46,79 @@
   </div>
 </section>
 
+<section class="bg-gradient-to-tr from-indigo-700 via-purple-700 to-pink-600 py-20 text-white">
+  <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+    <h2 class="text-4xl sm:text-5xl font-extrabold mb-4">Bonus Features Coming Soon</h2>
+    <p class="max-w-2xl mx-auto text-lg text-indigo-100 mb-12">
+      Designed to unlock extra value for fleet operators, drivers, and clients in the ecosystem.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Feature 1 -->
+      <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
+        <div class="mb-4">
+          <%= icon("shield-check", class: "w-10 h-10 text-white") %>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Insurance Bundles</h3>
+        <p class="text-sm text-indigo-100">
+          Sell comprehensive vehicle, cargo, and travel insurance directly from the platform.
+        </p>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
+        <div class="mb-4">
+          <%= icon("life-buoy", class: "w-10 h-10 text-white") %>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Roadside Assistance</h3>
+        <p class="text-sm text-indigo-100">
+          Fleet owners can subscribe to emergency towing, repairs and rescue services.
+        </p>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
+        <div class="mb-4">
+          <%= icon("banknote", class: "w-10 h-10 text-white") %>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Fleet Financing</h3>
+        <p class="text-sm text-indigo-100">
+          Enable lease-to-own, financing, and flexible vehicle subscription packages.
+        </p>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
+        <div class="mb-4">
+          <%= icon("store", class: "w-10 h-10 text-white") %>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Verified Service Providers</h3>
+        <p class="text-sm text-indigo-100">
+          Access vetted garages, mechanics, inspection centers & spare part dealers.
+        </p>
+      </div>
+
+      <!-- Feature 5 -->
+      <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
+        <div class="mb-4">
+          <%= icon("gift", class: "w-10 h-10 text-white") %>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Driver Loyalty Rewards</h3>
+        <p class="text-sm text-indigo-100">
+          Earn bonuses, airtime, or discounts for safety, performance, and retention.
+        </p>
+      </div>
+
+      <!-- Feature 6 -->
+      <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
+        <div class="mb-4">
+          <%= icon("code-2", class: "w-10 h-10 text-white") %>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Marketplace APIs</h3>
+        <p class="text-sm text-indigo-100">
+          Build integrations for third-party services: telematics, compliance & payroll.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
