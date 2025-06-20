@@ -1,4 +1,4 @@
-import { application } from "../application"
+import { application } from "../index"
 
 import ComboSelectController from "./combo_select_controller";
 application.register("combo-select", ComboSelectController);
