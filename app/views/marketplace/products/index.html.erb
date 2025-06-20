@@ -1,16 +1,24 @@
 <% content_for :header do %>
   <%= render "rui/shared/admin/nav", { header_title: "Marketplace" } do %>
-    <!-- Test Stimulus in Marketplace -->
-    <div data-controller="test" class="mb-4 p-2 border rounded">
-      <button data-action="click->test#click" class="btn btn-secondary mr-2">Test Marketplace Stimulus</button>
-      <span class="text-sm text-gray-600">This should turn green if Stimulus works</span>
-    </div>
     
-    <!-- Modal Trigger for New Product -->
-    <div data-controller="railsui-modal">
-      <button type="button" data-action="click->railsui-modal#open" class="btn btn-primary">
-        New Product
+    
+    <!-- Cart Icon -->
+    <div data-controller="cart-view" class="relative flex items-center gap-4">
+      <!-- Cart Button -->
+      <button type="button" 
+              data-action="click->cart-view#toggleCart"
+              class="relative inline-flex items-center p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+        </svg>
+        <span data-cart-view-target="count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
       </button>
+
+      <!-- Modal Trigger for New Product -->
+      <div data-controller="railsui-modal">
+        <button type="button" data-action="click->railsui-modal#open" class="btn btn-primary">
+          New Product
+        </button>
 
       <!-- Modal Content -->
       <div aria-modal="true" role="dialog"
@@ -38,6 +46,38 @@
             <div class="pt-4">
               <%= render "form", marketplace_product: @marketplace_product %>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Cart Dropdown -->
+      <div data-cart-view-target="dropdown" 
+           class="hidden absolute top-full right-0 mt-2 w-96 bg-white dark:bg-slate-800 rounded-lg shadow-xl border z-50">
+        <div class="p-4 border-b border-gray-200 dark:border-slate-700">
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Shopping Cart</h3>
+        </div>
+        
+        <!-- Cart Items -->
+        <div data-cart-view-target="items" class="max-h-96 overflow-y-auto">
+          <!-- Items will be populated by JavaScript -->
+        </div>
+        
+        <!-- Cart Footer -->
+        <div class="p-4 border-t border-gray-200 dark:border-slate-700">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-lg font-semibold text-slate-800 dark:text-white">Total:</span>
+            <span data-cart-view-target="total" class="text-lg font-bold text-primary">KES 0</span>
+          </div>
+          <div class="flex gap-2">
+            <button data-action="click->cart-view#clearCart" 
+                    class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition">
+              Clear Cart
+            </button>
+            <button data-action="click->cart-view#checkout" 
+                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+              Checkout
+            </button>
           </div>
         </div>
       </div>

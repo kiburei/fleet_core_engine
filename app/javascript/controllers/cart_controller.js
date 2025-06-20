@@ -64,6 +64,9 @@ export default class extends Controller {
     
     localStorage.setItem('marketplace_cart', JSON.stringify(cart))
     console.log('Cart updated:', cart)
+    
+    
+    document.dispatchEvent(new CustomEvent('cartUpdated'))
   }
 
   updateButtonState() {

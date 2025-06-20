@@ -6,10 +6,12 @@ const application = Application.start()
 import HelloController from "./hello_controller"
 import TestController from "./test_controller"
 import CartController from "./cart_controller"
+import CartViewController from "./cart_view_controller"
 
 application.register("hello", HelloController)
 application.register("test", TestController)
 application.register("cart", CartController)
+application.register("cart-view", CartViewController)
 
 // Import RailsUI Stimulus components
 import { 
