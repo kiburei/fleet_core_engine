@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hotwired/stimulus": "^3.2.2",
+    "@hotwired/stimulus-webpack-helpers": "^1.0.1",
     "@hotwired/turbo-rails": "^8.0.13",
     "@rails/actiontext": "^8.0.200",
     "@tailwindcss/cli": "^4.1.4",
