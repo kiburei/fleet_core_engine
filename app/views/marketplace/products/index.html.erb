@@ -77,16 +77,40 @@
   <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Featured Products</h2>
   
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-    <% 8.times do |i| %>
-      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
-        <div class="bg-gray-100 dark:bg-slate-700 aspect-[4/3]">
-          <img src="https://placehold.co/400x300?text=Product+#{i+1}" alt="Product #{i+1}" class="w-full h-full object-cover">
+    <% 
+      products = [
+        { name: "GPS Tracking System", description: "Real-time vehicle tracking and monitoring", price: 2499, image: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&h=300&fit=crop" },
+        { name: "Fleet Insurance Package", description: "Comprehensive coverage for your fleet", price: 3999, image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400&h=300&fit=crop" },
+        { name: "Driver Safety Course", description: "Professional driver training program", price: 1499, image: "https://images.unsplash.com/photo-1540152058869-ce6f76293dfe?w=400&h=300&fit=crop" },
+        { name: "Vehicle Maintenance Kit", description: "Essential tools and supplies", price: 899, image: "https://images.unsplash.com/photo-1486754735734-325b5831c3ad?w=400&h=300&fit=crop" },
+        { name: "Fuel Management System", description: "Monitor and optimize fuel consumption", price: 1999, image: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=400&h=300&fit=crop" },
+        { name: "Emergency Road Kit", description: "Complete roadside emergency equipment", price: 599, image: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop" },
+        { name: "Driver Dashcam", description: "HD recording for safety and security", price: 799, image: "https://images.unsplash.com/photo-1548091372-0eca3f6e94e8?w=400&h=300&fit=crop" },
+        { name: "Fleet Analytics Software", description: "Data-driven fleet optimization", price: 4999, image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop" }
+      ]
+    %>
+    
+    <% products.each_with_index do |product, i| %>
+      <div data-controller="cart" 
+           data-cart-product-id-value="<%= i + 1 %>"
+           data-cart-product-name-value="<%= product[:name] %>"
+           data-cart-price-value="<%= product[:price] %>"
+           class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
+        <div class="bg-gray-100 dark:bg-slate-700 aspect-[4/3] overflow-hidden">
+          <img src="<%= product[:image] %>" 
+               alt="<%= product[:name] %>" 
+               class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+               onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMDAgMTAwSDIwMFYyMDBIMjAwVjEwMFoiIGZpbGw9IiM5Q0E0QUIiLz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeD0iMTgwIiB5PSIxMzAiPgo8cGF0aCBkPSJNMzUgMTBIMzVWMzBIMzVWMTBaIiBzdHJva2U9IiM5Q0E0QUIiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4KPC9zdmc+'">
         </div>
         <div class="p-4">
-          <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Product Title #{i+1}</h3>
-          <p class="text-sm text-slate-500 mb-2">Short product description goes here.</p>
-          <p class="text-primary font-bold mb-3">KES 1,999</p>
-          <button class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 transition">Add to Cart</button>
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2"><%= product[:name] %></h3>
+          <p class="text-sm text-slate-500 mb-2"><%= product[:description] %></p>
+          <p class="text-primary font-bold mb-3">KES <%= number_with_comma(product[:price]) %></p>
+          <button data-cart-target="button" 
+                  data-action="click->cart#addToCart" 
+                  class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 transition">
+            Add to Cart
+          </button>
         </div>
       </div>
     <% end %>
@@ -104,7 +128,9 @@
       <!-- Feature 1 -->
       <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
         <div class="mb-4">
-          <%= icon("shield-check", class: "w-10 h-10 text-white") %>
+          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 1L3 5v6c0 5.55 3.84 9.74 9 9.95 5.16-.21 9-4.4 9-9.95V5l-7-4zm-1.08 12.93L5.5 10.5l1.42-1.42L8.5 10.66l3.58-3.58 1.42 1.42-5 5z" clip-rule="evenodd"/>
+          </svg>
         </div>
         <h3 class="text-xl font-semibold mb-2">Insurance Bundles</h3>
         <p class="text-sm text-indigo-100">
@@ -115,7 +141,9 @@
       <!-- Feature 2 -->
       <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
         <div class="mb-4">
-          <%= icon("life-buoy", class: "w-10 h-10 text-white") %>
+          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12zm-1-9a1 1 0 012 0v4a1 1 0 01-2 0V7zm1 7a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+          </svg>
         </div>
         <h3 class="text-xl font-semibold mb-2">Roadside Assistance</h3>
         <p class="text-sm text-indigo-100">
@@ -126,7 +154,10 @@
       <!-- Feature 3 -->
       <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
         <div class="mb-4">
-          <%= icon("banknote", class: "w-10 h-10 text-white") %>
+          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+          </svg>
         </div>
         <h3 class="text-xl font-semibold mb-2">Fleet Financing</h3>
         <p class="text-sm text-indigo-100">
@@ -137,7 +168,10 @@
       <!-- Feature 4 -->
       <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
         <div class="mb-4">
-          <%= icon("store", class: "w-10 h-10 text-white") %>
+          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 2a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V3a1 1 0 00-1-1H4zm12 14H4V4h12v12z" clip-rule="evenodd"/>
+            <path d="M7 8a1 1 0 000 2h6a1 1 0 100-2H7zm0 3a1 1 0 000 2h6a1 1 0 100-2H7z"/>
+          </svg>
         </div>
         <h3 class="text-xl font-semibold mb-2">Verified Service Providers</h3>
         <p class="text-sm text-indigo-100">
@@ -148,7 +182,10 @@
       <!-- Feature 5 -->
       <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
         <div class="mb-4">
-          <%= icon("gift", class: "w-10 h-10 text-white") %>
+          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5 5a3 3 0 015-2.236A3 3 0 0115 5c0 2.83-2.36 4.914-5 6.71C7.36 9.914 5 7.83 5 5z" clip-rule="evenodd"/>
+            <path d="M4 16s1-1 2-1 2 .5 2 .5.5-1.5 2-1.5 2 1 2 1 1-1 2-1 2 .5 2 .5.5-1.5 2-1.5 2 1 2 1v3H4v-1z"/>
+          </svg>
         </div>
         <h3 class="text-xl font-semibold mb-2">Driver Loyalty Rewards</h3>
         <p class="text-sm text-indigo-100">
@@ -159,7 +196,9 @@
       <!-- Feature 6 -->
       <div class="bg-white/10 rounded-xl p-6 backdrop-blur shadow-lg hover:shadow-2xl transition">
         <div class="mb-4">
-          <%= icon("code-2", class: "w-10 h-10 text-white") %>
+          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
         </div>
         <h3 class="text-xl font-semibold mb-2">Marketplace APIs</h3>
         <p class="text-sm text-indigo-100">

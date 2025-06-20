@@ -5,9 +5,11 @@ const application = Application.start()
 // Import and register standard controllers
 import HelloController from "./hello_controller"
 import TestController from "./test_controller"
+import CartController from "./cart_controller"
 
 application.register("hello", HelloController)
 application.register("test", TestController)
+application.register("cart", CartController)
 
 // Import RailsUI Stimulus components
 import { 
