@@ -4,7 +4,11 @@ Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
   #
   config.hosts << "fleet.matean.online"
+  config.hosts << "localhost"
+  config.hosts << "127.0.0.1"
 
+  # Force SSL in development for HTTPS
+  config.force_ssl = false  # We'll handle SSL at the server level
 
   # Make code changes take effect immediately without server restart.
   config.enable_reloading = true
@@ -41,7 +45,13 @@ Rails.application.configure do
   config.action_mailer.perform_caching = false
 
   # Set localhost to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+  # Use HTTPS if HTTPS environment variable is set
+  if ENV["HTTPS"] == "true"
+    config.action_mailer.default_url_options = { host: "localhost", port: 3000, protocol: "https" }
+    config.force_ssl = false  # We handle SSL at Puma level
+  else
+    config.action_mailer.default_url_options = { host: "localhost", port: 3000, protocol: "http" }
+  end
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log

@@ -4,12 +4,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: bin/rails server -b 0.0.0.0 -p 3000
+    command: bin/rails server -b 0.0.0.0 -p 3000 --ssl --ssl-key=config/ssl/localhost-key.pem --ssl-cert=config/ssl/localhost.pem
     volumes:
       - .:/rails
       - node_modules:/rails/node_modules
     ports:
       - "3000:3000"
+      - "3001:3001"  # Alternative HTTPS port
     environment:
       - RAILS_ENV=development
       - NODE_ENV=development
