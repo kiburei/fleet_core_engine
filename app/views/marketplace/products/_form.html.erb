@@ -1,62 +1,74 @@
-<%= form_with(model: marketplace_product) do |form| %>
-  <% if marketplace_product.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(marketplace_product.errors.count, "error") %> prohibited this marketplace_product from being saved:</h2>
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <%= form_with(model: marketplace_product, local: true, class: "space-y-6") do |form| %>
+    <% if marketplace_product.errors.any? %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+        <h2 class="font-semibold mb-2"><%= pluralize(marketplace_product.errors.count, "error") %> prohibited this product from being saved:</h2>
+        <ul class="list-disc list-inside text-sm">
+          <% marketplace_product.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-      <ul>
-        <% marketplace_product.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <!-- Product Name -->
+    <div>
+      <%= form.label :name, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.text_field :name, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <!-- Description -->
+    <div>
+      <%= form.label :description, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.text_area :description, rows: 3, class: "form-textarea mt-1 block w-full" %>
+    </div>
+
+    <!-- Price -->
+    <div>
+      <%= form.label :price, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.number_field :price, step: 0.01, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <!-- Category -->
+    <div>
+      <%= form.label :category, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.text_field :category, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <!-- Target Audience -->
+    <div>
+      <%= form.label :target_audience, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.text_field :target_audience, class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <!-- Tags -->
+    <div>
+      <%= form.label :tags, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.text_field :tags, placeholder: "Separate tags with commas", class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <!-- Checkboxes -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="flex items-center">
+        <%= form.check_box :active, class: "form-checkbox h-4 w-4 text-primary-600" %>
+        <%= form.label :active, "Active", class: "ml-2 text-sm text-slate-700 dark:text-slate-200" %>
+      </div>
+      
+      <div class="flex items-center">
+        <%= form.check_box :featured, class: "form-checkbox h-4 w-4 text-primary-600" %>
+        <%= form.label :featured, "Featured", class: "ml-2 text-sm text-slate-700 dark:text-slate-200" %>
+      </div>
+    </div>
+
+    <!-- Image Upload -->
+    <div>
+      <%= form.label :image, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+      <%= form.file_field :image, accept: "image/*", class: "form-input mt-1 block w-full" %>
+    </div>
+
+    <!-- Submit -->
+    <div class="pt-4">
+      <%= form.submit "Save Product", class: "btn btn-primary" %>
     </div>
   <% end %>
-
-  <div>
-    <%= form.label :name, style: "display: block" %>
-    <%= form.text_field :name %>
-  </div>
-
-  <div>
-    <%= form.label :description, style: "display: block" %>
-    <%= form.textarea :description %>
-  </div>
-
-  <div>
-    <%= form.label :price, style: "display: block" %>
-    <%= form.text_field :price %>
-  </div>
-
-  <div>
-    <%= form.label :category, style: "display: block" %>
-    <%= form.text_field :category %>
-  </div>
-
-  <div>
-    <%= form.label :target_audience, style: "display: block" %>
-    <%= form.text_field :target_audience %>
-  </div>
-
-  <div>
-    <%= form.label :active, style: "display: block" %>
-    <%= form.checkbox :active %>
-  </div>
-
-  <div>
-    <%= form.label :featured, style: "display: block" %>
-    <%= form.checkbox :featured %>
-  </div>
-
-  <div>
-    <%= form.label :tags, style: "display: block" %>
-    <%= form.text_field :tags %>
-  </div>
-
-  <div>
-    <%= form.label :image, style: "display: block" %>
-    <%= form.file_field :image %>
-  </div>
-
-  <div>
-    <%= form.submit %>
-  </div>
-<% end %>
+</div>

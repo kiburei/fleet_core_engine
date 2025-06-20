@@ -1,3 +1,50 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Marketplace" } do %>
+    <!-- Test Stimulus in Marketplace -->
+    <div data-controller="test" class="mb-4 p-2 border rounded">
+      <button data-action="click->test#click" class="btn btn-secondary mr-2">Test Marketplace Stimulus</button>
+      <span class="text-sm text-gray-600">This should turn green if Stimulus works</span>
+    </div>
+    
+    <!-- Modal Trigger for New Product -->
+    <div data-controller="railsui-modal">
+      <button type="button" data-action="click->railsui-modal#open" class="btn btn-primary">
+        New Product
+      </button>
+
+      <!-- Modal Content -->
+      <div aria-modal="true" role="dialog"
+        class="hidden fixed inset-0 z-50 overflow-y-auto"
+        data-railsui-modal-target="container"
+        data-action="keyup@window->railsui-modal#closeWithEsc">
+        <div class="h-screen w-full flex items-center justify-center">
+          <div data-railsui-modal-target="content"
+              class="hidden max-w-3xl w-full bg-white dark:bg-slate-800 p-8 rounded-lg shadow-xl relative"
+              data-transition-enter-active="transition ease-out duration-300"
+              data-transition-enter-from="transform opacity-0 scale-95"
+              data-transition-enter-to="transform opacity-100 scale-100"
+              data-transition-leave-active="transition ease-in duration-300"
+              data-transition-leave-from="transform opacity-100 scale-100"
+              data-transition-leave-to="transform opacity-0 scale-95">
+            
+            <button type="button"
+              class="absolute top-2 right-2 w-8 h-8 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-center rounded-full group"
+              data-action="click->railsui-modal#close">
+              <%= icon "x-mark", class: "text-slate-500 size-6" %>
+            </button>
+
+            <h2 class="text-lg font-semibold mb-4 text-slate-800 dark:text-white">New Product</h2>
+
+            <div class="pt-4">
+              <%= render "form", marketplace_product: @marketplace_product %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
 <% content_for :title, "Marketplace" %>
 
 <!-- Banner Section -->
