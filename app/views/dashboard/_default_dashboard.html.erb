@@ -1,0 +1,190 @@
+<!-- Default Dashboard for Regular Users - Marketplace Browse Experience -->
+<div class="px-4">
+  <div class="grid grid-cols-12 md:gap-6 gap-4 mt-4 container mx-auto mb-24">
+    
+    <!-- Welcome Section -->
+    <div class="col-span-12 mb-6">
+      <div class="bg-gradient-to-br from-primary-500 to-blue-600 rounded-xl p-8 text-white">
+        <div class="max-w-4xl">
+          <h1 class="text-3xl md:text-4xl font-bold mb-4">
+            Welcome to Fleet Core Engine
+          </h1>
+          <p class="text-lg text-white/90 mb-6">
+            Discover services and products designed for fleet management, from insurance to maintenance, tracking systems, and more.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <%= link_to marketplace_products_path, class: "inline-flex items-center gap-2 bg-white text-primary-600 font-semibold px-6 py-3 rounded-lg hover:bg-primary-50 transition" do %>
+              <%= icon "shopping-bag", class: "size-5" %>
+              Browse Marketplace
+            <% end %>
+            <%= link_to "#featured", class: "inline-flex items-center gap-2 bg-white/10 text-white font-semibold px-6 py-3 rounded-lg hover:bg-white/20 transition border border-white/20" do %>
+              <%= icon "star", class: "size-5" %>
+              Featured Products
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marketplace Overview -->
+    <div class="col-span-12 mb-6">
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">Marketplace Overview</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Total Products Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-6">
+          <div class="flex items-start gap-4">
+            <div class="rounded-full size-12 flex items-center justify-center bg-blue-50 dark:bg-blue-600/30">
+              <%= icon "shopping-bag", class: "size-6 text-blue-600 stroke-current dark:text-blue-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-blue-500 dark:text-blue-400/90 text-sm font-medium">Available Products</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white"><%= @dashboard_data[:total_marketplace_products] %></h3>
+              </div>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Products and services available in the marketplace</p>
+              <%= link_to marketplace_products_path, class: "inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium mt-3" do %>
+                View all products
+                <%= icon "arrow-right", class: "size-4" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured Products Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-6">
+          <div class="flex items-start gap-4">
+            <div class="rounded-full size-12 flex items-center justify-center bg-amber-50 dark:bg-amber-600/30">
+              <%= icon "star", class: "size-6 text-amber-600 stroke-current dark:text-amber-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-amber-500 dark:text-amber-400/90 text-sm font-medium">Featured Products</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white"><%= @dashboard_data[:featured_products] %></h3>
+              </div>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Highlighted products recommended for you</p>
+              <%= link_to marketplace_products_path(featured: true), class: "inline-flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700 font-medium mt-3" do %>
+                View featured
+                <%= icon "arrow-right", class: "size-4" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="col-span-12 flex items-center">
+      <div class="h-px w-1/2 bg-gradient-to-l from-slate-200 dark:from-slate-600"></div>
+      <div class="h-px w-1/2 bg-gradient-to-r from-slate-200 dark:from-slate-600"></div>
+    </div>
+
+    <!-- Recent Products Section -->
+    <div class="col-span-12">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h3 class="text-xl font-bold text-slate-800 dark:text-white">Recent Products</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Latest additions to the marketplace</p>
+        </div>
+        <%= link_to marketplace_products_path, class: "font-medium text-sm hover:text-primary-600 text-slate-600 dark:text-slate-400 dark:hover:text-primary-300" do %>
+          View all →
+        <% end %>
+      </div>
+
+      <% if @dashboard_data[:recent_products].present? %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <% @dashboard_data[:recent_products].each do |product| %>
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-600/80 overflow-hidden hover:shadow-lg transition group">
+              <!-- Product Image -->
+              <div class="aspect-square bg-slate-100 dark:bg-slate-700 relative overflow-hidden">
+                <% if product.image.attached? %>
+                  <%= image_tag product.image, 
+                      alt: product.name, 
+                      class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" %>
+                <% else %>
+                  <div class="w-full h-full flex items-center justify-center">
+                    <%= icon "photo", class: "size-16 text-slate-400" %>
+                  </div>
+                <% end %>
+                
+                <!-- Featured Badge -->
+                <% if product.featured? %>
+                  <div class="absolute top-3 left-3">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                      <%= icon "star", class: "size-3 mr-1" %>
+                      Featured
+                    </span>
+                  </div>
+                <% end %>
+
+                <!-- Category Badge -->
+                <div class="absolute top-3 right-3">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200">
+                    <%= product.category.titleize %>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Product Details -->
+              <div class="p-4">
+                <div class="mb-2">
+                  <h4 class="font-semibold text-slate-900 dark:text-white line-clamp-1"><%= product.name %></h4>
+                  <p class="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">
+                    <%= product.description.present? ? truncate(product.description, length: 80) : "No description available" %>
+                  </p>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <div>
+                    <span class="text-lg font-bold text-primary-600 dark:text-primary-400">
+                      KES <%= number_with_comma(product.price) %>
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <%= link_to marketplace_product_path(product), class: "inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium" do %>
+                      View Details
+                      <%= icon "arrow-right", class: "size-3" %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <!-- Empty State -->
+        <div class="text-center py-12">
+          <%= icon "shopping-bag", class: "size-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" %>
+          <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-2">No products available yet</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Check back later for new products and services.</p>
+          <%= link_to marketplace_products_path, class: "btn btn-primary" do %>
+            Browse Marketplace
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="col-span-12 mt-8">
+      <div class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl p-8 border border-slate-200 dark:border-slate-700">
+        <div class="text-center max-w-2xl mx-auto">
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+            Are you a service provider?
+          </h3>
+          <p class="text-slate-600 dark:text-slate-300 mb-6">
+            Join our marketplace to offer your services to fleet operators and grow your business. 
+            Reach thousands of potential customers looking for fleet management solutions.
+          </p>
+          <div class="flex flex-wrap gap-4 justify-center">
+            <%= link_to marketplace_products_path, class: "btn btn-primary" do %>
+              Learn More
+            <% end %>
+            <%= link_to "#", class: "btn btn-secondary" do %>
+              Contact Us
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

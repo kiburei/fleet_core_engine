@@ -1,0 +1,274 @@
+<!-- Admin Dashboard - Complete System Overview -->
+<div class="px-4">
+  <div class="grid grid-cols-12 md:gap-6 gap-4 mt-4 container mx-auto mb-24">
+    
+    <!-- System Overview Cards -->
+    <div class="col-span-12 mb-6">
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">System Overview</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Fleet Providers Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-4">
+          <div class="flex items-start gap-3">
+            <div class="rounded-full size-10 flex items-center justify-center bg-blue-50 dark:bg-blue-600/30">
+              <%= icon "building-office", class: "size-5 text-blue-600 stroke-current dark:text-blue-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-blue-500 dark:text-blue-400/90 text-sm font-medium">Fleet Providers</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="h2 tracking-tight"><%= @dashboard_data[:total_fleet_providers] %></h3>
+                <p class="text-green-600">+<%= @dashboard_data[:active_fleet_providers] %></p>
+              </div>
+              <p class="text-sm text-slate-400">Active: <strong class="text-slate-600 dark:text-slate-400"><%= @dashboard_data[:active_fleet_providers] %></strong></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Vehicles Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-4">
+          <div class="flex items-start gap-3">
+            <div class="rounded-full size-10 flex items-center justify-center bg-primary-50 dark:bg-primary-600/30">
+              <%= icon "truck", class: "size-5 text-primary-600 stroke-current dark:text-primary-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-primary-500 dark:text-primary-400/90 text-sm font-medium">Total Vehicles</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="h2 tracking-tight"><%= @dashboard_data[:total_vehicles] %></h3>
+                <p class="text-green-600">+<%= @dashboard_data[:active_vehicles] %></p>
+              </div>
+              <p class="text-sm text-slate-400">Active: <strong class="text-slate-600 dark:text-slate-400"><%= @dashboard_data[:active_vehicles] %></strong></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Drivers Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-4">
+          <div class="flex items-start gap-3">
+            <div class="rounded-full size-10 flex items-center justify-center bg-green-50 dark:bg-green-600/30">
+              <%= icon "user", class: "size-5 text-green-600 stroke-current dark:text-green-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-green-500 dark:text-green-400/90 text-sm font-medium">Total Drivers</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="h2 tracking-tight"><%= @dashboard_data[:total_drivers] %></h3>
+              </div>
+              <p class="text-sm text-slate-400">System wide</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Trips Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-4">
+          <div class="flex items-start gap-3">
+            <div class="rounded-full size-10 flex items-center justify-center bg-amber-50 dark:bg-amber-600/30">
+              <%= icon "map", class: "size-5 text-amber-600 stroke-current dark:text-amber-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-amber-500 dark:text-amber-400/90 text-sm font-medium">Active Trips</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="h2 tracking-tight"><%= @dashboard_data[:active_trips] %></h3>
+                <p class="text-green-600">+<%= @dashboard_data[:completed_trips_today] %></p>
+              </div>
+              <p class="text-sm text-slate-400">Completed today: <strong class="text-slate-600 dark:text-slate-400"><%= @dashboard_data[:completed_trips_today] %></strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Maintenance Overview -->
+    <div class="col-span-12 mb-6">
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">Maintenance Overview</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- Total Maintenance Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-4">
+          <div class="flex items-start gap-3">
+            <div class="rounded-full size-10 flex items-center justify-center bg-red-50 dark:bg-red-600/30">
+              <%= icon "wrench-screwdriver", class: "size-5 text-red-600 stroke-current dark:text-red-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-red-500 dark:text-red-400/90 text-sm font-medium">Total Maintenance</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="h2 tracking-tight"><%= @dashboard_data[:total_maintenances] %></h3>
+                <p class="text-red-600"><%= @dashboard_data[:pending_maintenances] %></p>
+              </div>
+              <p class="text-sm text-slate-400">Pending: <strong class="text-slate-600 dark:text-slate-400"><%= @dashboard_data[:pending_maintenances] %></strong></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Maintenance Cost Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-4">
+          <div class="flex items-start gap-3">
+            <div class="rounded-full size-10 flex items-center justify-center bg-green-50 dark:bg-green-600/30">
+              <%= icon "currency-dollar", class: "size-5 text-green-600 stroke-current dark:text-green-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-green-500 dark:text-green-400/90 text-sm font-medium">Monthly Cost</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="h3 tracking-tight">KES <%= number_with_comma(@dashboard_data[:maintenance_cost_this_month]) %></h3>
+              </div>
+              <p class="text-sm text-slate-400">This month</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Marketplace Products Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-4">
+          <div class="flex items-start gap-3">
+            <div class="rounded-full size-10 flex items-center justify-center bg-purple-50 dark:bg-purple-600/30">
+              <%= icon "shopping-bag", class: "size-5 text-purple-600 stroke-current dark:text-purple-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-purple-500 dark:text-purple-400/90 text-sm font-medium">Marketplace Products</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="h2 tracking-tight"><%= @dashboard_data[:active_marketplace_products] %></h3>
+                <p class="text-amber-600"><%= @dashboard_data[:featured_products] %></p>
+              </div>
+              <p class="text-sm text-slate-400">Featured: <strong class="text-slate-600 dark:text-slate-400"><%= @dashboard_data[:featured_products] %></strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="col-span-12 flex items-center">
+      <div class="h-px w-1/2 bg-gradient-to-l from-slate-200 dark:from-slate-600"></div>
+      <div class="h-px w-1/2 bg-gradient-to-r from-slate-200 dark:from-slate-600"></div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="lg:col-span-8 md:col-span-6 col-span-12 rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-6 dark:text-slate-300">
+      <div class="flex items-start justify-between pb-6">
+        <div class="flex-1">
+          <h4 class="h6">Recent Fleet Activity</h4>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Latest vehicles, trips, and maintenance</p>
+        </div>
+      </div>
+
+      <!-- Tabs for different activity types -->
+      <div class="mb-6" data-controller="tabs">
+        <nav class="flex space-x-8" aria-label="Tabs">
+          <button data-action="click->tabs#switch" data-tabs-target="tab" data-tab="vehicles" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 border-primary-500 font-medium text-sm text-primary-600 dark:text-primary-400">
+            Recent Vehicles
+          </button>
+          <button data-action="click->tabs#switch" data-tabs-target="tab" data-tab="trips" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 border-transparent font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300">
+            Recent Trips
+          </button>
+          <button data-action="click->tabs#switch" data-tabs-target="tab" data-tab="marketplace" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 border-transparent font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-300">
+            Marketplace
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tab Content -->
+      <div data-tabs-target="content" data-tab="vehicles" class="tab-content">
+        <div class="space-y-4">
+          <% @dashboard_data[:recent_vehicles].each do |vehicle| %>
+            <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+              <div class="flex items-center gap-3">
+                <%= icon "truck", class: "size-5 text-slate-400" %>
+                <div>
+                <p class="font-medium text-slate-900 dark:text-white"><%= vehicle.registration_number %></p>
+                <p class="text-sm text-slate-500 dark:text-slate-400"><%= vehicle.vehicle_model&.name || 'Unknown Model' %> • <%= vehicle.fleet_provider&.name || 'Unknown Fleet' %></p>
+                </div>
+              </div>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= vehicle.status == 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                <%= vehicle.status&.titleize %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div data-tabs-target="content" data-tab="trips" class="tab-content hidden">
+        <div class="space-y-4">
+          <% @dashboard_data[:recent_trips].each do |trip| %>
+            <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+              <div class="flex items-center gap-3">
+                <%= icon "map", class: "size-5 text-slate-400" %>
+                <div>
+                  <p class="font-medium text-slate-900 dark:text-white"><%= trip.origin %> → <%= trip.destination %></p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400"><%= trip.vehicle.registration_number %> • <%= trip.driver.first_name %> <%= trip.driver.last_name %></p>
+                </div>
+              </div>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= trip.status == 'completed' ? 'bg-green-100 text-green-800' : trip.status == 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800' %>">
+                <%= trip.status.titleize %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div data-tabs-target="content" data-tab="marketplace" class="tab-content hidden">
+        <div class="space-y-4">
+          <% @dashboard_data[:recent_marketplace_products].each do |product| %>
+            <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+              <div class="flex items-center gap-3">
+                <%= icon "shopping-bag", class: "size-5 text-slate-400" %>
+                <div>
+                  <p class="font-medium text-slate-900 dark:text-white"><%= product.name %></p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">KES <%= number_with_comma(product.price) %> • <%= product.category.titleize %></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <% if product.featured? %>
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                    <%= icon "star", class: "size-3 mr-1" %>
+                    Featured
+                  </span>
+                <% end %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= product.active? ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                  <%= product.active? ? 'Active' : 'Inactive' %>
+                </span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions Panel -->
+    <div class="lg:col-span-4 md:col-span-6 col-span-12 rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h4 class="h6">Quick Actions</h4>
+      </div>
+
+      <div class="space-y-3">
+        <%= link_to fleet_providers_path, class: "flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition" do %>
+          <%= icon "building-office", class: "size-5 text-primary-600 dark:text-primary-400" %>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-white">Fleet Providers</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Manage fleet providers</p>
+          </div>
+        <% end %>
+
+        <%= link_to vehicles_path, class: "flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition" do %>
+          <%= icon "truck", class: "size-5 text-blue-600 dark:text-blue-400" %>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-white">Vehicles</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">View all vehicles</p>
+          </div>
+        <% end %>
+
+        <%= link_to marketplace_products_path, class: "flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition" do %>
+          <%= icon "shopping-bag", class: "size-5 text-purple-600 dark:text-purple-400" %>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-white">Marketplace</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Manage marketplace</p>
+          </div>
+        <% end %>
+
+        <%= link_to admin_users_path, class: "flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition" do %>
+          <%= icon "user-group", class: "size-5 text-green-600 dark:text-green-400" %>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-white">Users</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Manage user roles</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

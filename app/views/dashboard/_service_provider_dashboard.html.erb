@@ -1,0 +1,194 @@
+<!-- Service Provider Dashboard - Marketplace Focus -->
+<div class="px-4">
+  <div class="grid grid-cols-12 md:gap-6 gap-4 mt-4 container mx-auto mb-24">
+    
+    <!-- My Marketplace Overview -->
+    <div class="col-span-12 mb-6">
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-4">My Marketplace Overview</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- My Products Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-4">
+          <div class="flex items-start gap-3">
+            <div class="rounded-full size-10 flex items-center justify-center bg-blue-50 dark:bg-blue-600/30">
+              <%= icon "shopping-bag", class: "size-5 text-blue-600 stroke-current dark:text-blue-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-blue-500 dark:text-blue-400/90 text-sm font-medium">My Products</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="h2 tracking-tight"><%= @dashboard_data[:my_products] %></h3>
+                <p class="text-green-600">+<%= @dashboard_data[:active_products] %></p>
+              </div>
+              <p class="text-sm text-slate-400">Active: <strong class="text-slate-600 dark:text-slate-400"><%= @dashboard_data[:active_products] %></strong></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured Products Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-4">
+          <div class="flex items-start gap-3">
+            <div class="rounded-full size-10 flex items-center justify-center bg-amber-50 dark:bg-amber-600/30">
+              <%= icon "star", class: "size-5 text-amber-600 stroke-current dark:text-amber-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-amber-500 dark:text-amber-400/90 text-sm font-medium">Featured Products</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="h2 tracking-tight"><%= @dashboard_data[:featured_products] %></h3>
+              </div>
+              <p class="text-sm text-slate-400">Total featured</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Views Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-4">
+          <div class="flex items-start gap-3">
+            <div class="rounded-full size-10 flex items-center justify-center bg-green-50 dark:bg-green-600/30">
+              <%= icon "eye", class: "size-5 text-green-600 stroke-current dark:text-green-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-green-500 dark:text-green-400/90 text-sm font-medium">Total Views</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="h2 tracking-tight"><%= @dashboard_data[:total_views] %></h3>
+              </div>
+              <p class="text-sm text-slate-400">Coming soon</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenue Card -->
+        <div class="rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-4">
+          <div class="flex items-start gap-3">
+            <div class="rounded-full size-10 flex items-center justify-center bg-purple-50 dark:bg-purple-600/30">
+              <%= icon "currency-dollar", class: "size-5 text-purple-600 stroke-current dark:text-purple-300" %>
+            </div>
+            <div class="flex-1">
+              <span class="text-purple-500 dark:text-purple-400/90 text-sm font-medium">Revenue This Month</span>
+              <div class="flex items-center space-x-2 mt-1 mb-2">
+                <h3 class="h3 tracking-tight">KES <%= number_with_comma(@dashboard_data[:revenue_this_month]) %></h3>
+              </div>
+              <p class="text-sm text-slate-400">Last month: <strong class="text-slate-600 dark:text-slate-400">KES <%= number_with_comma(@dashboard_data[:revenue_last_month]) %></strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="col-span-12 flex items-center">
+      <div class="h-px w-1/2 bg-gradient-to-l from-slate-200 dark:from-slate-600"></div>
+      <div class="h-px w-1/2 bg-gradient-to-r from-slate-200 dark:from-slate-600"></div>
+    </div>
+
+    <!-- My Recent Products -->
+    <div class="lg:col-span-8 md:col-span-6 col-span-12 rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-6 dark:text-slate-300">
+      <div class="flex items-start justify-between pb-6">
+        <div class="flex-1">
+          <h4 class="h6">My Recent Products</h4>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Latest products I've added to the marketplace</p>
+        </div>
+        <%= link_to "View all", marketplace_products_path, class: "font-medium text-sm hover:text-primary-600 text-slate-600 dark:text-slate-400 dark:hover:text-primary-300" %>
+      </div>
+
+      <div class="space-y-4">
+        <% @dashboard_data[:recent_products].each do |product| %>
+          <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+            <div class="flex items-center gap-3">
+              <div class="size-12 rounded-lg bg-slate-100 dark:bg-slate-600 flex items-center justify-center overflow-hidden">
+                <% if product.image.attached? %>
+                  <%= image_tag product.image, alt: product.name, class: "w-full h-full object-cover" %>
+                <% else %>
+                  <%= icon "photo", class: "size-6 text-slate-400" %>
+                <% end %>
+              </div>
+              <div>
+                <p class="font-medium text-slate-900 dark:text-white"><%= product.name %></p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">KES <%= number_with_comma(product.price) %> • <%= product.category.titleize %></p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <% if product.featured? %>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                  <%= icon "star", class: "size-3 mr-1" %>
+                  Featured
+                </span>
+              <% end %>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= product.active? ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                <%= product.active? ? 'Active' : 'Inactive' %>
+              </span>
+              <%= link_to "Edit", edit_marketplace_product_path(product), class: "text-sm text-primary-600 hover:text-primary-700 font-medium" %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if @dashboard_data[:recent_products].empty? %>
+          <div class="text-center py-8">
+            <%= icon "shopping-bag", class: "size-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" %>
+            <h3 class="text-lg font-medium text-slate-900 dark:text-white mb-2">No products yet</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Get started by adding your first product to the marketplace.</p>
+            <%= link_to "Add Product", new_marketplace_product_path, class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Quick Actions for Service Providers -->
+    <div class="lg:col-span-4 md:col-span-6 col-span-12 rounded-lg shadow-xs border border-slate-200 bg-white dark:bg-slate-800 dark:border-none p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h4 class="h6">Quick Actions</h4>
+      </div>
+
+      <div class="space-y-3">
+        <%= link_to new_marketplace_product_path, class: "flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition" do %>
+          <%= icon "plus-circle", class: "size-5 text-primary-600 dark:text-primary-400" %>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-white">Add New Product</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Create a new marketplace listing</p>
+          </div>
+        <% end %>
+
+        <%= link_to marketplace_products_path, class: "flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition" do %>
+          <%= icon "shopping-bag", class: "size-5 text-blue-600 dark:text-blue-400" %>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-white">My Products</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Manage existing products</p>
+          </div>
+        <% end %>
+
+        <%= link_to marketplace_products_path, class: "flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition" do %>
+          <%= icon "chart-bar", class: "size-5 text-green-600 dark:text-green-400" %>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-white">Analytics</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">View performance metrics</p>
+          </div>
+        <% end %>
+
+        <%= link_to marketplace_products_path, class: "flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600 transition" do %>
+          <%= icon "envelope", class: "size-5 text-purple-600 dark:text-purple-400" %>
+          <div>
+            <p class="font-medium text-slate-900 dark:text-white">Messages</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Customer inquiries</p>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Performance Tips -->
+      <div class="mt-6 p-4 bg-gradient-to-br from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20 rounded-lg border border-primary-200/50 dark:border-primary-800/50">
+        <h5 class="font-semibold text-primary-900 dark:text-primary-100 mb-2 flex items-center gap-2">
+          <%= icon "light-bulb", class: "size-4" %>
+          Performance Tip
+        </h5>
+        <p class="text-sm text-primary-700 dark:text-primary-300">
+          <% tips = [
+            "Add high-quality images to increase product visibility.",
+            "Update product descriptions regularly for better engagement.",
+            "Use relevant tags to help customers find your products.",
+            "Consider featuring your best-selling products.",
+            "Respond quickly to customer inquiries for better ratings."
+          ] %>
+          <%= tips.sample %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
