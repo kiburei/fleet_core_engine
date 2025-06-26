@@ -16,9 +16,11 @@
 
       <!-- Modal Trigger for New Product -->
       <div data-controller="railsui-modal">
-        <button type="button" data-action="click->railsui-modal#open" class="btn btn-primary">
-          New Product
-        </button>
+        <% if current_user.admin? || current_user.has_role?(:service_provider) %>
+          <button type="button" data-action="click->railsui-modal#open" class="btn btn-primary">
+            New Product
+          </button>
+        <% end %>
 
       <!-- Modal Content -->
       <div aria-modal="true" role="dialog"
@@ -112,49 +114,226 @@
 </section>
 
 
+<!-- Filters and Search Section -->
+<section class="max-w-7xl mx-auto px-6 mb-8">
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-600/80 p-6">
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- Search -->
+      <div class="flex-1">
+        <%= form_with url: marketplace_products_path, method: :get, local: true, class: "flex gap-3" do |form| %>
+          <div class="flex-1 relative">
+            <%= icon "magnifying-glass", class: "absolute left-3 top-1/2 transform -translate-y-1/2 size-5 text-slate-400" %>
+            <%= form.text_field :search, 
+                value: params[:search], 
+                placeholder: "Search products...", 
+                class: "form-input w-full pl-10" %>
+          </div>
+          <%= form.submit "Search", class: "btn btn-primary" %>
+        <% end %>
+      </div>
+      
+      <!-- Category Filter -->
+      <div class="lg:w-64">
+        <%= form_with url: marketplace_products_path, method: :get, local: true, class: "w-full" do |form| %>
+          <%= form.hidden_field :search, value: params[:search] %>
+          <%= form.select :category, 
+              options_for_select([
+                ['All Categories', ''],
+                ['Insurance', 'insurance'],
+                ['Tracking & Monitoring', 'tracking'],
+                ['Maintenance', 'maintenance'],
+                ['Fuel Management', 'fuel'],
+                ['Safety & Security', 'safety'],
+                ['Training & Education', 'training'],
+                ['Software & Technology', 'software'],
+                ['Emergency Services', 'emergency'],
+                ['Parts & Accessories', 'parts'],
+                ['Other', 'other']
+              ], params[:category]), 
+              {}, 
+              { 
+                class: "form-select w-full", 
+                onchange: "this.form.submit()" 
+              } %>
+        <% end %>
+      </div>
+      
+      <!-- Sort Filter -->
+      <div class="lg:w-48">
+        <%= form_with url: marketplace_products_path, method: :get, local: true, class: "w-full" do |form| %>
+          <%= form.hidden_field :search, value: params[:search] %>
+          <%= form.hidden_field :category, value: params[:category] %>
+          <%= form.select :sort, 
+              options_for_select([
+                ['Newest First', 'newest'],
+                ['Price: Low to High', 'price_asc'],
+                ['Price: High to Low', 'price_desc'],
+                ['Name A-Z', 'name_asc'],
+                ['Featured First', 'featured']
+              ], params[:sort]), 
+              {}, 
+              { 
+                class: "form-select w-full", 
+                onchange: "this.form.submit()" 
+              } %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Product Grid -->
 <section id="products-grid" class="max-w-7xl mx-auto px-6 mb-20">
-  <h2 class="text-2xl font-bold text-slate-800 dark:text-white mb-6">Featured Products</h2>
-  
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-    <% 
-      products = [
-        { name: "GPS Tracking System", description: "Real-time vehicle tracking and monitoring", price: 2499, image: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&h=300&fit=crop" },
-        { name: "Fleet Insurance Package", description: "Comprehensive coverage for your fleet", price: 3999, image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400&h=300&fit=crop" },
-        { name: "Driver Safety Course", description: "Professional driver training program", price: 1499, image: "https://images.unsplash.com/photo-1540152058869-ce6f76293dfe?w=400&h=300&fit=crop" },
-        { name: "Vehicle Maintenance Kit", description: "Essential tools and supplies", price: 899, image: "https://images.unsplash.com/photo-1486754735734-325b5831c3ad?w=400&h=300&fit=crop" },
-        { name: "Fuel Management System", description: "Monitor and optimize fuel consumption", price: 1999, image: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=400&h=300&fit=crop" },
-        { name: "Emergency Road Kit", description: "Complete roadside emergency equipment", price: 599, image: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop" },
-        { name: "Driver Dashcam", description: "HD recording for safety and security", price: 799, image: "https://images.unsplash.com/photo-1548091372-0eca3f6e94e8?w=400&h=300&fit=crop" },
-        { name: "Fleet Analytics Software", description: "Data-driven fleet optimization", price: 4999, image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop" }
-      ]
-    %>
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Products</h2>
+      <p class="text-slate-600 dark:text-slate-300"><%= @marketplace_products.count %> products found</p>
+    </div>
     
-    <% products.each_with_index do |product, i| %>
-      <div data-controller="cart" 
-           data-cart-product-id-value="<%= i + 1 %>"
-           data-cart-product-name-value="<%= product[:name] %>"
-           data-cart-price-value="<%= product[:price] %>"
-           class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
-        <div class="bg-gray-100 dark:bg-slate-700 aspect-[4/3] overflow-hidden">
-          <img src="<%= product[:image] %>" 
-               alt="<%= product[:name] %>" 
-               class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-               onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yMDAgMTAwSDIwMFYyMDBIMjAwVjEwMFoiIGZpbGw9IiM5Q0E0QUIiLz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeD0iMTgwIiB5PSIxMzAiPgo8cGF0aCBkPSJNMzUgMTBIMzVWMzBIMzVWMTBaIiBzdHJva2U9IiM5Q0E0QUIiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4KPC9zdmc+'">
+    <!-- View Toggle -->
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-slate-600 dark:text-slate-300">View:</span>
+      <div class="flex bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+        <button class="px-3 py-1 rounded-md bg-white dark:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200 text-sm">
+          <%= icon "squares-2x2", class: "size-4" %>
+        </button>
+        <button class="px-3 py-1 rounded-md text-slate-500 dark:text-slate-400 text-sm">
+          <%= icon "list-bullet", class: "size-4" %>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <% if @marketplace_products.any? %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <% @marketplace_products.each do |product| %>
+        <div data-controller="cart" 
+             data-cart-product-id-value="<%= product.id %>"
+             data-cart-product-name-value="<%= product.name %>"
+             data-cart-price-value="<%= product.price %>"
+             class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-600/80 overflow-hidden hover:shadow-lg transition group">
+          
+          <!-- Product Image -->
+          <div class="aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-700 relative">
+            <% if product.image.attached? %>
+              <%= image_tag product.image, 
+                  alt: product.name, 
+                  class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" %>
+            <% else %>
+              <div class="w-full h-full flex items-center justify-center">
+                <%= icon "photo", class: "size-16 text-slate-400" %>
+              </div>
+            <% end %>
+            
+            <!-- Featured Badge -->
+            <% if product.featured? %>
+              <div class="absolute top-2 left-2">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                  <%= icon "star", class: "size-3 mr-1" %>
+                  Featured
+                </span>
+              </div>
+            <% end %>
+            
+            <!-- Quick View Button -->
+            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <%= link_to product, 
+                  class: "inline-flex items-center justify-center w-8 h-8 bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 rounded-full hover:bg-white dark:hover:bg-slate-800 transition" do %>
+                <%= icon "eye", class: "size-4" %>
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Product Info -->
+          <div class="p-4">
+            <!-- Category -->
+            <div class="mb-2">
+              <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
+                <%= product.category.titleize %>
+              </span>
+            </div>
+            
+            <!-- Title -->
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2 line-clamp-2">
+              <%= link_to product.name, product, class: "hover:text-primary-600 dark:hover:text-primary-400 transition" %>
+            </h3>
+            
+            <!-- Description -->
+            <p class="text-sm text-slate-600 dark:text-slate-300 mb-3 line-clamp-2">
+              <%= product.description.present? ? truncate(product.description, length: 80) : "No description available" %>
+            </p>
+            
+            <!-- Price and Status -->
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-baseline gap-1">
+                <span class="text-lg font-bold text-slate-900 dark:text-white">
+                  KES <%= number_with_comma(product.price) %>
+                </span>
+              </div>
+              <div class="flex items-center gap-1">
+                <div class="size-2 rounded-full <%= product.active? ? 'bg-green-500' : 'bg-red-500' %>"></div>
+                <span class="text-xs text-slate-500 dark:text-slate-400">
+                  <%= product.active? ? 'Available' : 'Unavailable' %>
+                </span>
+              </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+              <% if product.active? %>
+                <button data-cart-target="button" 
+                        data-action="click->cart#addToCart" 
+                        class="flex-1 bg-primary-600 text-white text-sm py-2 px-3 rounded-lg hover:bg-primary-700 transition font-medium">
+                  Add to Cart
+                </button>
+              <% else %>
+                <button disabled class="flex-1 bg-slate-300 text-slate-500 text-sm py-2 px-3 rounded-lg cursor-not-allowed">
+                  Unavailable
+                </button>
+              <% end %>
+              
+              <%= link_to product, 
+                  class: "px-3 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition" do %>
+                View
+              <% end %>
+            </div>
+          </div>
         </div>
-        <div class="p-4">
-          <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2"><%= product[:name] %></h3>
-          <p class="text-sm text-slate-500 mb-2"><%= product[:description] %></p>
-          <p class="text-primary font-bold mb-3">KES <%= number_with_comma(product[:price]) %></p>
-          <button data-cart-target="button" 
-                  data-action="click->cart#addToCart" 
-                  class="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 transition">
-            Add to Cart
-          </button>
-        </div>
+      <% end %>
+    </div>
+    
+    <!-- Pagination -->
+    <% if @marketplace_products.respond_to?(:total_pages) && @marketplace_products.total_pages > 1 %>
+      <div class="mt-12 flex justify-center">
+        <%= paginate @marketplace_products, theme: 'twitter-bootstrap-4', 
+            views_prefix: 'kaminari/', 
+            class: "flex items-center gap-2" %>
       </div>
     <% end %>
-  </div>
+  <% else %>
+    <!-- Empty State -->
+    <div class="text-center py-16">
+      <div class="max-w-md mx-auto">
+        <%= icon "magnifying-glass", class: "size-16 text-slate-400 mx-auto mb-4" %>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">No products found</h3>
+        <p class="text-slate-600 dark:text-slate-300 mb-6">
+          <% if params[:search].present? || params[:category].present? %>
+            No products match your current filters. Try adjusting your search criteria.
+          <% else %>
+            No products are currently available in the marketplace.
+          <% end %>
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <% if params[:search].present? || params[:category].present? %>
+            <%= link_to "Clear Filters", marketplace_products_path, class: "btn btn-secondary" %>
+          <% end %>
+          <% if current_user.admin? || current_user.service_provider? %>
+            <%= link_to "Add First Product", new_marketplace_product_path, class: "btn btn-primary" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
 </section>
 
 <section class="bg-gradient-to-tr from-indigo-700 via-purple-700 to-pink-600 py-20 text-white">

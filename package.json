@@ -2,7 +2,7 @@
   "name": "app",
   "private": true,
   "devDependencies": {
-    "esbuild": "^0.25.2"
+    "esbuild": "^0.25.5"
   },
   "scripts": {
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets",
@@ -13,13 +13,13 @@
     "@hotwired/stimulus-webpack-helpers": "^1.0.1",
     "@hotwired/turbo-rails": "^8.0.13",
     "@rails/actiontext": "^8.0.200",
-    "@tailwindcss/cli": "^4.1.4",
+    "@tailwindcss/cli": "^4.1.11",
     "@tailwindcss/typography": "^0.5.16",
     "apexcharts": "^4.5.0",
     "railsui-stimulus": "^1.0.8",
     "stimulus-use": "^0.52.3",
     "stimulus-vite-helpers": "^3.0.1",
-    "tailwindcss": "^4.1.4",
+    "tailwindcss": "^4.1.11",
     "tippy.js": "^6.3.7",
     "trix": "^2.1.13"
   }

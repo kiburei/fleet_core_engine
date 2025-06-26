@@ -1,11 +1,114 @@
 <% content_for :title, "New product" %>
 
-<h1>New product</h1>
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "New Product" } do %>
+    <!-- Cart Icon -->
+    <div data-controller="cart-view" class="relative flex items-center gap-4">
+      <!-- Cart Button -->
+      <button type="button" 
+              data-action="click->cart-view#toggleCart"
+              class="relative inline-flex items-center p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+        </svg>
+        <span data-cart-view-target="count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+      </button>
 
-<%= render "form", marketplace_product: @marketplace_product %>
+      <!-- Cart Dropdown -->
+      <div data-cart-view-target="dropdown" 
+           class="hidden absolute top-full right-0 mt-2 w-96 bg-white dark:bg-slate-800 rounded-lg shadow-xl border z-50">
+        <div class="p-4 border-b border-gray-200 dark:border-slate-700">
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Shopping Cart</h3>
+        </div>
+        
+        <!-- Cart Items -->
+        <div data-cart-view-target="items" class="max-h-96 overflow-y-auto">
+          <!-- Items will be populated by JavaScript -->
+        </div>
+        
+        <!-- Cart Footer -->
+        <div class="p-4 border-t border-gray-200 dark:border-slate-700">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-lg font-semibold text-slate-800 dark:text-white">Total:</span>
+            <span data-cart-view-target="total" class="text-lg font-bold text-primary">KES 0</span>
+          </div>
+          <div class="flex gap-2">
+            <button data-action="click->cart-view#clearCart" 
+                    class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition">
+              Clear Cart
+            </button>
+            <button data-action="click->cart-view#checkout" 
+                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+              Checkout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<br>
+    <div class="flex gap-3">
+      <%= link_to "Back to Marketplace", marketplace_products_path, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>
 
-<div>
-  <%= link_to "Back to products", marketplace_products_path %>
+<% content_for :title, "New Product" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Create Form Card -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-600/80 overflow-hidden">
+    <div class="px-8 py-6 border-b border-slate-200 dark:border-slate-700">
+      <div class="flex items-center gap-3">
+        <%= icon "plus-circle", class: "size-6 text-primary-600 dark:text-primary-400" %>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Create New Product</h1>
+      </div>
+      <p class="mt-2 text-slate-600 dark:text-slate-300">Add a new product or service to the marketplace. Fill in all required information to get started.</p>
+    </div>
+    
+    <div class="p-8">
+      <%= render "form", marketplace_product: @marketplace_product %>
+    </div>
+  </div>
+
+  <!-- Getting Started Guide -->
+  <div class="mt-8 bg-gradient-to-br from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20 rounded-xl border border-primary-200/50 dark:border-primary-800/50 p-6">
+    <h3 class="text-lg font-semibold text-primary-900 dark:text-primary-100 mb-4 flex items-center gap-2">
+      <%= icon "light-bulb", class: "size-5" %>
+      Tips for Creating Great Products
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="space-y-3">
+        <div class="flex items-start gap-3">
+          <%= icon "check-circle", class: "size-5 text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" %>
+          <div>
+            <h4 class="font-medium text-primary-900 dark:text-primary-100">Clear Product Names</h4>
+            <p class="text-sm text-primary-700 dark:text-primary-300">Use descriptive names that clearly explain what your product does.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <%= icon "check-circle", class: "size-5 text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" %>
+          <div>
+            <h4 class="font-medium text-primary-900 dark:text-primary-100">Detailed Descriptions</h4>
+            <p class="text-sm text-primary-700 dark:text-primary-300">Include features, benefits, and how it helps fleet operations.</p>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-start gap-3">
+          <%= icon "check-circle", class: "size-5 text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" %>
+          <div>
+            <h4 class="font-medium text-primary-900 dark:text-primary-100">High-Quality Images</h4>
+            <p class="text-sm text-primary-700 dark:text-primary-300">Upload clear, professional images that showcase your product.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <%= icon "check-circle", class: "size-5 text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" %>
+          <div>
+            <h4 class="font-medium text-primary-900 dark:text-primary-100">Competitive Pricing</h4>
+            <p class="text-sm text-primary-700 dark:text-primary-300">Research market rates and price your products competitively.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

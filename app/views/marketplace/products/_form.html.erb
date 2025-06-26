@@ -1,74 +1,210 @@
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-  <%= form_with(model: marketplace_product, local: true, class: "space-y-6") do |form| %>
-    <% if marketplace_product.errors.any? %>
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-        <h2 class="font-semibold mb-2"><%= pluralize(marketplace_product.errors.count, "error") %> prohibited this product from being saved:</h2>
-        <ul class="list-disc list-inside text-sm">
-          <% marketplace_product.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
+<%= form_with(model: marketplace_product, local: true, class: "space-y-6") do |form| %>
+  <% if marketplace_product.errors.any? %>
+    <div class="bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+      <div class="flex items-center gap-2 mb-2">
+        <%= icon "exclamation-triangle", class: "size-5 text-red-600 dark:text-red-400" %>
+        <h3 class="text-red-800 dark:text-red-200 font-medium">
+          <%= pluralize(marketplace_product.errors.count, "error") %> prohibited this product from being saved:
+        </h3>
       </div>
-    <% end %>
-
-    <!-- Product Name -->
-    <div>
-      <%= form.label :name, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-      <%= form.text_field :name, class: "form-input mt-1 block w-full" %>
-    </div>
-
-    <!-- Description -->
-    <div>
-      <%= form.label :description, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-      <%= form.text_area :description, rows: 3, class: "form-textarea mt-1 block w-full" %>
-    </div>
-
-    <!-- Price -->
-    <div>
-      <%= form.label :price, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-      <%= form.number_field :price, step: 0.01, class: "form-input mt-1 block w-full" %>
-    </div>
-
-    <!-- Category -->
-    <div>
-      <%= form.label :category, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-      <%= form.text_field :category, class: "form-input mt-1 block w-full" %>
-    </div>
-
-    <!-- Target Audience -->
-    <div>
-      <%= form.label :target_audience, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-      <%= form.text_field :target_audience, class: "form-input mt-1 block w-full" %>
-    </div>
-
-    <!-- Tags -->
-    <div>
-      <%= form.label :tags, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-      <%= form.text_field :tags, placeholder: "Separate tags with commas", class: "form-input mt-1 block w-full" %>
-    </div>
-
-    <!-- Checkboxes -->
-    <div class="grid grid-cols-2 gap-4">
-      <div class="flex items-center">
-        <%= form.check_box :active, class: "form-checkbox h-4 w-4 text-primary-600" %>
-        <%= form.label :active, "Active", class: "ml-2 text-sm text-slate-700 dark:text-slate-200" %>
-      </div>
-      
-      <div class="flex items-center">
-        <%= form.check_box :featured, class: "form-checkbox h-4 w-4 text-primary-600" %>
-        <%= form.label :featured, "Featured", class: "ml-2 text-sm text-slate-700 dark:text-slate-200" %>
-      </div>
-    </div>
-
-    <!-- Image Upload -->
-    <div>
-      <%= form.label :image, class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
-      <%= form.file_field :image, accept: "image/*", class: "form-input mt-1 block w-full" %>
-    </div>
-
-    <!-- Submit -->
-    <div class="pt-4">
-      <%= form.submit "Save Product", class: "btn btn-primary" %>
+      <ul class="list-disc list-inside text-red-700 dark:text-red-300 space-y-1">
+        <% marketplace_product.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
     </div>
   <% end %>
-</div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Left Column - Basic Information -->
+    <div class="space-y-6">
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+          <%= icon "information-circle", class: "size-5" %>
+          Basic Information
+        </h3>
+        
+        <div class="space-y-4">
+          <div>
+            <%= form.label :name, class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" do %>
+              Product Name <span class="text-red-500">*</span>
+            <% end %>
+            <%= form.text_field :name, 
+                class: "form-input w-full", 
+                placeholder: "Enter a descriptive product name" %>
+          </div>
+
+          <div>
+            <%= form.label :description, class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" do %>
+              Description <span class="text-red-500">*</span>
+            <% end %>
+            <%= form.text_area :description, 
+                rows: 4, 
+                class: "form-textarea w-full", 
+                placeholder: "Describe your product, its features, and benefits..." %>
+          </div>
+
+          <div>
+            <%= form.label :price, class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" do %>
+              Price (KES) <span class="text-red-500">*</span>
+            <% end %>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-slate-500 dark:text-slate-400 text-sm">KES</span>
+              </div>
+              <%= form.number_field :price, 
+                  step: 0.01, 
+                  min: 0, 
+                  class: "form-input w-full pl-12", 
+                  placeholder: "0.00" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories and Targeting -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+          <%= icon "tag", class: "size-5" %>
+          Categorization
+        </h3>
+        
+        <div class="space-y-4">
+          <div>
+            <%= form.label :category, class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" do %>
+              Category <span class="text-red-500">*</span>
+            <% end %>
+            <%= form.select :category, 
+                options_for_select([
+                  ['Insurance', 'insurance'],
+                  ['Tracking & Monitoring', 'tracking'],
+                  ['Maintenance', 'maintenance'],
+                  ['Fuel Management', 'fuel'],
+                  ['Safety & Security', 'safety'],
+                  ['Training & Education', 'training'],
+                  ['Software & Technology', 'software'],
+                  ['Emergency Services', 'emergency'],
+                  ['Parts & Accessories', 'parts'],
+                  ['Other', 'other']
+                ], marketplace_product.category), 
+                { prompt: 'Select a category' }, 
+                { class: "form-select w-full" } %>
+          </div>
+
+          <div>
+            <%= form.label :target_audience, class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" do %>
+              Target Audience <span class="text-red-500">*</span>
+            <% end %>
+            <%= form.select :target_audience, 
+                options_for_select([
+                  ['Fleet Owners', 'fleet_owners'],
+                  ['Individual Drivers', 'drivers'],
+                  ['Fleet Managers', 'managers'],
+                  ['Transportation Companies', 'companies'],
+                  ['All Fleet Users', 'all']
+                ], marketplace_product.target_audience), 
+                { prompt: 'Select target audience' }, 
+                { class: "form-select w-full" } %>
+          </div>
+
+          <div>
+            <%= form.label :tags, class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            Tags (comma-separated)
+            <%= form.text_field :tags, 
+                class: "form-input w-full", 
+                placeholder: "e.g., gps, tracking, fleet, commercial" %>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Add relevant keywords separated by commas</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Settings and Media -->
+    <div class="space-y-6">
+      <!-- Product Settings -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+          <%= icon "cog-6-tooth", class: "size-5" %>
+          Product Settings
+        </h3>
+        
+        <div class="space-y-4">
+          <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="font-medium text-slate-900 dark:text-white">Product Status</h4>
+                <p class="text-sm text-slate-600 dark:text-slate-300">Make this product available for purchase</p>
+              </div>
+              <div class="flex items-center">
+                <%= form.check_box :active, class: "form-checkbox text-primary-600" %>
+                <%= form.label :active, "Active", class: "ml-2 text-sm font-medium text-slate-700 dark:text-slate-300" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="font-medium text-slate-900 dark:text-white">Featured Product</h4>
+                <p class="text-sm text-slate-600 dark:text-slate-300">Highlight this product on the marketplace</p>
+              </div>
+              <div class="flex items-center">
+                <%= form.check_box :featured, class: "form-checkbox text-amber-600" %>
+                <%= form.label :featured, "Featured", class: "ml-2 text-sm font-medium text-slate-700 dark:text-slate-300" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Image -->
+      <div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+          <%= icon "photo", class: "size-5" %>
+          Product Image
+        </h3>
+        
+        <div class="space-y-4">
+          <% if marketplace_product.image.attached? %>
+            <div class="relative">
+              <div class="aspect-square bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden max-w-xs">
+                <%= image_tag marketplace_product.image, 
+                    alt: marketplace_product.name, 
+                    class: "w-full h-full object-cover" %>
+              </div>
+              <div class="absolute top-2 right-2">
+                <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  Current Image
+                </span>
+              </div>
+            </div>
+          <% end %>
+          
+          <div>
+            <%= form.label :image, class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2" %>
+            <%= form.file_field :image, 
+                accept: "image/*", 
+                class: "block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900 dark:file:text-primary-300" %>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">PNG, JPG, or WEBP up to 5MB</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-slate-700">
+    <div class="flex gap-3">
+      <%= link_to "Cancel", marketplace_product.persisted? ? marketplace_product : marketplace_products_path, 
+          class: "btn btn-secondary" %>
+    </div>
+    
+    <div class="flex gap-3">
+      <% if marketplace_product.persisted? %>
+        <%= form.submit "Update Product", class: "btn btn-primary" %>
+      <% else %>
+        <%= form.submit "Create Product", class: "btn btn-primary" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

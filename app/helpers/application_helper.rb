@@ -1,5 +1,9 @@
 module ApplicationHelper
-  def spacer(amount = 16)
+  def number_with_comma(number)
+    number.to_s.reverse.gsub(/...(?=.)/, '\&,').reverse
+  end
+
+  def email_spacer(amount = 20)
     render "rui/shared/email_spacer", amount: amount
   end
 

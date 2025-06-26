@@ -1,12 +1,129 @@
 <% content_for :title, "Editing product" %>
 
-<h1>Editing product</h1>
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Edit #{@marketplace_product.name}" } do %>
+    <!-- Cart Icon -->
+    <div data-controller="cart-view" class="relative flex items-center gap-4">
+      <!-- Cart Button -->
+      <button type="button" 
+              data-action="click->cart-view#toggleCart"
+              class="relative inline-flex items-center p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+        </svg>
+        <span data-cart-view-target="count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+      </button>
 
-<%= render "form", marketplace_product: @marketplace_product %>
+      <!-- Cart Dropdown -->
+      <div data-cart-view-target="dropdown" 
+           class="hidden absolute top-full right-0 mt-2 w-96 bg-white dark:bg-slate-800 rounded-lg shadow-xl border z-50">
+        <div class="p-4 border-b border-gray-200 dark:border-slate-700">
+          <h3 class="text-lg font-semibold text-slate-800 dark:text-white">Shopping Cart</h3>
+        </div>
+        
+        <!-- Cart Items -->
+        <div data-cart-view-target="items" class="max-h-96 overflow-y-auto">
+          <!-- Items will be populated by JavaScript -->
+        </div>
+        
+        <!-- Cart Footer -->
+        <div class="p-4 border-t border-gray-200 dark:border-slate-700">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-lg font-semibold text-slate-800 dark:text-white">Total:</span>
+            <span data-cart-view-target="total" class="text-lg font-bold text-primary">KES 0</span>
+          </div>
+          <div class="flex gap-2">
+            <button data-action="click->cart-view#clearCart" 
+                    class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition">
+              Clear Cart
+            </button>
+            <button data-action="click->cart-view#checkout" 
+                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+              Checkout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<br>
+    <div class="flex gap-3">
+      <%= link_to "Back to Product", @marketplace_product, class: "btn btn-secondary" %>
+      <%= link_to "Marketplace", marketplace_products_path, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>
 
-<div>
-  <%= link_to "Show this product", @marketplace_product %> |
-  <%= link_to "Back to products", marketplace_products_path %>
+<% content_for :title, "Edit #{@marketplace_product.name}" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Edit Form Card -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-600/80 overflow-hidden">
+    <div class="px-8 py-6 border-b border-slate-200 dark:border-slate-700">
+      <div class="flex items-center gap-3">
+        <%= icon "pencil-square", class: "size-6 text-primary-600 dark:text-primary-400" %>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Edit Product</h1>
+      </div>
+      <p class="mt-2 text-slate-600 dark:text-slate-300">Update your product information below. All fields marked with * are required.</p>
+    </div>
+    
+    <div class="p-8">
+      <%= render "form", marketplace_product: @marketplace_product %>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="mt-6 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-700/80 p-6">
+    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+      <%= icon "lightning-bolt", class: "size-5" %>
+      Quick Actions
+    </h3>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+        <h4 class="font-medium text-slate-900 dark:text-white mb-2">Product Status</h4>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-3">
+          Current status: 
+          <span class="font-medium <%= @marketplace_product.active? ? 'text-green-600' : 'text-red-600' %>">
+            <%= @marketplace_product.active? ? 'Active' : 'Inactive' %>
+          </span>
+        </p>
+        <% if @marketplace_product.active? %>
+          <%= button_to "Deactivate", "#", method: :patch, 
+              class: "w-full bg-amber-600 text-white py-2 px-4 rounded-md hover:bg-amber-700 transition text-sm font-medium" %>
+        <% else %>
+          <%= button_to "Activate", "#", method: :patch, 
+              class: "w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition text-sm font-medium" %>
+        <% end %>
+      </div>
+      
+      <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+        <h4 class="font-medium text-slate-900 dark:text-white mb-2">Featured Status</h4>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-3">
+          <% if @marketplace_product.featured? %>
+            <span class="text-amber-600">Currently featured</span>
+          <% else %>
+            <span class="text-slate-500">Not featured</span>
+          <% end %>
+        </p>
+        <% if @marketplace_product.featured? %>
+          <%= button_to "Remove from Featured", "#", method: :patch, 
+              class: "w-full bg-slate-600 text-white py-2 px-4 rounded-md hover:bg-slate-700 transition text-sm font-medium" %>
+        <% else %>
+          <%= button_to "Make Featured", "#", method: :patch, 
+              class: "w-full bg-amber-600 text-white py-2 px-4 rounded-md hover:bg-amber-700 transition text-sm font-medium" %>
+        <% end %>
+      </div>
+      
+      <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+        <h4 class="font-medium text-slate-900 dark:text-white mb-2">Product Views</h4>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-3">
+          <%= link_to "View Public Page", @marketplace_product, target: "_blank", 
+              class: "text-primary-600 hover:text-primary-700 font-medium" %>
+        </p>
+        <%= link_to @marketplace_product, target: "_blank", 
+            class: "w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition text-sm font-medium text-center block" do %>
+          Preview Product
+        <% end %>
+      </div>
+    </div>
+  </div>
 </div>

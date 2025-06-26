@@ -47,4 +47,8 @@ class User < ApplicationRecord
   def fleet_provider_driver?
     has_role?(:fleet_provider_driver)
   end
+
+  def service_provider?
+    has_role?(:service_provider)
+  end
 end

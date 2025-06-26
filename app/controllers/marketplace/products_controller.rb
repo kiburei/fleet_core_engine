@@ -1,11 +1,40 @@
 class Marketplace::ProductsController < ApplicationController
-  # before_action :authenticate_user!
-  # before_action :authorize_admin!
+  before_action :authenticate_user!
+  before_action :authorize_provider_or_admin!, only: %i[ new create edit update destroy ]
   before_action :set_marketplace_product, only: %i[ show edit update destroy ]
 
   # GET /marketplace/products or /marketplace/products.json
   def index
-    @marketplace_products = Marketplace::Product.all
+    @marketplace_products = Marketplace::Product.includes(:user)
+    
+    # Apply search filter
+    if params[:search].present?
+      search_term = "%#{params[:search].strip}%"
+      @marketplace_products = @marketplace_products.where(
+        "name LIKE ? OR description LIKE ? OR tags LIKE ?", 
+        search_term, search_term, search_term
+      )
+    end
+    
+    # Apply category filter
+    if params[:category].present?
+      @marketplace_products = @marketplace_products.where(category: params[:category])
+    end
+    
+    # Apply sorting
+    case params[:sort]
+    when 'price_asc'
+      @marketplace_products = @marketplace_products.order(:price)
+    when 'price_desc'
+      @marketplace_products = @marketplace_products.order(price: :desc)
+    when 'name_asc'
+      @marketplace_products = @marketplace_products.order(:name)
+    when 'featured'
+      @marketplace_products = @marketplace_products.order(featured: :desc, created_at: :desc)
+    else # 'newest' or default
+      @marketplace_products = @marketplace_products.order(created_at: :desc)
+    end
+    
     @marketplace_product = Marketplace::Product.new
   end
 
@@ -20,11 +49,15 @@ class Marketplace::ProductsController < ApplicationController
 
   # GET /marketplace/products/1/edit
   def edit
+    unless @marketplace_product.can_edit?(current_user)
+      redirect_to @marketplace_product, alert: "You are not authorized to edit this product."
+    end
   end
 
   # POST /marketplace/products or /marketplace/products.json
   def create
     @marketplace_product = Marketplace::Product.new(marketplace_product_params)
+    @marketplace_product.user = current_user
 
     respond_to do |format|
       if @marketplace_product.save
@@ -39,6 +72,11 @@ class Marketplace::ProductsController < ApplicationController
 
   # PATCH/PUT /marketplace/products/1 or /marketplace/products/1.json
   def update
+    unless @marketplace_product.can_edit?(current_user)
+      redirect_to @marketplace_product, alert: "You are not authorized to edit this product."
+      return
+    end
+
     respond_to do |format|
       if @marketplace_product.update(marketplace_product_params)
         format.html { redirect_to @marketplace_product, notice: "Product was successfully updated." }
@@ -52,6 +90,11 @@ class Marketplace::ProductsController < ApplicationController
 
   # DELETE /marketplace/products/1 or /marketplace/products/1.json
   def destroy
+    unless current_user.admin? || @marketplace_product.can_edit?(current_user)
+      redirect_to @marketplace_product, alert: "You are not authorized to delete this product."
+      return
+    end
+
     @marketplace_product.destroy!
 
     respond_to do |format|
@@ -69,5 +112,11 @@ class Marketplace::ProductsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def marketplace_product_params
       params.expect(marketplace_product: [ :name, :description, :price, :category, :target_audience, :active, :featured, :tags, :image ])
+    end
+
+    def authorize_provider_or_admin!
+      unless current_user.admin? || current_user.service_provider?
+        redirect_to marketplace_products_path, alert: "You are not authorized to perform this action."
+      end
     end
 end
