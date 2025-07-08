@@ -66,7 +66,7 @@
   <% end %>
 
   <!-- Dashboard Cards -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
     <!-- Maintenance Card -->
     <%= link_to vehicle_maintenances_path(@vehicle), class: "bg-blue-500 dark:bg-blue-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
       <p class="text-sm text-blue-800 dark:text-blue-300 font-semibold">Maintenances</p>
@@ -79,6 +79,14 @@
     <%= link_to vehicle_incidents_path(@vehicle), class: "bg-red-500 dark:bg-red-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
       <p class="text-sm text-red-800 dark:text-red-300 font-semibold">Incidents</p>
       <p class="text-2xl font-bold text-red-900 dark:text-red-100 mt-1"><%= @vehicle.incidents.count %></p>
+    <% end %>
+
+    <!-- Trips Card -->
+    <%= link_to vehicle_trips_path(@vehicle), class: "bg-purple-500 dark:bg-purple-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
+      <p class="text-sm text-purple-800 dark:text-purple-300 font-semibold">Trips</p>
+      <p class="text-2xl font-bold text-purple-900 dark:text-purple-100 mt-1"><%= @vehicle.trips.count %></p>
+      <% active_trips = @vehicle.trips.where(status: ['scheduled', 'in_progress']).count %>
+      <p class="text-sm text-purple-700 dark:text-purple-300 mt-1">Active: <%= active_trips %></p>
     <% end %>
 
     <!-- Documents Card -->

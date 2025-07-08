@@ -7,11 +7,13 @@ Rails.application.routes.draw do
   resources :drivers do
     resources :documents, only: [ :index, :new, :create, :show ]
     resources :incidents, only: [ :index, :new, :create, :show ]
+    resources :trips, only: [ :index, :show ]
   end
   resources :vehicles do
     resources :documents, only: [ :index, :new, :create, :show ]
     resources :maintenances, only: [ :index, :new, :create, :show ]
     resources :incidents, only: [ :index, :new, :create, :show ]
+    resources :trips, only: [ :index, :show ]
   end
   resources :vehicle_models
   resources :fleet_providers do

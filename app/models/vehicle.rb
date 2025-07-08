@@ -8,6 +8,7 @@ class Vehicle < ApplicationRecord
 
   has_many :maintenances, dependent: :destroy
   has_many :incidents
+  has_many :trips
   has_many :activities
   has_many :documents, as: :documentable, dependent: :destroy
 end

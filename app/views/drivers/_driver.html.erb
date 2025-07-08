@@ -60,7 +60,7 @@
   <!-- Mini Dashboard Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     <!-- Trips -->
-    <%= link_to root_path(driver), class: "bg-indigo-500 dark:bg-indigo-900/30 p-4 rounded-md shadow hover:shadow-md transition block" do %>
+    <%= link_to driver_trips_path(driver), class: "bg-indigo-500 dark:bg-indigo-900/30 p-4 rounded-md shadow hover:shadow-md transition block" do %>
       <p class="text-sm text-indigo-700 dark:text-indigo-200 font-semibold">Trips Taken</p>
       <p class="text-2xl font-bold text-indigo-900 dark:text-indigo-100 mt-1"><%= driver.trips&.count || 0 %></p>
     <% end %>

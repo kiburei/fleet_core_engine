@@ -6,9 +6,15 @@ class TripsController < ApplicationController
     @trip = Trip.new
     @per_page = params[:per_page] || 10
 
-    if params[:fleet_provider_id]
+    if params[:vehicle_id]
+      @vehicle = Vehicle.find(params[:vehicle_id])
+      @trips = @vehicle.trips.includes(:vehicle, :driver)
+    elsif params[:fleet_provider_id]
       @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
       @trips = @fleet_provider.trips.includes(:vehicle, :driver)
+    elsif params[:driver_id]
+      @driver = Driver.find(params[:driver_id])
+      @trips = @driver.trips.includes(:vehicle, :driver)
     else
       @trips = if current_user.admin?
                  Trip.all.includes(:vehicle, :driver)
@@ -16,14 +22,15 @@ class TripsController < ApplicationController
                  Trip.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle, :driver)
       end
     end
-    
+
     @trips = @trips.page(params[:page]).per(@per_page)
   end
 
   # GET /trips/1 or /trips/1.json
   def show
     unless current_user.fleet_providers.include?(@trip.fleet_provider) || current_user.admin?
-      redirect_to trips_path, alert: "You are not authorized to view this trip."
+      redirect_path = params[:vehicle_id] ? vehicle_trips_path(params[:vehicle_id]) : trips_path
+      redirect_to redirect_path, alert: "You are not authorized to view this trip."
       nil
     end
 
