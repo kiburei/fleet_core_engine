@@ -303,13 +303,9 @@
     </div>
     
     <!-- Pagination -->
-    <% if @marketplace_products.respond_to?(:total_pages) && @marketplace_products.total_pages > 1 %>
-      <div class="mt-12 flex justify-center">
-        <%= paginate @marketplace_products, theme: 'twitter-bootstrap-4', 
-            views_prefix: 'kaminari/', 
-            class: "flex items-center gap-2" %>
-      </div>
-    <% end %>
+    <div class="mt-12">
+      <%= render 'shared/pagination_controls', collection: @marketplace_products %>
+    </div>
   <% else %>
     <!-- Empty State -->
     <div class="text-center py-16">

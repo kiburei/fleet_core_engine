@@ -4,6 +4,7 @@ class DriversController < ApplicationController
   # GET /drivers or /drivers.json
   def index
     @driver = Driver.new
+    @per_page = params[:per_page] || 10
 
     if params[:fleet_provider_id]
       @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
@@ -15,6 +16,8 @@ class DriversController < ApplicationController
                     Driver.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle)
       end
     end
+    
+    @drivers = @drivers.page(params[:page]).per(@per_page)
   end
 
   # GET /drivers/1 or /drivers/1.json

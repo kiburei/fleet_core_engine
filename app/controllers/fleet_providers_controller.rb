@@ -4,7 +4,9 @@ class FleetProvidersController < ApplicationController
   # GET /fleet_providers or /fleet_providers.json
   def index
     @fleet_provider = FleetProvider.new
+    @per_page = params[:per_page] || 10
     @fleet_providers = current_user.admin? ? FleetProvider.all : current_user.fleet_providers
+    @fleet_providers = @fleet_providers.page(params[:page]).per(@per_page)
   end
 
   # GET /fleet_providers/1 or /fleet_providers/1.json

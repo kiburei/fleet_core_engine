@@ -3,6 +3,7 @@ class IncidentsController < ApplicationController
 
   def index
     @incident = Incident.new
+    @per_page = params[:per_page] || 10
 
     if params[:fleet_provider_id]
       @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
@@ -14,6 +15,8 @@ class IncidentsController < ApplicationController
                     Incident.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle, :driver).order(incident_date: :desc)
       end
     end
+    
+    @incidents = @incidents.page(params[:page]).per(@per_page)
   end
 
   def show

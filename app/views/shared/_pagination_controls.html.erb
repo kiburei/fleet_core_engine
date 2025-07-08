@@ -1,0 +1,53 @@
+<div class="container mx-auto">
+  <div class="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4">
+    <div class="flex items-center space-x-2">
+      <label for="per_page" class="text-sm font-medium text-slate-700 dark:text-slate-300">Show:</label>
+      <select id="per_page" name="per_page" class="form-select text-sm"
+              onchange="window.location.href = updateUrlParameter(window.location.href, 'per_page', this.value)">
+        <% [5, 10, 25, 50, 100].each do |per_page_option| %>
+          <option value="<%= per_page_option %>" <%= 'selected' if @per_page.to_i == per_page_option %>>
+            <%= per_page_option %>
+          </option>
+        <% end %>
+      </select>
+      <span class="text-sm text-slate-500 dark:text-slate-400">per page</span>
+    </div>
+    
+    <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+      <% if collection.respond_to?(:total_count) %>
+        <span class="text-sm text-slate-600 dark:text-slate-400 text-center sm:text-left">
+          Showing <%= collection.offset_value + 1 %> to <%= [collection.offset_value + collection.limit_value, collection.total_count].min %> of <%= collection.total_count %> results
+        </span>
+      <% end %>
+      
+      <div>
+        <%= paginate collection, theme: 'custom' %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateUrlParameter(url, param, paramVal) {
+    var newAdditionalURL = "";
+    var tempArray = url.split("?");
+    var baseURL = tempArray[0];
+    var additionalURL = tempArray[1];
+    var temp = "";
+    if (additionalURL) {
+      tempArray = additionalURL.split("&");
+      for (var i = 0; i < tempArray.length; i++) {
+        if (tempArray[i].split('=')[0] != param) {
+          newAdditionalURL += temp + tempArray[i];
+          temp = "&";
+        }
+      }
+    }
+    // Remove page parameter when changing per_page
+    if (param === 'per_page') {
+      newAdditionalURL = newAdditionalURL.replace(/&page=\d+/, '').replace(/^page=\d+&/, '').replace(/^page=\d+$/, '');
+    }
+    var rows_txt = temp + "" + param + "=" + paramVal;
+    return baseURL + "?" + newAdditionalURL + rows_txt;
+  }
+</script>

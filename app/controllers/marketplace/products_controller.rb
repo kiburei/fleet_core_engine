@@ -5,6 +5,7 @@ class Marketplace::ProductsController < ApplicationController
 
   # GET /marketplace/products or /marketplace/products.json
   def index
+    @per_page = params[:per_page] || 10
     @marketplace_products = Marketplace::Product.includes(:user)
     
     # Apply search filter
@@ -35,6 +36,7 @@ class Marketplace::ProductsController < ApplicationController
       @marketplace_products = @marketplace_products.order(created_at: :desc)
     end
     
+    @marketplace_products = @marketplace_products.page(params[:page]).per(@per_page)
     @marketplace_product = Marketplace::Product.new
   end
 

@@ -4,6 +4,7 @@ class TripsController < ApplicationController
   # GET /trips or /trips.json
   def index
     @trip = Trip.new
+    @per_page = params[:per_page] || 10
 
     if params[:fleet_provider_id]
       @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
@@ -15,6 +16,8 @@ class TripsController < ApplicationController
                  Trip.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle, :driver)
       end
     end
+    
+    @trips = @trips.page(params[:page]).per(@per_page)
   end
 
   # GET /trips/1 or /trips/1.json

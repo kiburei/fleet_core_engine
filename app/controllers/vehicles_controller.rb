@@ -4,6 +4,7 @@ class VehiclesController < ApplicationController
   # GET /vehicles or /vehicles.json
   def index
     @vehicle = Vehicle.new
+    @per_page = params[:per_page] || 10
 
     if params[:fleet_provider_id]
       @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
@@ -15,6 +16,8 @@ class VehiclesController < ApplicationController
                    Vehicle.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle_model)
       end
     end
+    
+    @vehicles = @vehicles.page(params[:page]).per(@per_page)
   end
 
   # GET /vehicles/1 or /vehicles/1.json

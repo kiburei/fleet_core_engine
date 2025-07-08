@@ -3,6 +3,7 @@ class MaintenancesController < ApplicationController
 
   def index
     @maintenance = Maintenance.new
+    @per_page = params[:per_page] || 10
 
     if params[:vehicle_id]
       @maintenances = Maintenance.where(vehicle_id: params[:vehicle_id]).includes(:vehicle)
@@ -13,6 +14,8 @@ class MaintenancesController < ApplicationController
                         Maintenance.where(fleet_provider_id: current_user.fleet_providers).includes(:vehicle)
       end
     end
+    
+    @maintenances = @maintenances.page(params[:page]).per(@per_page)
   end
 
   def new
