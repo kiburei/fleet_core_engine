@@ -14,39 +14,44 @@
         <span data-cart-view-target="count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
       </button>
 
-      <!-- Modal Trigger for New Product -->
-      <div data-controller="railsui-modal">
-        <% if current_user.admin? || current_user.has_role?(:service_provider) %>
-          <button type="button" data-action="click->railsui-modal#open" class="btn btn-primary">
-            New Product
-          </button>
-        <% end %>
-
-      <!-- Modal Content -->
-      <div aria-modal="true" role="dialog"
-        class="hidden fixed inset-0 z-50 overflow-y-auto"
-        data-railsui-modal-target="container"
-        data-action="keyup@window->railsui-modal#closeWithEsc">
-        <div class="h-screen w-full flex items-center justify-center">
-          <div data-railsui-modal-target="content"
-              class="hidden max-w-3xl w-full bg-white dark:bg-slate-800 p-8 rounded-lg shadow-xl relative"
-              data-transition-enter-active="transition ease-out duration-300"
-              data-transition-enter-from="transform opacity-0 scale-95"
-              data-transition-enter-to="transform opacity-100 scale-100"
-              data-transition-leave-active="transition ease-in duration-300"
-              data-transition-leave-from="transform opacity-100 scale-100"
-              data-transition-leave-to="transform opacity-0 scale-95">
-            
-            <button type="button"
-              class="absolute top-2 right-2 w-8 h-8 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-center rounded-full group"
-              data-action="click->railsui-modal#close">
-              <%= icon "x-mark", class: "text-slate-500 size-6" %>
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3">
+        <%= link_to "My Orders", marketplace_orders_path, class: "btn btn-secondary" %>
+        
+        <!-- Modal Trigger for New Product -->
+        <div data-controller="railsui-modal">
+          <% if current_user.admin? || current_user.has_role?(:service_provider) %>
+            <button type="button" data-action="click->railsui-modal#open" class="btn btn-primary">
+              New Product
             </button>
+          <% end %>
 
-            <h2 class="text-lg font-semibold mb-4 text-slate-800 dark:text-white">New Product</h2>
+        <!-- Modal Content -->
+        <div aria-modal="true" role="dialog"
+          class="hidden fixed inset-0 z-50 overflow-y-auto"
+          data-railsui-modal-target="container"
+          data-action="keyup@window->railsui-modal#closeWithEsc">
+          <div class="h-screen w-full flex items-center justify-center">
+            <div data-railsui-modal-target="content"
+                class="hidden max-w-3xl w-full bg-white dark:bg-slate-800 p-8 rounded-lg shadow-xl relative"
+                data-transition-enter-active="transition ease-out duration-300"
+                data-transition-enter-from="transform opacity-0 scale-95"
+                data-transition-enter-to="transform opacity-100 scale-100"
+                data-transition-leave-active="transition ease-in duration-300"
+                data-transition-leave-from="transform opacity-100 scale-100"
+                data-transition-leave-to="transform opacity-0 scale-95">
+              
+              <button type="button"
+                class="absolute top-2 right-2 w-8 h-8 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center justify-center rounded-full group"
+                data-action="click->railsui-modal#close">
+                <%= icon "x-mark", class: "text-slate-500 size-6" %>
+              </button>
 
-            <div class="pt-4">
-              <%= render "form", marketplace_product: @marketplace_product %>
+              <h2 class="text-lg font-semibold mb-4 text-slate-800 dark:text-white">New Product</h2>
+
+              <div class="pt-4">
+                <%= render "form", marketplace_product: @marketplace_product %>
+              </div>
             </div>
           </div>
         </div>

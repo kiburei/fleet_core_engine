@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_26_122544) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_14_212708) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -161,6 +161,44 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_26_122544) do
     t.index ["trip_id"], name: "index_manifests_on_trip_id"
   end
 
+  create_table "marketplace_order_items", force: :cascade do |t|
+    t.integer "order_id", null: false
+    t.integer "product_id", null: false
+    t.integer "quantity"
+    t.decimal "unit_price", precision: 10, scale: 2
+    t.decimal "total_price", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_marketplace_order_items_on_order_id"
+    t.index ["product_id"], name: "index_marketplace_order_items_on_product_id"
+  end
+
+  create_table "marketplace_orders", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "order_number"
+    t.decimal "total_amount", precision: 10, scale: 2
+    t.integer "status", default: 0
+    t.integer "payment_status", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_number"], name: "index_marketplace_orders_on_order_number"
+    t.index ["user_id"], name: "index_marketplace_orders_on_user_id"
+  end
+
+  create_table "marketplace_payments", force: :cascade do |t|
+    t.integer "order_id", null: false
+    t.integer "user_id", null: false
+    t.decimal "amount", precision: 10, scale: 2
+    t.integer "payment_method", default: 0
+    t.integer "status", default: 0
+    t.string "transaction_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_marketplace_payments_on_order_id"
+    t.index ["transaction_id"], name: "index_marketplace_payments_on_transaction_id"
+    t.index ["user_id"], name: "index_marketplace_payments_on_user_id"
+  end
+
   create_table "marketplace_products", force: :cascade do |t|
     t.string "name"
     t.text "description"
@@ -269,6 +307,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_26_122544) do
   add_foreign_key "maintenances", "vehicles"
   add_foreign_key "manifest_items", "manifests"
   add_foreign_key "manifests", "trips"
+  add_foreign_key "marketplace_order_items", "marketplace_orders", column: "order_id"
+  add_foreign_key "marketplace_order_items", "marketplace_products", column: "product_id"
+  add_foreign_key "marketplace_orders", "users"
+  add_foreign_key "marketplace_payments", "marketplace_orders", column: "order_id"
+  add_foreign_key "marketplace_payments", "users"
   add_foreign_key "marketplace_products", "users"
   add_foreign_key "trips", "drivers"
   add_foreign_key "trips", "fleet_providers"

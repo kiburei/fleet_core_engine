@@ -143,36 +143,72 @@ export default class extends Controller {
 
   clearCart(event) {
     event.stopPropagation() // Prevent event bubbling
-    if (confirm('Are you sure you want to clear your cart?')) {
-      localStorage.removeItem('marketplace_cart')
-      this.updateCartDisplay()
-      this.showNotification('Cart cleared', 'info')
-    }
+    this.showClearCartModal()
+  }
+
+  showClearCartModal() {
+    const modal = this.createModal(
+      'Clear Cart',
+      'Are you sure you want to clear your cart? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          class: 'btn btn-secondary',
+          action: () => this.closeModal()
+        },
+        {
+          text: 'Clear Cart',
+          class: 'btn bg-red-600 text-white hover:bg-red-700',
+          action: () => this.confirmClearCart()
+        }
+      ]
+    )
+    document.body.appendChild(modal)
+  }
+
+  confirmClearCart() {
+    localStorage.removeItem('marketplace_cart')
+    this.updateCartDisplay()
+    this.showNotification('Cart cleared', 'info')
+    this.closeModal()
   }
 
   checkout(event) {
     event.stopPropagation() // Prevent event bubbling
     const cart = this.getCart()
+    
+    // Debug logging
+    console.log('Checkout clicked, cart contents:', cart)
+    console.log('Cart length:', cart.length)
+    console.log('LocalStorage cart:', localStorage.getItem('marketplace_cart'))
+    
     if (cart.length === 0) {
-      alert('Your cart is empty!')
+      this.showNotification('Your cart is empty!', 'info')
       return
     }
 
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-    const itemSummary = cart.map(item => `${item.quantity}x ${item.name}`).join('\n')
-    
-    if (confirm(`Proceed to checkout?\n\n${itemSummary}\n\nTotal: KES ${this.formatNumber(total)}`)) {
-      // Here you would normally redirect to a checkout page or integrate with a payment system
-      this.showNotification('Redirecting to checkout...', 'success')
-      
-      // For demo purposes, we'll just simulate a successful checkout
-      setTimeout(() => {
-        alert('Checkout successful! (This is a demo)')
-        localStorage.removeItem('marketplace_cart')
-        this.updateCartDisplay()
-        this.closeCart()
-      }, 1500)
-    }
+    // Save cart to session and wait for response before redirecting
+    this.saveCartToSession(cart)
+      .then(() => {
+        console.log('Cart saved to session, redirecting to checkout')
+        window.location.href = '/marketplace/checkout/new'
+      })
+      .catch(error => {
+        console.error('Error saving cart to session:', error)
+        this.showNotification('Error processing checkout. Please try again.', 'error')
+      })
+  }
+
+  saveCartToSession(cart) {
+    // Send cart data to server session
+    return fetch('/marketplace/cart/save', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ cart: cart })
+    })
   }
 
   // Helper methods
@@ -210,5 +246,43 @@ export default class extends Controller {
       notification.style.transform = 'translateX(100%)'
       setTimeout(() => notification.remove(), 300)
     }, 3000)
+  }
+
+  // Modal helper methods
+  createModal(title, message, buttons) {
+    const modal = document.createElement('div')
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
+    modal.id = 'cart-modal'
+    
+    const buttonsHTML = buttons.map(button => 
+      `<button class="${button.class}" data-modal-action="${button.text}">${button.text}</button>`
+    ).join('')
+    
+    modal.innerHTML = `
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">${title}</h3>
+        <p class="text-slate-600 dark:text-slate-300 mb-6">${message}</p>
+        <div class="flex gap-3 justify-end">
+          ${buttonsHTML}
+        </div>
+      </div>
+    `
+    
+    // Add event listeners to buttons
+    buttons.forEach(button => {
+      const buttonElement = modal.querySelector(`[data-modal-action="${button.text}"]`)
+      if (buttonElement) {
+        buttonElement.addEventListener('click', button.action)
+      }
+    })
+    
+    return modal
+  }
+
+  closeModal() {
+    const modal = document.getElementById('cart-modal')
+    if (modal) {
+      modal.remove()
+    }
   }
 } 

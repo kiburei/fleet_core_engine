@@ -40,6 +40,14 @@ Rails.application.routes.draw do
     resources :products
   end
 
+  post "marketplace/cart/save", to: "marketplace/cart#save"
+  get "marketplace/checkout/new", to: "marketplace/checkout#new"
+  post "marketplace/checkout", to: "marketplace/checkout#create"
+  
+  namespace :marketplace do
+    resources :orders
+  end
+
   namespace :rui do
     get "about", to: "pages#about"
     get "pricing", to: "pages#pricing"

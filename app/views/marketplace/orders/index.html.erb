@@ -1,0 +1,179 @@
+<% content_for :title, current_user.service_provider? ? "Service Provider Orders" : "My Orders" %>
+
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: current_user.service_provider? ? "Service Provider Orders" : "My Orders" } do %>
+    <div class="flex gap-3">
+      <%= link_to "Back to Marketplace", marketplace_products_path, class: "btn btn-secondary" %>
+      <% if current_user.service_provider? %>
+        <%= link_to "My Products", marketplace_products_path, class: "btn btn-secondary" %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header Section -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-600/80 p-6 mb-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+          <% if current_user.service_provider? %>
+            Service Provider Orders
+          <% else %>
+            My Orders
+          <% end %>
+        </h1>
+        <p class="text-slate-600 dark:text-slate-300 mt-1">
+          <% if current_user.service_provider? %>
+            Orders containing your products for fulfillment
+          <% else %>
+            Track your order history and status
+          <% end %>
+        </p>
+      </div>
+      <div class="text-right">
+        <p class="text-sm text-slate-500 dark:text-slate-400">Total Orders</p>
+        <p class="text-2xl font-bold text-primary-600 dark:text-primary-400"><%= @orders.total_count %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders List -->
+  <% if @orders.any? %>
+    <div class="space-y-6">
+      <% @orders.each do |order| %>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-600/80 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">
+                Order #<%= order.order_number %>
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300">
+                Placed on <%= order.created_at.strftime("%B %d, %Y at %l:%M %p") %>
+              </p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <p class="text-lg font-bold text-primary-600 dark:text-primary-400">
+                  KES <%= number_with_comma(order.total_amount) %>
+                </p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                  <%= order.total_items %> items
+                </p>
+              </div>
+              <div class="flex flex-col gap-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                           <%= order.status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                               order.status == 'processing' ? 'bg-blue-100 text-blue-800' : 
+                               order.status == 'shipped' ? 'bg-purple-100 text-purple-800' : 
+                               order.status == 'delivered' ? 'bg-green-100 text-green-800' : 
+                               'bg-red-100 text-red-800' %>">
+                  <%= order.status.titleize %>
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                           <%= order.payment_status == 'paid' ? 'bg-green-100 text-green-800' : 
+                               order.payment_status == 'partially_paid' ? 'bg-yellow-100 text-yellow-800' : 
+                               order.payment_status == 'payment_refunded' ? 'bg-purple-100 text-purple-800' : 
+                               'bg-red-100 text-red-800' %>">
+                  <%= order.payment_status.titleize %>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Items Preview -->
+          <div class="mb-4">
+            <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+              <% if current_user.service_provider? %>
+                Your Products in this Order:
+              <% else %>
+                Items:
+              <% end %>
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <% order_items = current_user.service_provider? ? order.order_items.joins(:product).where(products: { user: current_user }) : order.order_items %>
+              <% order_items.includes(:product).limit(3).each do |item| %>
+                <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                  <div class="w-10 h-10 bg-slate-200 dark:bg-slate-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <% if item.product.image.attached? %>
+                      <%= image_tag item.product.image, class: "w-full h-full object-cover rounded-lg" %>
+                    <% else %>
+                      <%= icon "photo", class: "size-5 text-slate-400" %>
+                    <% end %>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-slate-900 dark:text-white truncate">
+                      <%= item.product.name %>
+                    </p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                      Qty: <%= item.quantity %> × KES <%= number_with_comma(item.unit_price) %>
+                    </p>
+                  </div>
+                </div>
+              <% end %>
+              <% if order_items.count > 3 %>
+                <div class="flex items-center justify-center p-3 bg-slate-100 dark:bg-slate-600 rounded-lg">
+                  <p class="text-sm text-slate-600 dark:text-slate-300">
+                    +<%= order_items.count - 3 %> more items
+                  </p>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Order Actions -->
+          <div class="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
+            <div class="flex gap-3">
+              <%= link_to "View Details", marketplace_order_path(order), class: "btn btn-primary" %>
+              
+              <% if current_user.service_provider? && order.processing? %>
+                <%= button_to "Mark as Shipped", marketplace_order_path(order), method: :patch,
+                    params: { marketplace_order: { status: 'shipped' } },
+                    class: "btn bg-purple-600 text-white hover:bg-purple-700",
+                    confirm: "Mark this order as shipped?" %>
+              <% end %>
+              
+              <% if current_user.service_provider? && order.shipped? %>
+                <%= button_to "Mark as Delivered", marketplace_order_path(order), method: :patch,
+                    params: { marketplace_order: { status: 'delivered' } },
+                    class: "btn bg-green-600 text-white hover:bg-green-700",
+                    confirm: "Mark this order as delivered?" %>
+              <% end %>
+            </div>
+            
+            <div class="text-sm text-slate-500 dark:text-slate-400">
+              Customer: <%= order.user.full_name.present? ? order.user.full_name : order.user.email %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-8 flex justify-center">
+      <%= paginate @orders %>
+    </div>
+  <% else %>
+    <!-- Empty State -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-600/80 p-12 text-center">
+      <div class="max-w-md mx-auto">
+        <%= icon "shopping-bag", class: "size-16 text-slate-400 mx-auto mb-4" %>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+          <% if current_user.service_provider? %>
+            No orders yet
+          <% else %>
+            No orders found
+          <% end %>
+        </h3>
+        <p class="text-slate-600 dark:text-slate-300 mb-6">
+          <% if current_user.service_provider? %>
+            When customers purchase your products, their orders will appear here.
+          <% else %>
+            Your order history will appear here once you make a purchase.
+          <% end %>
+        </p>
+        <%= link_to "Browse Marketplace", marketplace_products_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>

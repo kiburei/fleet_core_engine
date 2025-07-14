@@ -1,0 +1,146 @@
+<% content_for :title, "Checkout" %>
+
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Checkout" } do %>
+    <div class="flex gap-3">
+      <%= link_to "Back to Cart", marketplace_products_path, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Order Summary -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-600/80 p-6">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Order Summary</h2>
+      
+      <div class="space-y-4">
+        <% @cart_items.each do |item| %>
+          <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+            <div class="flex-1">
+              <h4 class="font-medium text-slate-800 dark:text-white"><%= item[:product].name %></h4>
+              <p class="text-sm text-slate-600 dark:text-slate-300">
+                <%= item[:product].category.titleize %> • 
+                Quantity: <%= item[:quantity] %>
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="font-semibold text-slate-900 dark:text-white">
+                KES <%= number_with_comma(item[:total_price]) %>
+              </p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">
+                KES <%= number_with_comma(item[:unit_price]) %> each
+              </p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+        <div class="flex justify-between items-center">
+          <span class="text-lg font-semibold text-slate-900 dark:text-white">Total Amount:</span>
+          <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+            KES <%= number_with_comma(@total) %>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkout Form -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200/80 dark:border-slate-600/80 p-6">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Payment Details</h2>
+      
+      <%= form_with model: @order, url: marketplace_checkout_path, method: :post, class: "space-y-6" do |form| %>
+        
+        <!-- Payment Method -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+            Payment Method
+          </label>
+          <div class="space-y-3">
+            <div class="flex items-center p-4 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+              <input type="radio" name="checkout[payment_method]" value="credit_card" id="credit_card" class="form-radio text-primary-600" checked>
+              <label for="credit_card" class="ml-3 flex items-center gap-3 cursor-pointer">
+                <%= icon "credit-card", class: "size-6 text-slate-600 dark:text-slate-400" %>
+                <div>
+                  <p class="font-medium text-slate-900 dark:text-white">Credit Card</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">Visa, Mastercard, American Express</p>
+                </div>
+              </label>
+            </div>
+            
+            <div class="flex items-center p-4 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+              <input type="radio" name="checkout[payment_method]" value="debit_card" id="debit_card" class="form-radio text-primary-600">
+              <label for="debit_card" class="ml-3 flex items-center gap-3 cursor-pointer">
+                <%= icon "credit-card", class: "size-6 text-slate-600 dark:text-slate-400" %>
+                <div>
+                  <p class="font-medium text-slate-900 dark:text-white">Debit Card</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">Direct payment from bank account</p>
+                </div>
+              </label>
+            </div>
+            
+            <div class="flex items-center p-4 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+              <input type="radio" name="checkout[payment_method]" value="mobile_money" id="mobile_money" class="form-radio text-primary-600">
+              <label for="mobile_money" class="ml-3 flex items-center gap-3 cursor-pointer">
+                <%= icon "device-phone-mobile", class: "size-6 text-slate-600 dark:text-slate-400" %>
+                <div>
+                  <p class="font-medium text-slate-900 dark:text-white">Mobile Money</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">M-Pesa, Airtel Money, T-Cash</p>
+                </div>
+              </label>
+            </div>
+            
+            <div class="flex items-center p-4 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+              <input type="radio" name="checkout[payment_method]" value="bank_transfer" id="bank_transfer" class="form-radio text-primary-600">
+              <label for="bank_transfer" class="ml-3 flex items-center gap-3 cursor-pointer">
+                <%= icon "building-library", class: "size-6 text-slate-600 dark:text-slate-400" %>
+                <div>
+                  <p class="font-medium text-slate-900 dark:text-white">Bank Transfer</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">Direct bank transfer (1-2 business days)</p>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Billing Address -->
+        <div>
+          <label for="billing_address" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Billing Address
+          </label>
+          <textarea name="checkout[billing_address]" id="billing_address" rows="3" 
+                    class="form-textarea w-full" 
+                    placeholder="Enter your billing address..."></textarea>
+        </div>
+
+        <!-- Shipping Address -->
+        <div>
+          <label for="shipping_address" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Shipping Address
+          </label>
+          <textarea name="checkout[shipping_address]" id="shipping_address" rows="3" 
+                    class="form-textarea w-full" 
+                    placeholder="Enter your shipping address..."></textarea>
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div class="flex items-start gap-3">
+          <input type="checkbox" id="terms" name="terms" class="form-checkbox text-primary-600 mt-1" required>
+          <label for="terms" class="text-sm text-slate-600 dark:text-slate-300">
+            I agree to the 
+            <a href="#" class="text-primary-600 hover:text-primary-700 font-medium">Terms and Conditions</a>
+            and 
+            <a href="#" class="text-primary-600 hover:text-primary-700 font-medium">Privacy Policy</a>
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="w-full bg-primary-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary-700 transition flex items-center justify-center gap-2">
+          <%= icon "lock-closed", class: "size-5" %>
+          Complete Order - KES <%= number_with_comma(@total) %>
+        </button>
+      <% end %>
+    </div>
+  </div>
+</div>
