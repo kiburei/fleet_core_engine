@@ -5,16 +5,53 @@ class DriversController < ApplicationController
   def index
     @driver = Driver.new
     @per_page = params[:per_page] || 10
+    @current_status = params[:status] || 'active'
 
+    # Base query
     if params[:fleet_provider_id]
       @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
-      @drivers = @fleet_provider.drivers.includes(:vehicle)
+      base_drivers = @fleet_provider.drivers.includes(:vehicle, :fleet_provider)
     else
-      @drivers = if current_user.admin?
-                    Driver.all.includes(:vehicle)
-      else
-                    Driver.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle)
-      end
+      base_drivers = if current_user.admin?
+                       Driver.all.includes(:vehicle, :fleet_provider)
+                     else
+                       Driver.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle, :fleet_provider)
+                     end
+    end
+
+    # Get all status counts for tabs
+    @status_tabs = {
+      'active' => {
+        label: 'Active',
+        count: base_drivers.where(license_status: 'active').count
+      },
+      'inactive' => {
+        label: 'Inactive', 
+        count: base_drivers.where(license_status: 'inactive').count
+      },
+      'suspended' => {
+        label: 'Suspended',
+        count: base_drivers.where(license_status: 'suspended').count
+      }
+    }
+    
+    @total_count = @status_tabs.values.sum { |tab| tab[:count] }
+    @current_status = params[:status] || 'active'
+
+    # Filter by status
+    @drivers = if @current_status == 'all'
+                 base_drivers
+               else
+                 base_drivers.where(license_status: @current_status)
+               end
+
+    # Apply search filter if present
+    if params[:search].present?
+      search_term = "%#{params[:search]}%"
+      @drivers = @drivers.where(
+        "first_name ILIKE ? OR last_name ILIKE ? OR license_number ILIKE ? OR phone_number ILIKE ?",
+        search_term, search_term, search_term, search_term
+      )
     end
     
     @drivers = @drivers.page(params[:page]).per(@per_page)

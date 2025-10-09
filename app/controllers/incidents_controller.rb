@@ -4,19 +4,60 @@ class IncidentsController < ApplicationController
   def index
     @incident = Incident.new
     @per_page = params[:per_page] || 10
+    @current_status = params[:status] || 'active'
 
+    # Base query
     if params[:fleet_provider_id]
       @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
-      @incidents = @fleet_provider.incidents.includes(:vehicle, :driver).order(incident_date: :desc)
+      base_incidents = @fleet_provider.incidents.includes(:vehicle, :driver, :fleet_provider)
     else
-      @incidents = if current_user.admin?
-                    Incident.all.includes(:vehicle, :driver).order(incident_date: :desc)
-      else
-                    Incident.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle, :driver).order(incident_date: :desc)
-      end
+      base_incidents = if current_user.admin?
+                         Incident.all.includes(:vehicle, :driver, :fleet_provider)
+                       else
+                         Incident.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle, :driver, :fleet_provider)
+                       end
+    end
+
+    # Get all incident type counts for tabs
+    @status_tabs = {
+      'accident' => {
+        label: 'Accident',
+        count: base_incidents.where(incident_type: 'accident').count
+      },
+      'breakdown' => {
+        label: 'Breakdown',
+        count: base_incidents.where(incident_type: 'breakdown').count
+      },
+      'theft' => {
+        label: 'Theft',
+        count: base_incidents.where(incident_type: 'theft').count
+      },
+      'other' => {
+        label: 'Other',
+        count: base_incidents.where(incident_type: 'other').count
+      }
+    }
+    
+    @total_count = @status_tabs.values.sum { |tab| tab[:count] }
+    @current_status = params[:status] || 'accident'
+
+    # Filter by incident type
+    @incidents = if @current_status == 'all'
+                   base_incidents
+                 else
+                   base_incidents.where(incident_type: @current_status)
+                 end
+
+    # Apply search filter if present
+    if params[:search].present?
+      search_term = "%#{params[:search]}%"
+      @incidents = @incidents.joins(:vehicle, :driver).where(
+        "incidents.description ILIKE ? OR incidents.location ILIKE ? OR incidents.report_reference ILIKE ? OR vehicles.registration_number ILIKE ? OR drivers.first_name ILIKE ? OR drivers.last_name ILIKE ?",
+        search_term, search_term, search_term, search_term, search_term, search_term
+      )
     end
     
-    @incidents = @incidents.page(params[:page]).per(@per_page)
+    @incidents = @incidents.order(incident_date: :desc).page(params[:page]).per(@per_page)
   end
 
   def show

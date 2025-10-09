@@ -11,11 +11,13 @@ import HelloController from "./hello_controller"
 import TestController from "./test_controller"
 import CartController from "./cart_controller"
 import CartViewController from "./cart_view_controller"
+import TabsController from "./tabs_controller"
 
 application.register("hello", HelloController)
 application.register("test", TestController)
 application.register("cart", CartController)
 application.register("cart-view", CartViewController)
+application.register("tabs", TabsController)
 
 // Import custom RailsUI controllers
 import ComboSelectController from "./railsui/combo_select_controller"
@@ -57,6 +59,15 @@ application.register('railsui-toast', RailsuiToast)
 application.register('railsui-toggle', RailsuiToggle)
 application.register('railsui-tooltip', RailsuiTooltip)
 
-console.log('Stimulus controllers registered:', Object.keys(application.router.controllersByIdentifier))
+console.log('Stimulus application started')
+
+// Debug: Check if controllers are registered after a short delay
+// setTimeout(() => {
+//   if (application.router && application.router.controllersByIdentifier) {
+//     console.log('Stimulus controllers registered:', Object.keys(application.router.controllersByIdentifier))
+//   } else {
+//     console.log('Stimulus controllers registered, but router not ready yet')
+//   }
+// }, 100)
 
 export default application

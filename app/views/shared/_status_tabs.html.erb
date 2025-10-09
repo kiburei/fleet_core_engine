@@ -1,0 +1,67 @@
+<% status_tabs ||= {} %>
+<% current_status ||= (status_tabs.keys.first&.to_s || 'active') %>
+<% show_all_tab = defined?(show_all_tab) ? show_all_tab : false %>
+<% total_count ||= 0 %>
+<% sort_options ||= [] %>
+
+<!-- Debug information (remove in production) -->
+<script>
+  console.log('Debug - Status tabs partial loaded');
+  console.log('Status tabs:', <%= status_tabs.to_json.html_safe %>);
+  console.log('Current status:', '<%= current_status %>');
+  console.log('Resource:', '<%= resource %>');
+</script>
+
+<div class="bg-white border-b dark:bg-slate-800/50 dark:border-b dark:border-slate-700 px-4">
+  <div class="container mx-auto sm:flex flex-wrap justify-between items-center">
+    <nav role="status nav" data-controller="tabs" data-tabs-resource-value="<%= resource %>">
+      <ul class="flex items-center justify-start sm:space-x-1 py-2 text-slate-600 sm:overflow-auto overflow-y-hidden scroll-smooth snap-start scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-100/50 scrollbar-thumb-rounded">
+        <% status_tabs.each do |status, data| %>
+          <li class="flex justify-center items-center sm:block">
+            <%= link_to "#", 
+                class: tab_class_for(status, current_status), 
+                data: { 
+                  tabs_target: "tab",
+                  tab: status,
+                  action: "click->tabs#switch"
+                } do %>
+              <span><%= data[:label] %></span>
+              <span class="<%= count_badge_class_for(status, current_status) %>"><%= data[:count] %></span>
+            <% end %>
+          </li>
+        <% end %>
+        
+        <% if show_all_tab %>
+          <li class="flex justify-center items-center sm:block">
+            <%= link_to "#", 
+                class: tab_class_for('all', current_status), 
+                data: { 
+                  tabs_target: "tab",
+                  tab: "all",
+                  action: "click->tabs#switch"
+                } do %>
+              <span>All</span>
+              <span class="<%= count_badge_class_for('all', current_status) %>"><%= total_count %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </nav>
+
+    <div class="sm:flex items-center sm:space-x-4">
+      <%= form_with url: defined?(resource_url) && resource_url ? resource_url : send("#{resource}_path"), method: :get, local: true, class: "mb-0" do |f| %>
+        <%= f.hidden_field :status, value: current_status unless (status_tabs.keys.first&.to_s || 'active') == current_status %>
+        <label for="filter" class="sr-only">Filter</label>
+        <%= f.select :sort, options_for_select(sort_options, params[:sort]), {}, class: "form-select text-base" %>
+      <% end %>
+
+      <div class="relative lg:w-auto w-full lg:mt-0 md:mt-0 mt-4 sm:mt-0 lg:mb-0 mb-4">
+        <%= icon "magnifying-glass", class: "size-5 text-slate-500/90 stroke-current absolute left-3 top-3" %>
+        <%= form_with url: defined?(resource_url) && resource_url ? resource_url : send("#{resource}_path"), method: :get, local: true, class: "mb-0" do |f| %>
+          <%= f.hidden_field :status, value: current_status unless (status_tabs.keys.first&.to_s || 'active') == current_status %>
+          <%= f.text_field :search, value: params[:search], placeholder: "Search", class: "form-input lg:w-[250px] pl-10 focus:shadow-inner" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

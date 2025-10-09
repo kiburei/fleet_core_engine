@@ -5,7 +5,42 @@ class FleetProvidersController < ApplicationController
   def index
     @fleet_provider = FleetProvider.new
     @per_page = params[:per_page] || 10
-    @fleet_providers = current_user.admin? ? FleetProvider.all : current_user.fleet_providers
+    @current_status = params[:status] || 'active'
+    
+    # Base query
+    base_fleet_providers = current_user.admin? ? FleetProvider.all : current_user.fleet_providers
+    
+    # Get all status counts for tabs (handle case inconsistency)
+    @status_tabs = {
+      'active' => {
+        label: 'Active',
+        count: base_fleet_providers.where("LOWER(license_status) = ?", 'active').count
+      },
+      'inactive' => {
+        label: 'Inactive',
+        count: base_fleet_providers.where("LOWER(license_status) = ?", 'inactive').count
+      }
+    }
+    
+    @total_count = @status_tabs.values.sum { |tab| tab[:count] }
+    @current_status = params[:status] || 'active'
+    
+    # Filter by status (handle case inconsistency)
+    @fleet_providers = if @current_status == 'all'
+                         base_fleet_providers
+                       else
+                         base_fleet_providers.where("LOWER(license_status) = ?", @current_status.downcase)
+                       end
+    
+    # Apply search filter if present
+    if params[:search].present?
+      search_term = "%#{params[:search]}%"
+      @fleet_providers = @fleet_providers.where(
+        "name ILIKE ? OR registration_number ILIKE ? OR email ILIKE ?",
+        search_term, search_term, search_term
+      )
+    end
+    
     @fleet_providers = @fleet_providers.page(params[:page]).per(@per_page)
   end
 

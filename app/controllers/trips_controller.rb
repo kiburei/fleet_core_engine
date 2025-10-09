@@ -5,22 +5,63 @@ class TripsController < ApplicationController
   def index
     @trip = Trip.new
     @per_page = params[:per_page] || 10
+    @current_status = params[:status] || 'active'
 
+    # Base query
     if params[:vehicle_id]
       @vehicle = Vehicle.find(params[:vehicle_id])
-      @trips = @vehicle.trips.includes(:vehicle, :driver)
+      base_trips = @vehicle.trips.includes(:vehicle, :driver, :fleet_provider)
     elsif params[:fleet_provider_id]
       @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
-      @trips = @fleet_provider.trips.includes(:vehicle, :driver)
+      base_trips = @fleet_provider.trips.includes(:vehicle, :driver, :fleet_provider)
     elsif params[:driver_id]
       @driver = Driver.find(params[:driver_id])
-      @trips = @driver.trips.includes(:vehicle, :driver)
+      base_trips = @driver.trips.includes(:vehicle, :driver, :fleet_provider)
     else
-      @trips = if current_user.admin?
-                 Trip.all.includes(:vehicle, :driver)
-      else
-                 Trip.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle, :driver)
-      end
+      base_trips = if current_user.admin?
+                     Trip.all.includes(:vehicle, :driver, :fleet_provider)
+                   else
+                     Trip.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle, :driver, :fleet_provider)
+                   end
+    end
+
+    # Get all status counts for tabs
+    @status_tabs = {
+      'scheduled' => {
+        label: 'Scheduled',
+        count: base_trips.where(status: 'scheduled').count
+      },
+      'in_progress' => {
+        label: 'In Progress',
+        count: base_trips.where(status: 'in_progress').count
+      },
+      'completed' => {
+        label: 'Completed',
+        count: base_trips.where(status: 'completed').count
+      },
+      'cancelled' => {
+        label: 'Cancelled',
+        count: base_trips.where(status: 'cancelled').count
+      }
+    }
+    
+    @total_count = @status_tabs.values.sum { |tab| tab[:count] }
+    @current_status = params[:status] || 'scheduled'
+
+    # Filter by status
+    @trips = if @current_status == 'all'
+               base_trips
+             else
+               base_trips.where(status: @current_status)
+             end
+
+    # Apply search filter if present
+    if params[:search].present?
+      search_term = "%#{params[:search]}%"
+      @trips = @trips.joins(:vehicle, :driver).where(
+        "trips.origin ILIKE ? OR trips.destination ILIKE ? OR vehicles.registration_number ILIKE ? OR drivers.first_name ILIKE ? OR drivers.last_name ILIKE ?",
+        search_term, search_term, search_term, search_term, search_term
+      )
     end
 
     @trips = @trips.page(params[:page]).per(@per_page)

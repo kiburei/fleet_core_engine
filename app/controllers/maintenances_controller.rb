@@ -4,15 +4,60 @@ class MaintenancesController < ApplicationController
   def index
     @maintenance = Maintenance.new
     @per_page = params[:per_page] || 10
+    @current_status = params[:status] || 'active'
 
+    # Base query
     if params[:vehicle_id]
-      @maintenances = Maintenance.where(vehicle_id: params[:vehicle_id]).includes(:vehicle)
+      base_maintenances = Maintenance.where(vehicle_id: params[:vehicle_id]).includes(:vehicle, :fleet_provider)
     else
-      @maintenances = if current_user.admin?
-                        Maintenance.all.includes(:vehicle)
-      else
-                        Maintenance.where(fleet_provider_id: current_user.fleet_providers).includes(:vehicle)
-      end
+      base_maintenances = if current_user.admin?
+                            Maintenance.all.includes(:vehicle, :fleet_provider)
+                          else
+                            Maintenance.where(fleet_provider_id: current_user.fleet_providers).includes(:vehicle, :fleet_provider)
+                          end
+    end
+
+    # Get all status counts for tabs
+    @status_tabs = {
+      'pending' => {
+        label: 'Pending',
+        count: base_maintenances.where(status: 'pending').count
+      },
+      'scheduled' => {
+        label: 'Scheduled',
+        count: base_maintenances.where(status: 'scheduled').count
+      },
+      'in_progress' => {
+        label: 'In Progress',
+        count: base_maintenances.where(status: 'in_progress').count
+      },
+      'completed' => {
+        label: 'Completed',
+        count: base_maintenances.where(status: 'completed').count
+      },
+      'cancelled' => {
+        label: 'Cancelled',
+        count: base_maintenances.where(status: 'cancelled').count
+      }
+    }
+    
+    @total_count = @status_tabs.values.sum { |tab| tab[:count] }
+    @current_status = params[:status] || 'pending'
+
+    # Filter by status
+    @maintenances = if @current_status == 'all'
+                      base_maintenances
+                    else
+                      base_maintenances.where(status: @current_status)
+                    end
+
+    # Apply search filter if present
+    if params[:search].present?
+      search_term = "%#{params[:search]}%"
+      @maintenances = @maintenances.joins(:vehicle).where(
+        "maintenances.maintenance_type ILIKE ? OR maintenances.description ILIKE ? OR maintenances.service_provider ILIKE ? OR vehicles.registration_number ILIKE ?",
+        search_term, search_term, search_term, search_term
+      )
     end
     
     @maintenances = @maintenances.page(params[:page]).per(@per_page)

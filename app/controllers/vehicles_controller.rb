@@ -5,19 +5,72 @@ class VehiclesController < ApplicationController
   def index
     @vehicle = Vehicle.new
     @per_page = params[:per_page] || 10
+    @current_status = params[:status] || 'active'
 
-    if params[:fleet_provider_id]
-      @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
-      @vehicles = @fleet_provider.vehicles.includes(:vehicle_model)
-    else
-      @vehicles = if current_user.admin?
-                   Vehicle.all.includes(:vehicle_model)
-      elsif current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
-                   Vehicle.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle_model)
+    begin
+      # Base query
+      if params[:fleet_provider_id]
+        @fleet_provider = FleetProvider.find(params[:fleet_provider_id])
+        base_vehicles = @fleet_provider.vehicles.includes(:vehicle_model, :fleet_provider)
+      else
+        base_vehicles = if current_user&.admin?
+                          Vehicle.all.includes(:vehicle_model, :fleet_provider)
+                        elsif current_user&.fleet_provider_admin? || current_user&.fleet_provider_manager?
+                          Vehicle.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle_model, :fleet_provider)
+                        else
+                          # Fallback if no user or permissions
+                          Vehicle.none
+                        end
       end
+
+      # Get all status counts for tabs
+      @status_tabs = {
+        'active' => {
+          label: 'Active',
+          count: base_vehicles.where(status: 'active').count
+        },
+        'inactive' => {
+          label: 'Inactive',
+          count: base_vehicles.where(status: 'inactive').count
+        },
+        'maintenance' => {
+          label: 'Maintenance',
+          count: base_vehicles.where(status: 'maintenance').count
+        }
+      }
+      
+      @total_count = @status_tabs.values.sum { |tab| tab[:count] }
+      @current_status = params[:status] || 'active'
+
+      # Filter by status
+      @vehicles = if @current_status == 'all'
+                    base_vehicles
+                  else
+                    base_vehicles.where(status: @current_status)
+                  end
+
+      # Apply search filter if present
+      if params[:search].present?
+        search_term = "%#{params[:search]}%"
+        @vehicles = @vehicles.joins(:vehicle_model).where(
+          "vehicles.registration_number ILIKE ? OR vehicle_models.make ILIKE ? OR vehicle_models.model ILIKE ?",
+          search_term, search_term, search_term
+        )
+      end
+      
+      @vehicles = @vehicles.page(params[:page]).per(@per_page)
+    rescue => e
+      # Error fallback
+      Rails.logger.error "VehiclesController#index error: #{e.message}"
+      @status_tabs = {
+        'active' => { label: 'Active', count: 0 },
+        'inactive' => { label: 'Inactive', count: 0 },
+        'maintenance' => { label: 'Maintenance', count: 0 }
+      }
+      @total_count = 0
+      @current_status = 'active'
+      @vehicles = Vehicle.none.page(params[:page]).per(@per_page)
     end
-    
-    @vehicles = @vehicles.page(params[:page]).per(@per_page)
   end
 
   # GET /vehicles/1 or /vehicles/1.json
