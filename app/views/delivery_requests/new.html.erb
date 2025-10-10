@@ -1,0 +1,237 @@
+<div class="max-w-4xl mx-auto">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Create New Delivery</h1>
+    <p class="text-gray-600">Create a new delivery request and assign it to available drivers</p>
+  </div>
+
+  <%= form_with model: @delivery_request, local: true, class: "space-y-6", data: { turbo: false } do |f| %>
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Customer Information</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <%= f.label :customer_id, "Customer", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :customer_id, 
+              options_from_collection_for_select(@customers, :id, :name),
+              { prompt: "Select Customer" },
+              { class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500", required: true } %>
+        </div>
+
+        <div>
+          <%= f.label :fleet_provider_id, "Fleet Provider", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :fleet_provider_id, 
+              options_from_collection_for_select(@fleet_providers, :id, :name),
+              { prompt: "Select Fleet Provider" },
+              { class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500", required: true } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Pickup Information</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <%= f.label :pickup_address, "Pickup Address", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_area :pickup_address, rows: 2, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500", required: true %>
+        </div>
+
+        <div>
+          <%= f.label :pickup_latitude, "Pickup Latitude", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.number_field :pickup_latitude, step: :any, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500", required: true %>
+        </div>
+
+        <div>
+          <%= f.label :pickup_longitude, "Pickup Longitude", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.number_field :pickup_longitude, step: :any, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500", required: true %>
+        </div>
+
+        <div>
+          <%= f.label :pickup_contact_name, "Contact Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :pickup_contact_name, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+
+        <div>
+          <%= f.label :pickup_contact_phone, "Contact Phone", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.telephone_field :pickup_contact_phone, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+
+        <div class="md:col-span-2">
+          <%= f.label :pickup_instructions, "Pickup Instructions", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_area :pickup_instructions, rows: 2, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Delivery Information</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <%= f.label :delivery_address, "Delivery Address", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_area :delivery_address, rows: 2, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500", required: true %>
+        </div>
+
+        <div>
+          <%= f.label :delivery_latitude, "Delivery Latitude", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.number_field :delivery_latitude, step: :any, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500", required: true %>
+        </div>
+
+        <div>
+          <%= f.label :delivery_longitude, "Delivery Longitude", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.number_field :delivery_longitude, step: :any, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500", required: true %>
+        </div>
+
+        <div>
+          <%= f.label :delivery_contact_name, "Contact Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :delivery_contact_name, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+
+        <div>
+          <%= f.label :delivery_contact_phone, "Contact Phone", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.telephone_field :delivery_contact_phone, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+
+        <div class="md:col-span-2">
+          <%= f.label :delivery_instructions, "Delivery Instructions", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_area :delivery_instructions, rows: 2, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Delivery Details</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <%= f.label :delivery_fee, "Delivery Fee ($)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.number_field :delivery_fee, step: 0.01, min: 0, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500", required: true %>
+        </div>
+
+        <div>
+          <%= f.label :priority, "Priority", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :priority,
+              options_for_select([
+                ['Normal', 'normal'],
+                ['High', 'high'],
+                ['Urgent', 'urgent']
+              ], 'normal'),
+              {},
+              { class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" } %>
+        </div>
+
+        <div>
+          <%= f.label :estimated_distance_km, "Distance (km)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.number_field :estimated_distance_km, step: 0.1, min: 0, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+
+        <div>
+          <%= f.label :estimated_duration_minutes, "Est. Duration (min)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.number_field :estimated_duration_minutes, min: 0, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Assignment Options</h2>
+      
+      <div class="space-y-4">
+        <div class="flex items-center">
+          <%= check_box_tag :auto_dispatch, '1', false, class: "mr-3 rounded" %>
+          <%= label_tag :auto_dispatch, "Auto-dispatch to best available driver", class: "text-sm text-gray-700" %>
+        </div>
+
+        <div class="border-t pt-4">
+          <div class="flex items-center mb-3">
+            <%= check_box_tag :auto_assign, '1', false, class: "mr-3 rounded" %>
+            <%= label_tag :auto_assign, "Assign to specific driver", class: "text-sm text-gray-700" %>
+          </div>
+          
+          <%= select_tag :driver_id,
+              options_for_select([["Select Driver", ""]] + @drivers.map { |d| [d.full_name, d.id] }),
+              { class: "w-full md:w-64 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500", disabled: true, id: "driver-select" } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end space-x-3">
+      <%= link_to "Cancel", delivery_requests_path, class: "px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+      <%= f.submit "Create Delivery", class: "px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-md" %>
+    </div>
+  <% end %>
+
+  <% if @delivery_request.errors.any? %>
+    <div class="mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+      <h3 class="text-sm font-medium text-red-800">Please fix the following errors:</h3>
+      <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+        <% @delivery_request.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const autoAssignCheck = document.getElementById('auto_assign');
+  const driverSelect = document.getElementById('driver-select');
+  const autoDispatchCheck = document.getElementById('auto_dispatch');
+
+  function toggleDriverSelect() {
+    driverSelect.disabled = !autoAssignCheck.checked;
+    if (!autoAssignCheck.checked) {
+      driverSelect.value = '';
+    }
+  }
+
+  autoAssignCheck.addEventListener('change', function() {
+    toggleDriverSelect();
+    
+    // If auto assign is checked, uncheck auto dispatch
+    if (this.checked) {
+      autoDispatchCheck.checked = false;
+    }
+  });
+
+  autoDispatchCheck.addEventListener('change', function() {
+    // If auto dispatch is checked, uncheck auto assign and disable driver select
+    if (this.checked) {
+      autoAssignCheck.checked = false;
+      toggleDriverSelect();
+    }
+  });
+
+  // Initialize
+  toggleDriverSelect();
+
+  // Auto-calculate distance based on coordinates (basic implementation)
+  const latInputs = document.querySelectorAll('input[type="number"][id$="_latitude"], input[type="number"][id$="_longitude"]');
+  const distanceInput = document.getElementById('delivery_request_estimated_distance_km');
+  
+  function calculateDistance() {
+    const pickupLat = parseFloat(document.getElementById('delivery_request_pickup_latitude').value);
+    const pickupLng = parseFloat(document.getElementById('delivery_request_pickup_longitude').value);
+    const deliveryLat = parseFloat(document.getElementById('delivery_request_delivery_latitude').value);
+    const deliveryLng = parseFloat(document.getElementById('delivery_request_delivery_longitude').value);
+    
+    if (pickupLat && pickupLng && deliveryLat && deliveryLng) {
+      // Haversine formula for distance calculation
+      const R = 6371; // Earth's radius in km
+      const dLat = (deliveryLat - pickupLat) * Math.PI / 180;
+      const dLng = (deliveryLng - pickupLng) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(pickupLat * Math.PI / 180) * Math.cos(deliveryLat * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const distance = R * c;
+      
+      distanceInput.value = distance.toFixed(2);
+    }
+  }
+  
+  latInputs.forEach(input => {
+    input.addEventListener('change', calculateDistance);
+  });
+});
+</script>

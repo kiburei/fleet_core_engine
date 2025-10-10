@@ -29,9 +29,43 @@ Rails.application.routes.draw do
   resources :incidents do
     resources :documents, only: [ :index, :new, :create, :show ]
   end
+  
+  # Delivery Services
+  resources :delivery_requests do
+    member do
+      patch :assign_driver
+      patch :cancel_delivery
+      patch :auto_dispatch
+      get :assign_driver
+    end
+    collection do
+      post :bulk_actions
+      get :analytics
+    end
+  end
 
   namespace :admin do
+    root 'dashboard#index'
     resources :users, only: [ :index, :edit, :show, :update ]
+    
+    resources :drivers do
+      member do
+        patch :toggle_status
+      end
+    end
+    
+    resources :delivery_requests do
+      member do
+        patch :assign_driver
+        patch :cancel_delivery
+        patch :auto_dispatch
+        get :assign_driver
+      end
+      collection do
+        post :bulk_actions
+        get :analytics
+      end
+    end
   end
 
   # Marketplace routes
@@ -46,6 +80,51 @@ Rails.application.routes.draw do
   
   namespace :marketplace do
     resources :orders
+  end
+
+  # API routes for mobile app
+  namespace :api do
+    namespace :v1 do
+      # Authentication
+      post 'auth/login', to: 'auth#login'
+      post 'auth/register', to: 'auth#register'
+      post 'auth/logout', to: 'auth#logout'
+      get 'auth/profile', to: 'auth#profile'
+      patch 'auth/profile', to: 'auth#update_profile'
+      patch 'auth/driver_profile', to: 'auth#update_driver_profile'
+      patch 'auth/fcm_token', to: 'auth#update_fcm_token'
+      
+      # Delivery requests
+      resources :delivery_requests, only: [:index, :show] do
+        collection do
+          get 'available'                    # Get available deliveries
+          patch 'update_location'           # Update driver location
+          get 'driver_status'               # Get driver status
+          patch 'go_online'                 # Go online
+          patch 'go_offline'                # Go offline
+          patch 'toggle_availability'       # Toggle availability
+        end
+        
+        member do
+          patch 'accept'                    # Accept delivery
+          patch 'decline'                   # Decline delivery
+          patch 'pickup'                    # Mark as picked up
+          patch 'mark_in_transit'           # Mark as in transit
+          patch 'deliver'                   # Mark as delivered
+          patch 'cancel'                    # Cancel delivery
+        end
+      end
+      
+      # Notifications
+      resources :notifications, only: [:index, :show, :update] do
+        member do
+          patch 'mark_read'
+        end
+        collection do
+          patch 'mark_all_read'
+        end
+      end
+    end
   end
 
   namespace :rui do

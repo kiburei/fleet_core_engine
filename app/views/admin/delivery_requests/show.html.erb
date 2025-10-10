@@ -1,0 +1,413 @@
+<div class="max-w-6xl mx-auto">
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Delivery Request #<%= @delivery_request.id %></h1>
+      <p class="text-gray-600">
+        Created <%= @delivery_request.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+      </p>
+    </div>
+    
+    <div class="flex items-center space-x-3">
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <%= status_badge_class(@delivery_request.status) %>">
+        <%= @delivery_request.status.humanize %>
+      </span>
+      
+      <% if @delivery_request.priority != 'normal' %>
+        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= priority_badge_class(@delivery_request.priority) %>">
+          <%= @delivery_request.priority.humanize %> Priority
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Customer & Fleet Info -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Customer & Fleet Information</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-500">Customer</label>
+            <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.customer&.name || "N/A" %></p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-500">Fleet Provider</label>
+            <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.fleet_provider.name %></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pickup Information -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          Pickup Location
+        </h2>
+        
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-500">Address</label>
+            <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.pickup_address %></p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-500">Contact Name</label>
+              <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.pickup_contact_name || "N/A" %></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-500">Contact Phone</label>
+              <p class="mt-1 text-sm text-gray-900">
+                <% if @delivery_request.pickup_contact_phone %>
+                  <a href="tel:<%= @delivery_request.pickup_contact_phone %>" class="text-blue-600 hover:text-blue-800">
+                    <%= @delivery_request.pickup_contact_phone %>
+                  </a>
+                <% else %>
+                  N/A
+                <% end %>
+              </p>
+            </div>
+          </div>
+          
+          <% if @delivery_request.pickup_instructions.present? %>
+            <div>
+              <label class="block text-sm font-medium text-gray-500">Pickup Instructions</label>
+              <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.pickup_instructions %></p>
+            </div>
+          <% end %>
+          
+          <div class="grid grid-cols-2 gap-4 text-xs text-gray-500">
+            <div>Lat: <%= @delivery_request.pickup_latitude %></div>
+            <div>Lng: <%= @delivery_request.pickup_longitude %></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery Information -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          Delivery Location
+        </h2>
+        
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-500">Address</label>
+            <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.delivery_address %></p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-500">Contact Name</label>
+              <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.delivery_contact_name || "N/A" %></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-500">Contact Phone</label>
+              <p class="mt-1 text-sm text-gray-900">
+                <% if @delivery_request.delivery_contact_phone %>
+                  <a href="tel:<%= @delivery_request.delivery_contact_phone %>" class="text-blue-600 hover:text-blue-800">
+                    <%= @delivery_request.delivery_contact_phone %>
+                  </a>
+                <% else %>
+                  N/A
+                <% end %>
+              </p>
+            </div>
+          </div>
+          
+          <% if @delivery_request.delivery_instructions.present? %>
+            <div>
+              <label class="block text-sm font-medium text-gray-500">Delivery Instructions</label>
+              <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.delivery_instructions %></p>
+            </div>
+          <% end %>
+          
+          <div class="grid grid-cols-2 gap-4 text-xs text-gray-500">
+            <div>Lat: <%= @delivery_request.delivery_latitude %></div>
+            <div>Lng: <%= @delivery_request.delivery_longitude %></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery Timeline -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Delivery Timeline</h2>
+        
+        <div class="flow-root">
+          <ul class="-mb-8">
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                      <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                      </svg>
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1 pt-1.5">
+                    <div>
+                      <p class="text-sm text-gray-500">Request Created</p>
+                      <p class="text-xs text-gray-400"><%= @delivery_request.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+
+            <% if @delivery_request.assigned_at %>
+              <li>
+                <div class="relative pb-8">
+                  <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                  <div class="relative flex space-x-3">
+                    <div>
+                      <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                      </span>
+                    </div>
+                    <div class="min-w-0 flex-1 pt-1.5">
+                      <div>
+                        <p class="text-sm text-gray-500">Assigned to <%= @delivery_request.driver&.full_name || "Driver" %></p>
+                        <p class="text-xs text-gray-400"><%= @delivery_request.assigned_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            <% end %>
+
+            <% if @delivery_request.pickup_at %>
+              <li>
+                <div class="relative pb-8">
+                  <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                  <div class="relative flex space-x-3">
+                    <div>
+                      <span class="h-8 w-8 rounded-full bg-yellow-500 flex items-center justify-center ring-8 ring-white">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                      </span>
+                    </div>
+                    <div class="min-w-0 flex-1 pt-1.5">
+                      <div>
+                        <p class="text-sm text-gray-500">Package Picked Up</p>
+                        <p class="text-xs text-gray-400"><%= @delivery_request.pickup_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            <% end %>
+
+            <% if @delivery_request.delivered_at %>
+              <li>
+                <div class="relative">
+                  <div class="relative flex space-x-3">
+                    <div>
+                      <span class="h-8 w-8 rounded-full bg-green-600 flex items-center justify-center ring-8 ring-white">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                      </span>
+                    </div>
+                    <div class="min-w-0 flex-1 pt-1.5">
+                      <div>
+                        <p class="text-sm text-gray-500">Delivery Completed</p>
+                        <p class="text-xs text-gray-400"><%= @delivery_request.delivered_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            <% end %>
+
+            <% if @delivery_request.status == 'cancelled' %>
+              <li>
+                <div class="relative">
+                  <div class="relative flex space-x-3">
+                    <div>
+                      <span class="h-8 w-8 rounded-full bg-red-500 flex items-center justify-center ring-8 ring-white">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                      </span>
+                    </div>
+                    <div class="min-w-0 flex-1 pt-1.5">
+                      <div>
+                        <p class="text-sm text-gray-500">Delivery Cancelled</p>
+                        <% if @delivery_request.cancelled_at %>
+                          <p class="text-xs text-gray-400"><%= @delivery_request.cancelled_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- Driver Information -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Driver Information</h3>
+        
+        <% if @delivery_request.driver %>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-500">Name</label>
+              <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.driver.full_name %></p>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-500">Phone</label>
+              <p class="mt-1 text-sm text-gray-900">
+                <a href="tel:<%= @delivery_request.driver.phone %>" class="text-blue-600 hover:text-blue-800">
+                  <%= @delivery_request.driver.phone %>
+                </a>
+              </p>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-500">Status</label>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= driver_status_class(@delivery_request.driver.status) %>">
+                <%= @delivery_request.driver.status.humanize %>
+              </span>
+            </div>
+            
+            <% if @delivery_request.driver.vehicle %>
+              <div>
+                <label class="block text-sm font-medium text-gray-500">Vehicle</label>
+                <p class="mt-1 text-sm text-gray-900">
+                  <%= @delivery_request.driver.vehicle.year %> <%= @delivery_request.driver.vehicle.make %> <%= @delivery_request.driver.vehicle.model %>
+                </p>
+                <p class="text-xs text-gray-500"><%= @delivery_request.driver.vehicle.license_plate %></p>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500">No driver assigned</p>
+          
+          <% if @delivery_request.status == 'pending' %>
+            <div class="mt-4 space-y-2">
+              <%= button_to "Auto Dispatch", auto_dispatch_admin_delivery_request_path(@delivery_request), 
+                  method: :patch, 
+                  class: "w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-3 rounded-md",
+                  confirm: "Auto-dispatch this delivery to the best available driver?" %>
+              
+              <%= link_to "Assign Driver", assign_driver_admin_delivery_request_path(@delivery_request),
+                  class: "w-full bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium py-2 px-3 rounded-md text-center block" %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Delivery Details -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Delivery Details</h3>
+        
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-500">Fee</label>
+            <p class="mt-1 text-lg font-semibold text-gray-900">$<%= @delivery_request.delivery_fee %></p>
+          </div>
+          
+          <% if @delivery_request.estimated_distance_km %>
+            <div>
+              <label class="block text-sm font-medium text-gray-500">Distance</label>
+              <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.estimated_distance_km %> km</p>
+            </div>
+          <% end %>
+          
+          <% if @delivery_request.estimated_duration_minutes %>
+            <div>
+              <label class="block text-sm font-medium text-gray-500">Est. Duration</label>
+              <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.estimated_duration_minutes %> minutes</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Actions</h3>
+        
+        <div class="space-y-2">
+          <%= link_to "Edit Delivery", edit_admin_delivery_request_path(@delivery_request),
+              class: "w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-3 rounded-md text-center block" %>
+          
+          <% if @delivery_request.can_be_cancelled? %>
+            <%= button_to "Cancel Delivery", admin_delivery_request_path(@delivery_request),
+                method: :patch,
+                params: { delivery_request: { status: 'cancelled' } },
+                class: "w-full bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-3 rounded-md",
+                confirm: "Are you sure you want to cancel this delivery?" %>
+          <% end %>
+          
+          <%= link_to "Back to Deliveries", admin_delivery_requests_path,
+              class: "w-full bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium py-2 px-3 rounded-md text-center block" %>
+        </div>
+      </div>
+
+      <!-- Recent Location Updates -->
+      <% if @delivery_request.location_trackings.any? %>
+        <div class="bg-white shadow rounded-lg p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Location Updates</h3>
+          
+          <div class="space-y-3">
+            <% @delivery_request.location_trackings.recent.limit(5).each do |tracking| %>
+              <div class="flex items-center justify-between text-sm">
+                <div>
+                  <p class="text-gray-900"><%= tracking.latitude.round(6) %>, <%= tracking.longitude.round(6) %></p>
+                  <p class="text-gray-500 text-xs"><%= time_ago_in_words(tracking.recorded_at) %> ago</p>
+                </div>
+                <% if tracking.speed %>
+                  <span class="text-xs text-gray-500"><%= tracking.speed.round(1) %> km/h</span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+          
+          <% if @delivery_request.location_trackings.count > 5 %>
+            <div class="mt-3 pt-3 border-t">
+              <p class="text-xs text-gray-500 text-center">
+                <%= @delivery_request.location_trackings.count - 5 %> more updates available
+              </p>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<% content_for :page_specific_styles do %>
+<style>
+  .status-pending { @apply bg-yellow-100 text-yellow-800; }
+  .status-assigned { @apply bg-blue-100 text-blue-800; }
+  .status-picked_up { @apply bg-purple-100 text-purple-800; }
+  .status-in_transit { @apply bg-indigo-100 text-indigo-800; }
+  .status-delivered { @apply bg-green-100 text-green-800; }
+  .status-cancelled { @apply bg-red-100 text-red-800; }
+  
+  .priority-high { @apply bg-orange-100 text-orange-800; }
+  .priority-urgent { @apply bg-red-100 text-red-800; }
+  
+  .driver-online { @apply bg-green-100 text-green-800; }
+  .driver-offline { @apply bg-gray-100 text-gray-800; }
+  .driver-busy { @apply bg-yellow-100 text-yellow-800; }
+</style>
+<% end %>

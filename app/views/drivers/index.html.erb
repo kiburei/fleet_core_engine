@@ -95,6 +95,30 @@
               <p class="text-sm text-slate-500">Vehicle</p>
             <% end %>
           </div>
+          
+          <!-- Delivery Status -->
+          <% if driver.fleet_provider&.is_delivery_enabled %>
+            <div class="sm:col-span-1 col-span-1">
+              <div class="flex items-center space-x-1">
+                <% if driver.is_online && driver.is_available_for_delivery %>
+                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span class="text-sm text-green-600 font-medium">Available</span>
+                <% elsif driver.is_online %>
+                  <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span class="text-sm text-yellow-600 font-medium">Busy</span>
+                <% else %>
+                  <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                  <span class="text-sm text-gray-500">Offline</span>
+                <% end %>
+              </div>
+              <p class="text-sm text-slate-500">delivery status</p>
+            </div>
+          <% else %>
+            <div class="sm:col-span-1 col-span-1">
+              <p class="text-sm text-slate-400">N/A</p>
+              <p class="text-sm text-slate-500">delivery status</p>
+            </div>
+          <% end %>
           <div data-controller="railsui-dropdown" class="sm:col-span-1 relative col-span-2">
             <div class="flex justify-end">
               <button data-action="click->railsui-dropdown#toggle click@window->railsui-dropdown#hide"

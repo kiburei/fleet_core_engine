@@ -1,0 +1,326 @@
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Delivery Management</h1>
+    <p class="text-gray-600">Monitor and manage all delivery requests</p>
+  </div>
+  <div class="flex space-x-3">
+    <%= link_to "Analytics", analytics_admin_delivery_requests_path, class: "bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg inline-flex items-center" %>
+    <%= link_to "Create Delivery", new_admin_delivery_request_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center" %>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="p-2 bg-blue-100 rounded-lg">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-600">Total Deliveries</p>
+        <p class="text-2xl font-bold text-gray-900"><%= @stats[:total_deliveries] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="p-2 bg-yellow-100 rounded-lg">
+        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-600">Pending</p>
+        <p class="text-2xl font-bold text-yellow-600"><%= @stats[:pending_deliveries] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="p-2 bg-orange-100 rounded-lg">
+        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-600">Active</p>
+        <p class="text-2xl font-bold text-orange-600"><%= @stats[:active_deliveries] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="p-2 bg-green-100 rounded-lg">
+        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-600">Completed Today</p>
+        <p class="text-2xl font-bold text-green-600"><%= @stats[:completed_today] %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white rounded-lg shadow mb-6 p-4">
+  <%= form_with url: admin_delivery_requests_path, method: :get, local: true, class: "flex flex-wrap items-center gap-4" do |f| %>
+    <div>
+      <%= f.select :status,
+          options_for_select([
+            ['All Statuses', ''],
+            ['Pending', 'pending'],
+            ['Assigned', 'assigned'],
+            ['Picked Up', 'picked_up'],
+            ['In Transit', 'in_transit'],
+            ['Delivered', 'delivered'],
+            ['Cancelled', 'cancelled']
+          ], params[:status]),
+          {},
+          { class: "border border-gray-300 rounded-md px-3 py-2" } %>
+    </div>
+    
+    <div>
+      <%= f.select :fleet_provider_id, 
+          options_from_collection_for_select(@fleet_providers, :id, :name, params[:fleet_provider_id]),
+          { prompt: "All Fleet Providers" },
+          { class: "border border-gray-300 rounded-md px-3 py-2" } %>
+    </div>
+    
+    <div>
+      <%= f.select :driver_id,
+          options_from_collection_for_select(@drivers, :id, :full_name, params[:driver_id]),
+          { prompt: "All Drivers" },
+          { class: "border border-gray-300 rounded-md px-3 py-2" } %>
+    </div>
+    
+    <div>
+      <%= f.date_field :date_from, value: params[:date_from], placeholder: "From date", class: "border border-gray-300 rounded-md px-3 py-2" %>
+    </div>
+    
+    <div>
+      <%= f.date_field :date_to, value: params[:date_to], placeholder: "To date", class: "border border-gray-300 rounded-md px-3 py-2" %>
+    </div>
+    
+    <div>
+      <%= f.submit "Filter", class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md" %>
+    </div>
+    
+    <% if !params.except(:controller, :action).empty? %>
+      <%= link_to "Clear", admin_delivery_requests_path, class: "text-gray-600 hover:text-gray-800" %>
+    <% end %>
+  <% end %>
+</div>
+
+<!-- Bulk Actions -->
+<%= form_with url: bulk_actions_admin_delivery_requests_path, method: :post, local: true, id: "bulk-form", class: "mb-4" do |f| %>
+  <div class="bg-white rounded-lg shadow p-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <span class="text-sm font-medium text-gray-700">Bulk Actions:</span>
+        <%= f.select :bulk_action,
+            options_for_select([
+              ['Select Action', ''],
+              ['Auto Dispatch', 'auto_dispatch'],
+              ['Cancel Selected', 'cancel'],
+              ['Change Fleet Provider', 'change_fleet']
+            ]),
+            {},
+            { class: "border border-gray-300 rounded-md px-3 py-2" } %>
+        
+        <div id="additional-fields" style="display: none;">
+          <%= f.select :new_fleet_provider_id,
+              options_from_collection_for_select(@fleet_providers, :id, :name),
+              { prompt: "Select Fleet Provider" },
+              { class: "border border-gray-300 rounded-md px-3 py-2", id: "fleet-select" } %>
+          <%= f.text_field :cancellation_reason, placeholder: "Cancellation reason", class: "border border-gray-300 rounded-md px-3 py-2", id: "reason-field" %>
+        </div>
+        
+        <%= f.submit "Apply", class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md", disabled: true, id: "bulk-submit" %>
+      </div>
+      <div>
+        <span class="text-sm text-gray-500">Selected: <span id="selected-count">0</span></span>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<!-- Deliveries Table -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-6 py-3 text-left">
+          <input type="checkbox" id="select-all" class="rounded">
+        </th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fee</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      <% @delivery_requests.each do |delivery| %>
+        <tr>
+          <td class="px-6 py-4">
+            <input type="checkbox" name="delivery_ids[]" value="<%= delivery.id %>" class="delivery-checkbox rounded">
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div>
+              <div class="text-sm font-medium text-gray-900"><%= delivery.request_number %></div>
+              <div class="text-sm text-gray-500">
+                <%= time_ago_in_words(delivery.requested_at) %> ago
+              </div>
+              <% if delivery.priority != 'normal' %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= delivery.priority == 'urgent' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800' %>">
+                  <%= delivery.priority.capitalize %>
+                </span>
+              <% end %>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div>
+              <div class="text-sm font-medium text-gray-900"><%= delivery.customer.name %></div>
+              <div class="text-sm text-gray-500"><%= delivery.pickup_contact_phone %></div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <% if delivery.driver %>
+              <div>
+                <div class="text-sm font-medium text-gray-900"><%= delivery.driver.full_name %></div>
+                <div class="text-sm text-gray-500"><%= delivery.driver.phone_number %></div>
+              </div>
+            <% else %>
+              <span class="text-sm text-gray-500">Not assigned</span>
+            <% end %>
+          </td>
+          <td class="px-6 py-4">
+            <div class="text-sm text-gray-900">
+              <div class="mb-1">
+                <strong>From:</strong> <%= truncate(delivery.pickup_address, length: 40) %>
+              </div>
+              <div>
+                <strong>To:</strong> <%= truncate(delivery.delivery_address, length: 40) %>
+              </div>
+              <div class="text-xs text-gray-500 mt-1">
+                <%= delivery.estimated_distance_km&.round(1) %>km
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+              <%= case delivery.status
+                  when 'pending' then 'bg-yellow-100 text-yellow-800'
+                  when 'assigned' then 'bg-blue-100 text-blue-800'
+                  when 'picked_up' then 'bg-purple-100 text-purple-800'
+                  when 'in_transit' then 'bg-orange-100 text-orange-800'
+                  when 'delivered' then 'bg-green-100 text-green-800'
+                  when 'cancelled' then 'bg-red-100 text-red-800'
+                  else 'bg-gray-100 text-gray-800'
+                  end %>">
+              <%= delivery.status.humanize %>
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <div>
+              <div>$<%= delivery.delivery_fee %></div>
+              <% if delivery.driver_commission %>
+                <div class="text-xs text-gray-500">Driver: $<%= delivery.driver_commission %></div>
+              <% end %>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+            <%= link_to "View", admin_delivery_request_path(delivery), class: "text-blue-600 hover:text-blue-900" %>
+            <% if delivery.can_be_assigned? %>
+              <%= link_to "Assign", admin_delivery_request_path(delivery), class: "text-green-600 hover:text-green-900" %>
+            <% end %>
+            <% if delivery.can_be_cancelled? %>
+              <%= link_to "Cancel", cancel_delivery_admin_delivery_request_path(delivery), 
+                  method: :patch, 
+                  class: "text-red-600 hover:text-red-900",
+                  data: { confirm: "Are you sure you want to cancel this delivery?" } %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <% if @delivery_requests.empty? %>
+    <div class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No deliveries found</h3>
+      <p class="mt-1 text-sm text-gray-500">Get started by creating a new delivery request.</p>
+      <div class="mt-6">
+        <%= link_to "Create Delivery", new_admin_delivery_request_path, 
+            class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Pagination -->
+<% if @delivery_requests.respond_to?(:current_page) %>
+  <div class="mt-6 flex justify-center">
+    <%= paginate @delivery_requests, theme: 'tailwind' %>
+  </div>
+<% end %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const selectAll = document.getElementById('select-all');
+  const checkboxes = document.querySelectorAll('.delivery-checkbox');
+  const selectedCount = document.getElementById('selected-count');
+  const bulkSubmit = document.getElementById('bulk-submit');
+  const bulkAction = document.querySelector('select[name="bulk_action"]');
+  const additionalFields = document.getElementById('additional-fields');
+  const fleetSelect = document.getElementById('fleet-select');
+  const reasonField = document.getElementById('reason-field');
+
+  function updateSelectedCount() {
+    const checked = document.querySelectorAll('.delivery-checkbox:checked').length;
+    selectedCount.textContent = checked;
+    bulkSubmit.disabled = checked === 0 || !bulkAction.value;
+  }
+
+  selectAll.addEventListener('change', function() {
+    checkboxes.forEach(cb => cb.checked = this.checked);
+    updateSelectedCount();
+  });
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', updateSelectedCount);
+  });
+
+  bulkAction.addEventListener('change', function() {
+    const action = this.value;
+    additionalFields.style.display = 'none';
+    fleetSelect.style.display = 'none';
+    reasonField.style.display = 'none';
+
+    if (action === 'change_fleet') {
+      additionalFields.style.display = 'block';
+      fleetSelect.style.display = 'block';
+    } else if (action === 'cancel') {
+      additionalFields.style.display = 'block';
+      reasonField.style.display = 'block';
+    }
+
+    updateSelectedCount();
+  });
+
+  // Initialize
+  updateSelectedCount();
+});
+</script>

@@ -54,6 +54,47 @@
       <%= form.file_field :logo, class: "mt-1 block w-full" %>
     </div>
 
+    <!-- Delivery Service Configuration -->
+    <div class="border-t border-gray-200 dark:border-slate-600 pt-6 mt-6">
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Delivery Service Settings</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <%= form.label :is_delivery_enabled, class: "flex items-center space-x-2" do %>
+            <%= form.check_box :is_delivery_enabled, class: "form-checkbox h-4 w-4 text-blue-600" %>
+            <span class="text-sm font-medium text-gray-700 dark:text-slate-200">Enable Delivery Service</span>
+          <% end %>
+        </div>
+        
+        <div>
+          <%= form.label :delivery_radius_km, "Delivery Radius (km)", class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
+          <%= form.number_field :delivery_radius_km, min: 1, max: 200, value: fleet_provider.delivery_radius_km || 50, class: "form-input mt-1 block w-full" %>
+        </div>
+        
+        <div>
+          <%= form.label :min_delivery_fee, "Minimum Delivery Fee ($)", class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
+          <%= form.number_field :min_delivery_fee, step: 0.01, min: 0, value: fleet_provider.min_delivery_fee || 5.0, class: "form-input mt-1 block w-full" %>
+        </div>
+        
+        <div>
+          <%= form.label :max_delivery_fee, "Maximum Delivery Fee ($)", class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
+          <%= form.number_field :max_delivery_fee, step: 0.01, min: 0, value: fleet_provider.max_delivery_fee || 100.0, class: "form-input mt-1 block w-full" %>
+        </div>
+        
+        <div>
+          <%= form.label :delivery_commission_rate, "Commission Rate (0.0-1.0)", class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
+          <%= form.number_field :delivery_commission_rate, step: 0.01, min: 0, max: 1, value: fleet_provider.delivery_commission_rate || 0.15, class: "form-input mt-1 block w-full" %>
+          <p class="text-xs text-gray-500 mt-1">Driver commission as decimal (0.15 = 15%)</p>
+        </div>
+        
+        <div>
+          <%= form.label :delivery_per_km_rate, "Per Kilometer Rate ($)", class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
+          <%= form.number_field :delivery_per_km_rate, step: 0.01, min: 0, value: fleet_provider.delivery_per_km_rate || 2.0, class: "form-input mt-1 block w-full" %>
+          <p class="text-xs text-gray-500 mt-1">Additional fee per kilometer</p>
+        </div>
+      </div>
+    </div>
+
     <div class="pt-4">
       <%= form.submit "Save Fleet Provider", class: "btn btn-primary" %>
     </div>

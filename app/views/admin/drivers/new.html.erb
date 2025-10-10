@@ -1,0 +1,109 @@
+<div class="max-w-2xl mx-auto">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Add New Driver</h1>
+    <p class="text-gray-600">Create a new driver account for your delivery fleet</p>
+  </div>
+
+  <%= form_with model: [:admin, @driver], local: true, class: "space-y-6", data: { turbo: false } do |f| %>
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Driver Information</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <%= f.label :first_name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :first_name, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= f.label :last_name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :last_name, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= f.label :middle_name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_field :middle_name, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= f.label :phone_number, class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.telephone_field :phone_number, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <div class="md:col-span-2">
+          <%= f.label :fleet_provider_id, "Fleet Provider", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :fleet_provider_id, 
+              options_from_collection_for_select(@fleet_providers, :id, :name),
+              { prompt: "Select Fleet Provider" },
+              { class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" } %>
+        </div>
+
+        <div>
+          <%= f.label :max_delivery_distance_km, "Max Delivery Distance (km)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.number_field :max_delivery_distance_km, value: 50, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+
+        <div class="flex items-center">
+          <%= f.check_box :is_available_for_delivery, class: "mr-2" %>
+          <%= f.label :is_available_for_delivery, "Available for delivery", class: "text-sm text-gray-700" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">User Account</h2>
+      
+      <%= f.fields_for :user_attributes do |user_fields| %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <%= user_fields.label :email, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= user_fields.email_field :email, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500", required: true %>
+            <p class="text-xs text-gray-500 mt-1">Driver will use this email to login to the mobile app</p>
+          </div>
+
+          <div>
+            <%= user_fields.label :password, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= user_fields.password_field :password, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+            <p class="text-xs text-gray-500 mt-1">Leave blank to auto-generate password</p>
+          </div>
+
+          <div>
+            <%= user_fields.label :first_name, "User First Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= user_fields.text_field :first_name, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          </div>
+
+          <div>
+            <%= user_fields.label :last_name, "User Last Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= user_fields.text_field :last_name, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          </div>
+
+          <div>
+            <%= user_fields.label :phone, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= user_fields.telephone_field :phone, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Profile Picture</h2>
+      <%= f.file_field :profile_picture, accept: "image/*", class: "w-full" %>
+      <p class="text-xs text-gray-500 mt-1">Upload driver's profile picture (optional)</p>
+    </div>
+
+    <div class="flex justify-end space-x-3">
+      <%= link_to "Cancel", admin_drivers_path, class: "px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+      <%= f.submit "Create Driver", class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md" %>
+    </div>
+  <% end %>
+
+  <% if @driver.errors.any? %>
+    <div class="mt-4 bg-red-50 border border-red-200 rounded-md p-4">
+      <h3 class="text-sm font-medium text-red-800">Please fix the following errors:</h3>
+      <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+        <% @driver.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>

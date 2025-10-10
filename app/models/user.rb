@@ -7,6 +7,11 @@ class User < ApplicationRecord
   
   # Service provider orders - orders that contain products from this user
   has_many :marketplace_orders, -> { distinct }, through: :marketplace_products, source: :orders
+  
+  # Delivery associations
+  has_one :driver, dependent: :destroy
+  has_many :delivery_requests, foreign_key: 'customer_id', dependent: :destroy
+  has_many :delivery_notifications, foreign_key: 'recipient_id', dependent: :destroy
 
   rolify before_add: :before_add_method
   after_create :assign_default_role
@@ -28,6 +33,10 @@ class User < ApplicationRecord
 
   def full_name
     ([ first_name, last_name ] - [ "" ]).compact.join(" ")
+  end
+
+  def name
+    full_name.presence || email
   end
 
   def admin?
