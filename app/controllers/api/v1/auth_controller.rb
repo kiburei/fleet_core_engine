@@ -126,7 +126,7 @@ class Api::V1::AuthController < Api::V1::BaseController
       last_name: driver.last_name,
       full_name: driver.full_name,
       phone_number: driver.phone_number,
-      delivery_rating: driver.delivery_rating,
+      delivery_rating: driver.delivery_rating.to_f,
       total_deliveries: driver.total_deliveries,
       is_online: driver.is_online,
       is_available_for_delivery: driver.is_available_for_delivery,
