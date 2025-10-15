@@ -30,6 +30,22 @@ Rails.application.routes.draw do
     resources :documents, only: [ :index, :new, :create, :show ]
   end
   
+  # Customer Management & Onboarding
+  resources :customers do
+    member do
+      patch :activate
+      patch :suspend
+      get :onboarding_status
+    end
+    collection do
+      post :bulk_actions
+      get :analytics
+      get :register, to: 'customers#new_registration'
+      post :register, to: 'customers#create_registration'
+      get :onboarding_complete
+    end
+  end
+
   # Delivery Services
   resources :delivery_requests do
     member do
@@ -51,6 +67,20 @@ Rails.application.routes.draw do
     resources :drivers do
       member do
         patch :toggle_status
+      end
+    end
+    
+    resources :customers do
+      member do
+        patch :activate
+        patch :suspend
+        patch :deactivate
+        get :delivery_history
+      end
+      collection do
+        post :bulk_actions
+        get :analytics
+        get :export
       end
     end
     
@@ -93,6 +123,16 @@ Rails.application.routes.draw do
       patch 'auth/profile', to: 'auth#update_profile'
       patch 'auth/driver_profile', to: 'auth#update_driver_profile'
       patch 'auth/fcm_token', to: 'auth#update_fcm_token'
+      
+      # Location services
+      resources :locations, only: [] do
+        collection do
+          get 'search'                      # Search places/addresses
+          post 'geocode'                    # Convert address to coordinates
+          post 'reverse_geocode'            # Convert coordinates to address
+          post 'validate_coordinates'       # Validate and geocode multiple addresses
+        end
+      end
       
       # Delivery requests
       resources :delivery_requests, only: [:index, :show] do

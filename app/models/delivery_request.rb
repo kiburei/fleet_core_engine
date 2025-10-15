@@ -1,6 +1,6 @@
 class DeliveryRequest < ApplicationRecord
   belongs_to :marketplace_order, class_name: 'Marketplace::Order'
-  belongs_to :customer, class_name: 'User'
+  belongs_to :business_customer, class_name: 'Customer'
   belongs_to :driver, optional: true
   belongs_to :fleet_provider
 
@@ -33,9 +33,14 @@ class DeliveryRequest < ApplicationRecord
   # Validations
   validates :request_number, presence: true, uniqueness: true
   validates :pickup_address, :delivery_address, presence: true
-  validates :pickup_latitude, :pickup_longitude, :delivery_latitude, :delivery_longitude, presence: true
+  # Coordinates will be automatically geocoded from addresses if not provided
+  validates :pickup_latitude, :pickup_longitude, :delivery_latitude, :delivery_longitude, presence: { message: "could not be determined from address. Please check the address or enter coordinates manually." }
   validates :delivery_fee, presence: true, numericality: { greater_than: 0 }
   validates :requested_at, presence: true
+  validates :end_customer_name, presence: true
+  validates :end_customer_phone, presence: true
+  validates :order_value, numericality: { greater_than: 0 }, allow_nil: true
+  validates :business_payment_amount, :customer_payment_amount, numericality: { greater_than_or_equal_to: 0 }
 
   # Geocoding
   geocoded_by :pickup_address, latitude: :pickup_latitude, longitude: :pickup_longitude
@@ -47,8 +52,11 @@ class DeliveryRequest < ApplicationRecord
   # Callbacks
   before_validation :generate_request_number, on: :create
   before_validation :set_requested_at, on: :create
+  before_validation :geocode_addresses, if: :should_geocode?
+  before_validation :calculate_fees_if_needed, if: :should_calculate_fees?
   after_update :broadcast_status_update, if: :saved_change_to_status?
   after_update :notify_status_change, if: :saved_change_to_status?
+  after_update :update_customer_analytics!, if: :saved_change_to_status? && :delivered?
 
   # Scopes
   scope :recent, -> { order(requested_at: :desc) }
@@ -183,6 +191,10 @@ class DeliveryRequest < ApplicationRecord
     !delivered? && !cancelled?
   end
 
+  def customer
+    business_customer
+  end
+
   private
 
   def generate_request_number
@@ -295,5 +307,122 @@ class DeliveryRequest < ApplicationRecord
     # This would integrate with your payment system
     # For now, just mark as paid
     update_column(:payment_status, :paid)
+  end
+
+  def should_geocode?
+    # Geocode if we have address but missing coordinates
+    (pickup_address_changed? && (pickup_latitude.blank? || pickup_longitude.blank?)) ||
+    (delivery_address_changed? && (delivery_latitude.blank? || delivery_longitude.blank?))
+  end
+
+  def should_calculate_fees?
+    # Calculate fees if coordinates or order value changed and we have a business customer
+    business_customer.present? && (
+      pickup_latitude_changed? || pickup_longitude_changed? ||
+      delivery_latitude_changed? || delivery_longitude_changed? ||
+      order_value_changed?
+    ) && pickup_latitude.present? && delivery_latitude.present?
+  end
+
+  def calculate_fees_if_needed
+    calculate_delivery_fee_with_customer_rules!
+  end
+
+  def geocode_addresses
+    geocode_pickup_address if pickup_address.present? && (pickup_latitude.blank? || pickup_longitude.blank?)
+    geocode_delivery_address if delivery_address.present? && (delivery_latitude.blank? || delivery_longitude.blank?)
+  end
+
+  def geocode_pickup_address
+    return unless pickup_address.present?
+    
+    begin
+      result = GeocodingService.geocode(pickup_address)
+      if result
+        self.pickup_latitude = result[:latitude]
+        self.pickup_longitude = result[:longitude]
+        self.pickup_place_id = result[:place_id]
+        # Update address to the formatted one from geocoding service
+        self.pickup_address = result[:formatted_address] if result[:formatted_address].present?
+      end
+    rescue GeocodingService::GeocodingError => e
+      Rails.logger.warn("Failed to geocode pickup address '#{pickup_address}': #{e.message}")
+      errors.add(:pickup_address, "could not be found. Please check the address or enter coordinates manually.")
+    end
+  end
+
+  def geocode_delivery_address
+    return unless delivery_address.present?
+    
+    begin
+      result = GeocodingService.geocode(delivery_address)
+      if result
+        self.delivery_latitude = result[:latitude]
+        self.delivery_longitude = result[:longitude]
+        self.delivery_place_id = result[:place_id]
+        # Update address to the formatted one from geocoding service
+        self.delivery_address = result[:formatted_address] if result[:formatted_address].present?
+      end
+    rescue GeocodingService::GeocodingError => e
+      Rails.logger.warn("Failed to geocode delivery address '#{delivery_address}': #{e.message}")
+      errors.add(:delivery_address, "could not be found. Please check the address or enter coordinates manually.")
+    end
+  end
+
+  # Method to retry geocoding if needed
+  def retry_geocoding!
+    geocode_addresses
+    save!
+  end
+
+  # Customer and payment methods
+  def end_customer_info
+    {
+      name: end_customer_name,
+      phone: end_customer_phone,
+      email: end_customer_email
+    }
+  end
+
+  def calculate_delivery_fee_with_customer_rules!
+    return unless business_customer && pickup_latitude && delivery_latitude
+    
+    distance = distance_km || calculate_distance
+    calculated_fee = business_customer.calculate_delivery_fee(distance, order_value || 0)
+    
+    self.delivery_fee = calculated_fee
+    
+    # Split the payment based on customer settings
+    split_payment_amounts!
+    
+    calculated_fee
+  end
+
+  def split_payment_amounts!
+    return unless business_customer && delivery_fee
+    
+    split = business_customer.split_delivery_fee(delivery_fee)
+    self.business_payment_amount = split[:business_amount]
+    self.customer_payment_amount = split[:customer_amount]
+  end
+
+  def payment_split_description
+    return "Customer pays all (#{delivery_fee})" if business_payment_amount == 0
+    return "Business pays all (#{delivery_fee})" if customer_payment_amount == 0
+    return "Split: Business (#{business_payment_amount}) + Customer (#{customer_payment_amount})"
+  end
+
+  def within_customer_delivery_radius?
+    return false unless business_customer && delivery_latitude && delivery_longitude
+    
+    business_customer.within_delivery_radius?(delivery_latitude, delivery_longitude)
+  end
+
+  def customer_can_place_orders?
+    business_customer&.can_place_orders?
+  end
+
+  def update_customer_analytics!
+    business_customer&.update_analytics!
   end
 end

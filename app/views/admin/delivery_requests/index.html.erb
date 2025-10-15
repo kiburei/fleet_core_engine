@@ -5,6 +5,7 @@
   </div>
   <div class="flex space-x-3">
     <%= link_to "Analytics", analytics_admin_delivery_requests_path, class: "bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg inline-flex items-center" %>
+    <%= link_to "Manage Customers", admin_customers_path, class: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg inline-flex items-center" %>
     <%= link_to "Create Delivery", new_admin_delivery_request_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center" %>
   </div>
 </div>
@@ -189,8 +190,9 @@
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
             <div>
-              <div class="text-sm font-medium text-gray-900"><%= delivery.customer.name %></div>
-              <div class="text-sm text-gray-500"><%= delivery.pickup_contact_phone %></div>
+              <div class="text-sm font-medium text-gray-900"><%= delivery.business_customer&.business_name || 'No Business' %></div>
+              <div class="text-sm text-gray-500">Recipient: <%= delivery.end_customer_name %></div>
+              <div class="text-xs text-gray-500"><%= delivery.end_customer_phone %></div>
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">

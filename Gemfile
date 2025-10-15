@@ -55,6 +55,7 @@ gem "image_processing", "~> 1.2"
 # Delivery service specific gems
 gem "redis", "~> 5.0"  # For real-time location tracking
 gem "geocoder"  # For address geocoding and distance calculations
+gem "httparty"  # For external API requests (geocoding service)
 gem "jwt"  # For API authentication
 gem "rack-cors"  # For mobile app API access
 gem "fcm"  # For push notifications

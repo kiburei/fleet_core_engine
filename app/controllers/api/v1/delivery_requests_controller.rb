@@ -282,9 +282,15 @@ class Api::V1::DeliveryRequestsController < Api::V1::BaseController
       cancellation_reason: delivery.cancellation_reason,
       estimated_delivery_time: delivery.estimated_delivery_time&.iso8601,
       delivery_progress: delivery.delivery_progress,
-      customer: {
-        name: delivery.customer.name,
-        phone: delivery.pickup_contact_phone || delivery.customer.phone
+      business_customer: {
+        name: delivery.business_customer&.business_name,
+        contact_name: delivery.business_customer&.primary_contact_name,
+        contact_phone: delivery.business_customer&.primary_contact_phone
+      },
+      end_customer: {
+        name: delivery.end_customer_name,
+        phone: delivery.end_customer_phone,
+        email: delivery.end_customer_email
       },
       marketplace_order: {
         id: delivery.marketplace_order.id,

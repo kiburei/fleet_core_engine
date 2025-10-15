@@ -2,6 +2,7 @@
   <%= render "rui/shared/admin/nav", { header_title: "Deliveries" } do %>
     <div class="flex items-center gap-3">
       <%= link_to "Analytics", analytics_delivery_requests_path, class: "btn btn-secondary" %>
+      <%= link_to "Manage Customers", customers_path, class: "btn btn-secondary" %>
       <%= link_to "Create Delivery", new_delivery_request_path, class: "btn btn-primary" %>
     </div>
   <% end %>
@@ -197,8 +198,9 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div class="text-sm font-medium text-slate-900 dark:text-white"><%= delivery.customer.name %></div>
-                    <div class="text-sm text-slate-500 dark:text-slate-400"><%= delivery.pickup_contact_phone %></div>
+                    <div class="text-sm font-medium text-slate-900 dark:text-white"><%= delivery.business_customer&.business_name || 'No Business' %></div>
+                    <div class="text-sm text-slate-500 dark:text-slate-400">Recipient: <%= delivery.end_customer_name %></div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400"><%= delivery.end_customer_phone %></div>
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">

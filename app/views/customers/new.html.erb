@@ -1,0 +1,492 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Add New Customer" } do %>
+    <div class="flex items-center gap-3">
+      <%= link_to "Back to Customers", customers_path, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>
+
+<% content_for :title, "Add New Customer" %>
+
+<div class="px-4 mb-16">
+  <div class="container mx-auto max-w-4xl">
+    <!-- Form Header -->
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Add New Customer</h1>
+      <p class="text-slate-600 dark:text-slate-400 text-lg">Complete the form below to manually onboard a new customer to your fleet</p>
+    </div>
+
+    <%= form_with model: @customer, local: true, class: "space-y-8" do |f| %>
+      <!-- Business Information Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border-2 border-slate-200 dark:border-slate-600 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Business Information</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Basic details about the customer's business</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6 bg-slate-50/50 dark:bg-slate-800/50">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Business Name *</label>
+              <%= f.text_field :business_name, 
+                  class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200", 
+                  placeholder: "Enter the business name",
+                  required: true %>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Business Type *</label>
+              <%= f.select :business_type, 
+                  options_for_select([['Select Type', '']] + @business_types.map { |type| [type.humanize, type] }),
+                  {},
+                  { class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200", required: true } %>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Registration Number</label>
+              <%= f.text_field :business_registration_number, 
+                  class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200", 
+                  placeholder: "Optional registration number" %>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Business Description</label>
+              <%= f.text_area :business_description, 
+                  rows: 3, 
+                  class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-200 resize-none", 
+                  placeholder: "Brief description of what the business does..." %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border-2 border-slate-200 dark:border-slate-600 overflow-hidden">
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Contact Information</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Primary and secondary contact details</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6 bg-slate-50/50 dark:bg-slate-800/50">
+          <!-- Primary Contact -->
+          <div class="mb-6">
+            <h4 class="text-md font-semibold text-slate-900 dark:text-white mb-4 flex items-center">
+              <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+              Primary Contact
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Contact Name *</label>
+                <%= f.text_field :primary_contact_name, 
+                    class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-500/20 transition-all duration-200", 
+                    placeholder: "Full name of primary contact",
+                    required: true %>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Phone Number *</label>
+                <%= f.telephone_field :primary_contact_phone, 
+                    class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-500/20 transition-all duration-200", 
+                    placeholder: "+254 7XX XXX XXX",
+                    required: true %>
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Email Address *</label>
+                <%= f.email_field :primary_contact_email, 
+                    class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-green-500 focus:ring-4 focus:ring-green-500/20 transition-all duration-200", 
+                    placeholder: "email@example.com",
+                    required: true %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Contact -->
+          <div class="pt-6 border-t-2 border-slate-200 dark:border-slate-600">
+            <h4 class="text-md font-semibold text-slate-900 dark:text-white mb-4 flex items-center">
+              <span class="w-2 h-2 bg-slate-400 rounded-full mr-2"></span>
+              Secondary Contact (Optional)
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Name</label>
+                <%= f.text_field :secondary_contact_name, 
+                    class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-slate-500 focus:ring-4 focus:ring-slate-500/20 transition-all duration-200", 
+                    placeholder: "Optional" %>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Email</label>
+                <%= f.email_field :secondary_contact_email, 
+                    class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-slate-500 focus:ring-4 focus:ring-slate-500/20 transition-all duration-200", 
+                    placeholder: "Optional" %>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Phone</label>
+                <%= f.telephone_field :secondary_contact_phone, 
+                    class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-slate-500 focus:ring-4 focus:ring-slate-500/20 transition-all duration-200", 
+                    placeholder: "Optional" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Address Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border-2 border-slate-200 dark:border-slate-600 overflow-hidden">
+        <div class="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Business Address</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Physical location of the business</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6 bg-slate-50/50 dark:bg-slate-800/50">
+          <div class="grid grid-cols-1 gap-6">
+            <div>
+              <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Full Address *</label>
+              <%= f.text_area :business_address, 
+                  rows: 2, 
+                  class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all duration-200 resize-none", 
+                  placeholder: "Street address, building number, suite/unit, etc.", 
+                  required: true %>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">City *</label>
+                <%= f.text_field :city, 
+                    class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all duration-200", 
+                    placeholder: "Nairobi",
+                    required: true %>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">State/Province</label>
+                <%= f.text_field :state, 
+                    class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all duration-200", 
+                    placeholder: "Optional" %>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Postal Code</label>
+                <%= f.text_field :postal_code, 
+                    class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all duration-200", 
+                    placeholder: "00100" %>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Country</label>
+                <%= f.text_field :country, 
+                    value: "Kenya", 
+                    class: "w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all duration-200" %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Settings Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border-2 border-slate-200 dark:border-slate-600 overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Quick Settings</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Fleet assignment and initial configuration</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="p-6 bg-slate-50/50 dark:bg-slate-800/50 space-y-6">
+          <!-- Fleet Assignment -->
+          <% if @fleet_providers.any? %>
+          <div>
+            <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4 border-b border-slate-200 dark:border-slate-600 pb-2">Fleet Assignment</h3>
+            <div>
+              <%= f.label :fleet_provider_id, "Fleet Provider *", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.select :fleet_provider_id, 
+                  options_from_collection_for_select(@fleet_providers, :id, :name),
+                  { prompt: "Select Fleet Provider" },
+                  { class: "form-select", required: true } %>
+            </div>
+          </div>
+        <% else %>
+          <!-- For fleet owners who are limited to their own fleet -->
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">Fleet Assignment</h3>
+                <div class="mt-1 text-sm text-blue-700 dark:text-blue-300">
+                  This customer will be automatically assigned to your fleet.
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Account Manager Assignment -->
+        <div>
+          <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4 border-b border-slate-200 dark:border-slate-600 pb-2">Account Management</h3>
+          <div>
+            <%= f.label :account_manager_id, "Account Manager", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+            <%= f.select :account_manager_id, 
+                options_for_select([['Unassigned', '']] + @account_managers.map { |am| [am.full_name, am.id] }),
+                {},
+                { class: "form-select" } %>
+            <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">The team member who will manage this customer account</p>
+          </div>
+        </div>
+
+        <!-- Delivery Preferences -->
+        <div>
+          <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4 border-b border-slate-200 dark:border-slate-600 pb-2">Delivery Settings</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <%= f.label :max_delivery_radius_km, "Maximum Delivery Radius (km)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.number_field :max_delivery_radius_km, value: 25, min: 1, max: 100, class: "form-input" %>
+              <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">How far this customer is willing to deliver (1-100 km)</p>
+            </div>
+
+            <div>
+              <%= f.label :estimated_prep_time_minutes, "Preparation Time (minutes)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.number_field :estimated_prep_time_minutes, value: 30, min: 5, max: 240, class: "form-input" %>
+              <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">Average time to prepare orders for pickup</p>
+            </div>
+
+            <div>
+              <%= f.label :base_delivery_rate, "Base Delivery Rate ($)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.number_field :base_delivery_rate, step: 0.01, min: 0, class: "form-input", placeholder: "Leave empty for default rate" %>
+              <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">Base fee per delivery (leave empty to use fleet default)</p>
+            </div>
+
+            <div>
+              <%= f.label :per_km_rate, "Per KM Rate ($)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.number_field :per_km_rate, step: 0.01, min: 0, class: "form-input", placeholder: "Leave empty for default rate" %>
+              <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">Additional fee per kilometer (leave empty to use fleet default)</p>
+            </div>
+
+            <div>
+              <%= f.label :minimum_order_value, "Minimum Order Value ($)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.number_field :minimum_order_value, step: 0.01, min: 0, value: 0, class: "form-input" %>
+              <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">Minimum order value for deliveries</p>
+            </div>
+
+            <div>
+              <%= f.label :free_delivery_threshold, "Free Delivery Threshold ($)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.number_field :free_delivery_threshold, step: 0.01, min: 0, class: "form-input", placeholder: "Optional" %>
+              <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">Order value above which delivery is free</p>
+            </div>
+          </div>
+
+          <!-- Payment Methods -->
+          <div class="mt-6">
+            <label class="block text-sm font-medium text-slate-900 dark:text-slate-200 mb-3">Payment Methods Accepted</label>
+            <div class="grid grid-cols-2 gap-4">
+              <label class="flex items-center space-x-2">
+                <%= f.check_box :allows_cash_on_delivery, { checked: true }, { class: "rounded" } %>
+                <span class="text-sm text-slate-700 dark:text-slate-300">Cash on Delivery</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <%= f.check_box :allows_card_on_delivery, class: "rounded" %>
+                <span class="text-sm text-slate-700 dark:text-slate-300">Card on Delivery</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <%= f.check_box :allows_contactless_delivery, { checked: true }, { class: "rounded" } %>
+                <span class="text-sm text-slate-700 dark:text-slate-300">Contactless Delivery</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <%= f.check_box :requires_signature, class: "rounded" %>
+                <span class="text-sm text-slate-700 dark:text-slate-300">Require Signature</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Payment Responsibility -->
+          <div class="mt-6">
+            <%= f.label :default_payment_method, "Who Pays Delivery Fee?", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-3" %>
+            <div class="space-y-2">
+              <label class="flex items-center space-x-2">
+                <%= f.radio_button :default_payment_method, 'customer_pays', class: "text-blue-600", checked: true %>
+                <span class="text-sm text-slate-700 dark:text-slate-300">Customer pays delivery fee</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <%= f.radio_button :default_payment_method, 'business_pays', class: "text-blue-600" %>
+                <span class="text-sm text-slate-700 dark:text-slate-300">Business pays delivery fee</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <%= f.radio_button :default_payment_method, 'split_payment', class: "text-blue-600" %>
+                <span class="text-sm text-slate-700 dark:text-slate-300">Split payment between business and customer</span>
+              </label>
+            </div>
+            
+            <div id="split-payment-options" class="mt-3 hidden">
+              <%= f.label :business_payment_percentage, "Business pays what percentage?", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.number_field :business_payment_percentage, min: 0, max: 100, value: 50, class: "form-input w-32" %>
+              <span class="text-sm text-slate-600 dark:text-slate-400 ml-1">% (Customer pays the remainder)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Special Notes -->
+        <div>
+          <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4 border-b border-slate-200 dark:border-slate-600 pb-2">Additional Information</h3>
+          <div>
+            <%= f.label :special_terms, "Special Terms or Notes", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+            <%= f.text_area :special_terms, rows: 3, class: "form-input", placeholder: "Any special arrangements, terms, or notes about this customer..." %>
+          </div>
+        </div>
+
+        <!-- Initial Status -->
+        <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 rounded-lg p-4">
+          <div class="flex items-start space-x-3">
+            <div class="flex-shrink-0 pt-0.5">
+              <svg class="h-5 w-5 text-slate-400 dark:text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-medium text-slate-800 dark:text-slate-200">Initial Status</h3>
+              <div class="mt-2">
+                <label class="flex items-center space-x-2">
+                  <%= check_box_tag :activate_immediately, '1', false, class: "rounded" %>
+                  <span class="text-sm text-slate-700 dark:text-slate-300">Activate customer immediately after creation</span>
+                </label>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">If unchecked, customer will be created with "pending approval" status and will need to be manually activated later.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+          <!-- Submit Section -->
+          <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border-2 border-slate-200 dark:border-slate-600 overflow-hidden">
+            <div class="p-6">
+              <!-- Error Messages -->
+              <% if @customer.errors.any? %>
+                <div class="mb-6 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-700 rounded-lg p-4">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <h3 class="text-sm font-semibold text-red-800 dark:text-red-200">Please fix the following errors:</h3>
+                  </div>
+                  <ul class="text-sm text-red-700 dark:text-red-300 list-disc list-inside space-y-1 ml-7">
+                    <% @customer.errors.full_messages.each do |message| %>
+                      <li><%= message %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              <% end %>
+
+              <!-- Action Buttons -->
+              <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t-2 border-slate-200 dark:border-slate-600">
+                <%= link_to "Cancel", customers_path, class: "w-full sm:w-auto btn btn-secondary px-8 py-3 text-sm font-semibold" %>
+                
+                <div class="flex space-x-3">
+                  <%= f.submit "Create Customer", class: "w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-500/50" %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle split payment options
+  const paymentRadios = document.querySelectorAll('input[name*="default_payment_method"]');
+  const splitOptions = document.getElementById('split-payment-options');
+
+  function toggleSplitOptions() {
+    const splitSelected = document.querySelector('input[name*="default_payment_method"][value="split_payment"]:checked');
+    if (splitSelected) {
+      splitOptions.classList.remove('hidden');
+    } else {
+      splitOptions.classList.add('hidden');
+    }
+  }
+
+  paymentRadios.forEach(radio => {
+    radio.addEventListener('change', toggleSplitOptions);
+  });
+
+  // Initial check
+  toggleSplitOptions();
+
+  // Auto-format phone numbers
+  const phoneFields = document.querySelectorAll('input[type="tel"]');
+  phoneFields.forEach(field => {
+    field.addEventListener('input', function() {
+      let value = this.value.replace(/\D/g, '');
+      if (value.startsWith('0')) {
+        value = '254' + value.substring(1);
+      }
+      if (value.length > 12) {
+        value = value.substring(0, 12);
+      }
+      if (value.length > 3) {
+        value = '+' + value.substring(0, 3) + ' ' + value.substring(3);
+      }
+      if (value.length > 8) {
+        value = value.substring(0, 8) + ' ' + value.substring(8);
+      }
+      this.value = value;
+    });
+  });
+
+  // Address validation placeholder
+  const addressField = document.querySelector('textarea[name*="business_address"]');
+  if (addressField) {
+    addressField.addEventListener('blur', function() {
+      // Future: Add address validation/geocoding
+      console.log('Address validation would happen here:', this.value);
+    });
+  }
+});
+</script>

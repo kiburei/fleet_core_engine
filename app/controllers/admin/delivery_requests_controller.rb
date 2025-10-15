@@ -2,7 +2,7 @@ class Admin::DeliveryRequestsController < AdminController
   before_action :set_delivery_request, only: [:show, :edit, :update, :destroy, :assign_driver, :cancel_delivery, :auto_dispatch]
   
   def index
-    @delivery_requests = DeliveryRequest.includes(:driver, :customer, :fleet_provider, :marketplace_order)
+    @delivery_requests = DeliveryRequest.includes(:driver, :business_customer, :fleet_provider, :marketplace_order)
     
     # Filter by status if specified
     if params[:status].present?

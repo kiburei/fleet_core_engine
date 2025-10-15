@@ -1,0 +1,382 @@
+<div class="max-w-7xl mx-auto">
+  <div class="mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">
+          Customer Management
+          <% if fleet_admin? && current_fleet_provider %>
+            <span class="text-lg font-normal text-gray-600">- <%= current_fleet_provider.name %></span>
+          <% end %>
+        </h1>
+        <p class="text-gray-600">Manage customer accounts and onboarding</p>
+      </div>
+      <div class="flex space-x-3">
+        <%= link_to "Analytics", analytics_admin_customers_path, class: "px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+        <%= link_to "Export", admin_customers_path(format: :csv), class: "px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+        <%= link_to "Add Customer", new_admin_customer_path, class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md" %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-600">Total Customers</p>
+          <p class="text-2xl font-semibold text-gray-900"><%= @stats[:total_customers] %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-600">Active</p>
+          <p class="text-2xl font-semibold text-gray-900"><%= @stats[:active_customers] %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-600">Pending Approval</p>
+          <p class="text-2xl font-semibold text-gray-900"><%= @stats[:pending_approval] %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zM14 6a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2h8zM6 10a2 2 0 100 4 2 2 0 000-4z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-600">Total Revenue</p>
+          <p class="text-2xl font-semibold text-gray-900">$<%= number_with_delimiter(@stats[:total_revenue]) %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow mb-6">
+    <%= form_tag admin_customers_path, method: :get, local: true, class: "p-6" do %>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div>
+          <%= label_tag :search, "Search", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= text_field_tag :search, params[:search], placeholder: "Business name, contact, email...", class: "w-full border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+        </div>
+        
+        <div>
+          <%= label_tag :status, "Status", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= select_tag :status, 
+              options_for_select([
+                ['All', ''],
+                ['Active', 'active'],
+                ['Pending Approval', 'pending_approval'],
+                ['Suspended', 'suspended'],
+                ['Inactive', 'inactive']
+              ], params[:status]), 
+              { class: "w-full border border-gray-300 rounded-md px-3 py-2 text-sm" } %>
+        </div>
+
+        <div>
+          <%= label_tag :business_type, "Business Type", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= select_tag :business_type, 
+              options_for_select([['All', '']] + @business_types.map { |type| [type.humanize, type] }, params[:business_type]), 
+              { class: "w-full border border-gray-300 rounded-md px-3 py-2 text-sm" } %>
+        </div>
+
+        <% if system_admin? %>
+        <div>
+          <%= label_tag :fleet_provider_id, "Fleet Provider", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= select_tag :fleet_provider_id, 
+              options_from_collection_for_select([OpenStruct.new(id: '', name: 'All')] + @fleet_providers, :id, :name, params[:fleet_provider_id]), 
+              { class: "w-full border border-gray-300 rounded-md px-3 py-2 text-sm" } %>
+        </div>
+        <% end %>
+      </div>
+      
+      <div class="flex justify-between">
+        <div class="flex space-x-3">
+          <%= submit_tag "Filter", class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md" %>
+          <%= link_to "Clear", admin_customers_path, class: "px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+        </div>
+        
+        <div class="flex items-center text-sm text-gray-600">
+          Showing <%= @customers.size %> of <%= @stats[:total_customers] %> customers
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Bulk Actions -->
+  <%= form_tag bulk_actions_admin_customers_path, method: :post, id: "bulk-actions-form", class: "mb-4" do %>
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <label class="flex items-center">
+            <%= check_box_tag "select_all", "1", false, class: "rounded", id: "select-all-checkbox" %>
+            <span class="ml-2 text-sm text-gray-700">Select All</span>
+          </label>
+          
+          <%= select_tag :bulk_action, 
+              options_for_select([
+                ['Choose action...', ''],
+                ['Activate', 'activate'],
+                ['Suspend', 'suspend'],
+                ['Assign Manager', 'assign_manager'],
+                ['Export Selected', 'export']
+              ] + (system_admin? ? [['Change Fleet Provider', 'change_fleet']] : [])), 
+              { class: "border border-gray-300 rounded-md px-3 py-2 text-sm", id: "bulk-action-select" } %>
+              
+          <div id="bulk-action-fields" class="hidden space-x-3">
+            <!-- Suspension reason -->
+            <div id="suspension-reason-field" class="hidden">
+              <%= text_field_tag :suspension_reason, "", placeholder: "Suspension reason...", class: "border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+            </div>
+            
+            <!-- Account manager selection -->
+            <div id="account-manager-field" class="hidden">
+              <%= select_tag :new_account_manager_id, 
+                  options_from_collection_for_select([], :id, :name), 
+                  { class: "border border-gray-300 rounded-md px-3 py-2 text-sm" } %>
+            </div>
+            
+            <!-- Fleet provider selection (system admin only) -->
+            <% if system_admin? %>
+            <div id="fleet-provider-field" class="hidden">
+              <%= select_tag :new_fleet_provider_id, 
+                  options_from_collection_for_select(@fleet_providers, :id, :name), 
+                  { class: "border border-gray-300 rounded-md px-3 py-2 text-sm" } %>
+            </div>
+            <% end %>
+          </div>
+        </div>
+        
+        <div>
+          <%= submit_tag "Apply", class: "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md disabled:opacity-50", id: "bulk-submit-btn", disabled: true %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customers Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <input type="checkbox" class="rounded" disabled>
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Business
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Contact
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Status
+            </th>
+            <% if system_admin? %>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Fleet Provider
+            </th>
+            <% end %>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Deliveries
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Revenue
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @customers.each do |customer| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <%= check_box_tag "customer_ids[]", customer.id, false, class: "rounded customer-checkbox" %>
+              </td>
+              
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">
+                      <%= link_to customer.business_name, admin_customer_path(customer), class: "hover:text-blue-600" %>
+                    </div>
+                    <div class="text-sm text-gray-500"><%= customer.business_type&.humanize %></div>
+                  </div>
+                </div>
+              </td>
+              
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900"><%= customer.primary_contact_name %></div>
+                <div class="text-sm text-gray-500">
+                  <a href="mailto:<%= customer.primary_contact_email %>" class="hover:text-blue-600">
+                    <%= customer.primary_contact_email %>
+                  </a>
+                </div>
+                <div class="text-sm text-gray-500"><%= customer.primary_contact_phone %></div>
+              </td>
+              
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                  <%= case customer.status
+                      when 'active' then 'bg-green-100 text-green-800'
+                      when 'pending_approval' then 'bg-yellow-100 text-yellow-800'
+                      when 'suspended' then 'bg-red-100 text-red-800'
+                      when 'inactive' then 'bg-gray-100 text-gray-800'
+                      else 'bg-gray-100 text-gray-800'
+                      end %>">
+                  <%= customer.status.humanize %>
+                </span>
+              </td>
+              
+              <% if system_admin? %>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <%= customer.fleet_provider&.name %>
+              </td>
+              <% end %>
+              
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900"><%= customer.total_deliveries_count %></div>
+                <div class="text-sm text-gray-500">
+                  Rating: <%= customer.customer_rating ? number_with_precision(customer.customer_rating, precision: 1) : 'N/A' %>
+                </div>
+              </td>
+              
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                $<%= number_with_delimiter(customer.total_revenue) %>
+              </td>
+              
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                <%= link_to "View", admin_customer_path(customer), class: "text-blue-600 hover:text-blue-900" %>
+                <%= link_to "Edit", edit_admin_customer_path(customer), class: "text-gray-600 hover:text-gray-900" %>
+                
+                <% if customer.pending_approval? %>
+                  <%= link_to "Activate", activate_admin_customer_path(customer), method: :patch, 
+                      confirm: "Activate #{customer.business_name}?", class: "text-green-600 hover:text-green-900" %>
+                <% elsif customer.active? %>
+                  <%= link_to "Suspend", suspend_admin_customer_path(customer), method: :patch, 
+                      confirm: "Suspend #{customer.business_name}?", class: "text-red-600 hover:text-red-900" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      
+      <% if @customers.empty? %>
+        <div class="text-center py-8">
+          <p class="text-gray-500">No customers found.</p>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Pagination -->
+  <div class="mt-6">
+    <%= paginate @customers if respond_to?(:paginate) %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const selectAllCheckbox = document.getElementById('select-all-checkbox');
+  const customerCheckboxes = document.querySelectorAll('.customer-checkbox');
+  const bulkActionSelect = document.getElementById('bulk-action-select');
+  const bulkSubmitBtn = document.getElementById('bulk-submit-btn');
+  const bulkActionFields = document.getElementById('bulk-action-fields');
+
+  // Handle select all
+  selectAllCheckbox.addEventListener('change', function() {
+    customerCheckboxes.forEach(checkbox => {
+      checkbox.checked = this.checked;
+    });
+    toggleBulkSubmit();
+  });
+
+  // Handle individual checkboxes
+  customerCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const checkedCount = document.querySelectorAll('.customer-checkbox:checked').length;
+      selectAllCheckbox.checked = checkedCount === customerCheckboxes.length;
+      selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < customerCheckboxes.length;
+      toggleBulkSubmit();
+    });
+  });
+
+  // Handle bulk action selection
+  bulkActionSelect.addEventListener('change', function() {
+    const selectedAction = this.value;
+    const hasSelectedCustomers = document.querySelectorAll('.customer-checkbox:checked').length > 0;
+    
+    // Hide all action fields
+    document.querySelectorAll('#bulk-action-fields > div').forEach(field => {
+      field.classList.add('hidden');
+    });
+    
+    if (selectedAction && hasSelectedCustomers) {
+      bulkActionFields.classList.remove('hidden');
+      
+      // Show relevant fields
+      if (selectedAction === 'suspend') {
+        document.getElementById('suspension-reason-field').classList.remove('hidden');
+      } else if (selectedAction === 'assign_manager') {
+        document.getElementById('account-manager-field').classList.remove('hidden');
+      } else if (selectedAction === 'change_fleet') {
+        document.getElementById('fleet-provider-field').classList.remove('hidden');
+      }
+    } else {
+      bulkActionFields.classList.add('hidden');
+    }
+    
+    toggleBulkSubmit();
+  });
+
+  function toggleBulkSubmit() {
+    const hasSelectedCustomers = document.querySelectorAll('.customer-checkbox:checked').length > 0;
+    const hasSelectedAction = bulkActionSelect.value !== '';
+    bulkSubmitBtn.disabled = !(hasSelectedCustomers && hasSelectedAction);
+  }
+
+  // Form submission confirmation
+  document.getElementById('bulk-actions-form').addEventListener('submit', function(e) {
+    const selectedAction = bulkActionSelect.value;
+    const selectedCount = document.querySelectorAll('.customer-checkbox:checked').length;
+    
+    if (!confirm(`Are you sure you want to ${selectedAction} ${selectedCount} customer(s)?`)) {
+      e.preventDefault();
+    }
+  });
+});
+</script>

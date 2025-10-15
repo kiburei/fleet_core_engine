@@ -12,14 +12,14 @@
   <div class="container mx-auto max-w-4xl">
     <%= form_with model: @delivery_request, local: true, class: "space-y-6", data: { turbo: false } do |f| %>
       <div class="bg-white dark:bg-slate-800 shadow border border-slate-200 dark:border-slate-600/80 rounded-lg p-6">
-        <h2 class="text-lg font-medium text-slate-900 dark:text-white mb-4">Customer Information</h2>
+        <h2 class="text-lg font-medium text-slate-900 dark:text-white mb-4">Business & Order Information</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <%= f.label :customer_id, "Customer", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
-            <%= f.select :customer_id, 
-                options_from_collection_for_select(@customers, :id, :name),
-                { prompt: "Select Customer" },
+            <%= f.label :business_customer_id, "Business Customer", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.select :business_customer_id, 
+                options_from_collection_for_select(@customers, :id, :display_name),
+                { prompt: "Select Business Customer" },
                 { class: "form-select", required: true } %>
           </div>
 
@@ -31,25 +31,99 @@
                 { class: "form-select", required: true } %>
           </div>
         </div>
+        
+        <!-- Order Information -->
+        <div class="mt-4 border-t border-slate-200 dark:border-slate-600 pt-4">
+          <h3 class="text-md font-medium text-slate-900 dark:text-white mb-3">Order Details</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <%= f.label :order_value, "Order Value ($)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.number_field :order_value, step: 0.01, min: 0, class: "form-input", placeholder: "0.00" %>
+            </div>
+            <div>
+              <%= f.label :order_items_count, "Number of Items", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.number_field :order_items_count, min: 1, class: "form-input", value: 1 %>
+            </div>
+            <div>
+              <%= f.label :payment_method, "Payment Method", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.select :payment_method,
+                  options_for_select([
+                    ['Cash on Delivery', 'cash'],
+                    ['Card on Delivery', 'card'],
+                    ['Prepaid', 'prepaid'],
+                    ['Business Account', 'business_account']
+                  ]),
+                  { prompt: "Select Payment Method" },
+                  { class: "form-select" } %>
+            </div>
+          </div>
+        </div>
+        
+        <!-- End Customer Information -->
+        <div class="mt-4 border-t border-slate-200 dark:border-slate-600 pt-4">
+          <h3 class="text-md font-medium text-slate-900 dark:text-white mb-3">Delivery Recipient</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <%= f.label :end_customer_name, "Recipient Name", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.text_field :end_customer_name, class: "form-input", required: true %>
+            </div>
+            <div>
+              <%= f.label :end_customer_phone, "Recipient Phone", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.telephone_field :end_customer_phone, class: "form-input", required: true %>
+            </div>
+            <div>
+              <%= f.label :end_customer_email, "Recipient Email (Optional)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.email_field :end_customer_email, class: "form-input" %>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="bg-white dark:bg-slate-800 shadow border border-slate-200 dark:border-slate-600/80 rounded-lg p-6">
         <h2 class="text-lg font-medium text-slate-900 dark:text-white mb-4">Pickup Information</h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="md:col-span-2">
+        <div class="space-y-4">
+          <!-- Address Search Section -->
+          <div>
             <%= f.label :pickup_address, "Pickup Address", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
-            <%= f.text_area :pickup_address, rows: 2, class: "form-textarea", required: true %>
+            <div class="relative">
+              <%= f.text_field :pickup_address, placeholder: "Start typing an address...", class: "form-input address-search", required: true, data: { location_type: "pickup" } %>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <!-- Address suggestions dropdown -->
+            <div class="address-suggestions hidden absolute z-50 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md shadow-lg max-h-60 overflow-auto" data-location-type="pickup">
+              <!-- Suggestions will be populated here -->
+            </div>
           </div>
 
-          <div>
-            <%= f.label :pickup_latitude, "Pickup Latitude", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
-            <%= f.number_field :pickup_latitude, step: :any, class: "form-input", required: true %>
+          <!-- Coordinates Section (can be hidden/shown) -->
+          <div class="coordinates-section">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Coordinates</span>
+              <button type="button" class="toggle-coordinates text-sm text-blue-600 dark:text-blue-400 hover:underline">Show coordinates</button>
+            </div>
+            <div class="coordinates-inputs hidden grid grid-cols-2 gap-4">
+              <div>
+                <%= f.label :pickup_latitude, "Pickup Latitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
+                <%= f.number_field :pickup_latitude, step: :any, class: "form-input text-sm", readonly: true %>
+              </div>
+              <div>
+                <%= f.label :pickup_longitude, "Pickup Longitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
+                <%= f.number_field :pickup_longitude, step: :any, class: "form-input text-sm", readonly: true %>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <%= f.label :pickup_longitude, "Pickup Longitude", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
-            <%= f.number_field :pickup_longitude, step: :any, class: "form-input", required: true %>
+          <!-- Manual coordinates toggle -->
+          <div class="manual-coordinates-section hidden">
+            <div class="flex items-center mb-2">
+              <input type="checkbox" class="manual-coords-toggle mr-2" />
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enter coordinates manually</span>
+            </div>
           </div>
 
           <div>
@@ -72,20 +146,48 @@
       <div class="bg-white dark:bg-slate-800 shadow border border-slate-200 dark:border-slate-600/80 rounded-lg p-6">
         <h2 class="text-lg font-medium text-slate-900 dark:text-white mb-4">Delivery Information</h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="md:col-span-2">
+        <div class="space-y-4">
+          <!-- Address Search Section -->
+          <div>
             <%= f.label :delivery_address, "Delivery Address", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
-            <%= f.text_area :delivery_address, rows: 2, class: "form-textarea", required: true %>
+            <div class="relative">
+              <%= f.text_field :delivery_address, placeholder: "Start typing an address...", class: "form-input address-search", required: true, data: { location_type: "delivery" } %>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <!-- Address suggestions dropdown -->
+            <div class="address-suggestions hidden absolute z-50 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md shadow-lg max-h-60 overflow-auto" data-location-type="delivery">
+              <!-- Suggestions will be populated here -->
+            </div>
           </div>
 
-          <div>
-            <%= f.label :delivery_latitude, "Delivery Latitude", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
-            <%= f.number_field :delivery_latitude, step: :any, class: "form-input", required: true %>
+          <!-- Coordinates Section (can be hidden/shown) -->
+          <div class="coordinates-section">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Coordinates</span>
+              <button type="button" class="toggle-coordinates text-sm text-blue-600 dark:text-blue-400 hover:underline">Show coordinates</button>
+            </div>
+            <div class="coordinates-inputs hidden grid grid-cols-2 gap-4">
+              <div>
+                <%= f.label :delivery_latitude, "Delivery Latitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
+                <%= f.number_field :delivery_latitude, step: :any, class: "form-input text-sm", readonly: true %>
+              </div>
+              <div>
+                <%= f.label :delivery_longitude, "Delivery Longitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
+                <%= f.number_field :delivery_longitude, step: :any, class: "form-input text-sm", readonly: true %>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <%= f.label :delivery_longitude, "Delivery Longitude", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
-            <%= f.number_field :delivery_longitude, step: :any, class: "form-input", required: true %>
+          <!-- Manual coordinates toggle -->
+          <div class="manual-coordinates-section hidden">
+            <div class="flex items-center mb-2">
+              <input type="checkbox" class="manual-coords-toggle mr-2" />
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enter coordinates manually</span>
+            </div>
           </div>
 
           <div>
@@ -180,65 +282,345 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const autoAssignCheck = document.getElementById('auto_assign');
-  const driverSelect = document.getElementById('driver-select');
-  const autoDispatchCheck = document.getElementById('auto_dispatch');
+class DeliveryRequestForm {
+  constructor() {
+    this.searchTimeouts = new Map();
+    this.activeSuggestion = null;
+    this.initializeEventListeners();
+  }
 
-  function toggleDriverSelect() {
-    driverSelect.disabled = !autoAssignCheck.checked;
-    if (!autoAssignCheck.checked) {
-      driverSelect.value = '';
+  initializeEventListeners() {
+    // Assignment toggles
+    this.initializeAssignmentToggles();
+    
+    // Address search functionality
+    this.initializeAddressSearch();
+    
+    // Coordinate toggles
+    this.initializeCoordinateToggles();
+    
+    // Distance calculation
+    this.initializeDistanceCalculation();
+  }
+
+  initializeAssignmentToggles() {
+    const autoAssignCheck = document.getElementById('auto_assign');
+    const driverSelect = document.getElementById('driver-select');
+    const autoDispatchCheck = document.getElementById('auto_dispatch');
+
+    const toggleDriverSelect = () => {
+      driverSelect.disabled = !autoAssignCheck.checked;
+      if (!autoAssignCheck.checked) {
+        driverSelect.value = '';
+      }
+    };
+
+    autoAssignCheck.addEventListener('change', function() {
+      toggleDriverSelect();
+      if (this.checked) {
+        autoDispatchCheck.checked = false;
+      }
+    });
+
+    autoDispatchCheck.addEventListener('change', function() {
+      if (this.checked) {
+        autoAssignCheck.checked = false;
+        toggleDriverSelect();
+      }
+    });
+
+    toggleDriverSelect();
+  }
+
+  initializeAddressSearch() {
+    const addressInputs = document.querySelectorAll('.address-search');
+    
+    addressInputs.forEach(input => {
+      input.addEventListener('input', (e) => this.handleAddressInput(e));
+      input.addEventListener('focus', (e) => this.handleAddressFocus(e));
+      input.addEventListener('blur', (e) => this.handleAddressBlur(e));
+      input.addEventListener('keydown', (e) => this.handleAddressKeydown(e));
+    });
+  }
+
+  initializeCoordinateToggles() {
+    const toggleButtons = document.querySelectorAll('.toggle-coordinates');
+    const manualToggles = document.querySelectorAll('.manual-coords-toggle');
+    
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const section = button.closest('.coordinates-section');
+        const coordsInputs = section.querySelector('.coordinates-inputs');
+        const isHidden = coordsInputs.classList.contains('hidden');
+        
+        coordsInputs.classList.toggle('hidden');
+        button.textContent = isHidden ? 'Hide coordinates' : 'Show coordinates';
+      });
+    });
+
+    manualToggles.forEach(toggle => {
+      toggle.addEventListener('change', (e) => {
+        const section = toggle.closest('.coordinates-section');
+        const coordsInputs = section.querySelectorAll('input[type="number"]');
+        
+        coordsInputs.forEach(input => {
+          input.readOnly = !e.target.checked;
+        });
+      });
+    });
+  }
+
+  initializeDistanceCalculation() {
+    const latInputs = document.querySelectorAll('input[type="number"][id$="_latitude"], input[type="number"][id$="_longitude"]');
+    const distanceInput = document.getElementById('delivery_request_estimated_distance_km');
+    
+    const calculateDistance = () => {
+      const pickupLat = parseFloat(document.getElementById('delivery_request_pickup_latitude').value);
+      const pickupLng = parseFloat(document.getElementById('delivery_request_pickup_longitude').value);
+      const deliveryLat = parseFloat(document.getElementById('delivery_request_delivery_latitude').value);
+      const deliveryLng = parseFloat(document.getElementById('delivery_request_delivery_longitude').value);
+      
+      if (pickupLat && pickupLng && deliveryLat && deliveryLng) {
+        const distance = this.haversineDistance(pickupLat, pickupLng, deliveryLat, deliveryLng);
+        if (distanceInput) {
+          distanceInput.value = distance.toFixed(2);
+        }
+      }
+    };
+    
+    latInputs.forEach(input => {
+      input.addEventListener('change', calculateDistance);
+    });
+  }
+
+  async handleAddressInput(event) {
+    const input = event.target;
+    const query = input.value.trim();
+    const locationType = input.dataset.locationType;
+    
+    // Clear previous timeout
+    if (this.searchTimeouts.has(input)) {
+      clearTimeout(this.searchTimeouts.get(input));
+    }
+    
+    if (query.length < 3) {
+      this.hideSuggestions(locationType);
+      return;
+    }
+    
+    // Debounce the search
+    const timeoutId = setTimeout(async () => {
+      try {
+        await this.searchAddresses(query, locationType);
+      } catch (error) {
+        console.error('Address search failed:', error);
+        this.showError(input, 'Address search temporarily unavailable');
+      }
+    }, 300);
+    
+    this.searchTimeouts.set(input, timeoutId);
+  }
+
+  async searchAddresses(query, locationType) {
+    try {
+      const response = await fetch(`/api/v1/locations/search?query=${encodeURIComponent(query)}&limit=5`);
+      const data = await response.json();
+      
+      if (data.success && data.data.places) {
+        this.displaySuggestions(data.data.places, locationType);
+      } else {
+        this.hideSuggestions(locationType);
+      }
+    } catch (error) {
+      console.error('Search request failed:', error);
+      this.hideSuggestions(locationType);
     }
   }
 
-  autoAssignCheck.addEventListener('change', function() {
-    toggleDriverSelect();
+  displaySuggestions(places, locationType) {
+    const suggestionsContainer = document.querySelector(`[data-location-type="${locationType}"].address-suggestions`);
     
-    // If auto assign is checked, uncheck auto dispatch
-    if (this.checked) {
-      autoDispatchCheck.checked = false;
+    if (!suggestionsContainer || places.length === 0) {
+      this.hideSuggestions(locationType);
+      return;
     }
-  });
+    
+    suggestionsContainer.innerHTML = places.map((place, index) => `
+      <div class="suggestion-item p-3 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer border-b border-slate-100 dark:border-slate-600 last:border-b-0"
+           data-index="${index}"
+           data-address="${this.escapeHtml(place.formatted_address)}"
+           data-latitude="${place.latitude}"
+           data-longitude="${place.longitude}">
+        <div class="font-medium text-slate-900 dark:text-white">${this.highlightQuery(place.formatted_address, this.getCurrentQuery(locationType))}</div>
+        <div class="text-sm text-slate-500 dark:text-slate-400">${place.place_type || 'Address'}</div>
+      </div>
+    `).join('');
+    
+    // Add click listeners
+    suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => {
+      item.addEventListener('click', () => this.selectSuggestion(item, locationType));
+    });
+    
+    suggestionsContainer.classList.remove('hidden');
+  }
 
-  autoDispatchCheck.addEventListener('change', function() {
-    // If auto dispatch is checked, uncheck auto assign and disable driver select
-    if (this.checked) {
-      autoAssignCheck.checked = false;
-      toggleDriverSelect();
+  hideSuggestions(locationType) {
+    const suggestionsContainer = document.querySelector(`[data-location-type="${locationType}"].address-suggestions`);
+    if (suggestionsContainer) {
+      suggestionsContainer.classList.add('hidden');
     }
-  });
+  }
 
-  // Initialize
-  toggleDriverSelect();
+  selectSuggestion(item, locationType) {
+    const address = item.dataset.address;
+    const latitude = parseFloat(item.dataset.latitude);
+    const longitude = parseFloat(item.dataset.longitude);
+    
+    // Update input fields
+    const addressInput = document.querySelector(`[data-location-type="${locationType}"].address-search`);
+    const latInput = document.getElementById(`delivery_request_${locationType}_latitude`);
+    const lngInput = document.getElementById(`delivery_request_${locationType}_longitude`);
+    
+    if (addressInput) addressInput.value = address;
+    if (latInput) latInput.value = latitude;
+    if (lngInput) lngInput.value = longitude;
+    
+    this.hideSuggestions(locationType);
+    this.clearError(addressInput);
+    
+    // Trigger distance calculation
+    this.recalculateDistance();
+  }
 
-  // Auto-calculate distance based on coordinates (basic implementation)
-  const latInputs = document.querySelectorAll('input[type="number"][id$="_latitude"], input[type="number"][id$="_longitude"]');
-  const distanceInput = document.getElementById('delivery_request_estimated_distance_km');
-  
-  function calculateDistance() {
+  handleAddressFocus(event) {
+    const input = event.target;
+    const locationType = input.dataset.locationType;
+    
+    // Show suggestions if there are any
+    const suggestionsContainer = document.querySelector(`[data-location-type="${locationType}"].address-suggestions`);
+    if (suggestionsContainer && suggestionsContainer.innerHTML.trim()) {
+      suggestionsContainer.classList.remove('hidden');
+    }
+  }
+
+  handleAddressBlur(event) {
+    const input = event.target;
+    const locationType = input.dataset.locationType;
+    
+    // Hide suggestions after a delay to allow for clicks
+    setTimeout(() => {
+      this.hideSuggestions(locationType);
+    }, 200);
+  }
+
+  handleAddressKeydown(event) {
+    const locationType = event.target.dataset.locationType;
+    const suggestionsContainer = document.querySelector(`[data-location-type="${locationType}"].address-suggestions`);
+    
+    if (!suggestionsContainer || suggestionsContainer.classList.contains('hidden')) {
+      return;
+    }
+    
+    const suggestions = suggestionsContainer.querySelectorAll('.suggestion-item');
+    let currentIndex = Array.from(suggestions).findIndex(item => item.classList.contains('highlighted'));
+    
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        currentIndex = Math.min(currentIndex + 1, suggestions.length - 1);
+        this.highlightSuggestion(suggestions, currentIndex);
+        break;
+        
+      case 'ArrowUp':
+        event.preventDefault();
+        currentIndex = Math.max(currentIndex - 1, 0);
+        this.highlightSuggestion(suggestions, currentIndex);
+        break;
+        
+      case 'Enter':
+        event.preventDefault();
+        const highlighted = suggestionsContainer.querySelector('.suggestion-item.highlighted');
+        if (highlighted) {
+          this.selectSuggestion(highlighted, locationType);
+        }
+        break;
+        
+      case 'Escape':
+        this.hideSuggestions(locationType);
+        break;
+    }
+  }
+
+  highlightSuggestion(suggestions, index) {
+    suggestions.forEach(item => item.classList.remove('highlighted', 'bg-slate-100', 'dark:bg-slate-600'));
+    if (suggestions[index]) {
+      suggestions[index].classList.add('highlighted', 'bg-slate-100', 'dark:bg-slate-600');
+    }
+  }
+
+  recalculateDistance() {
     const pickupLat = parseFloat(document.getElementById('delivery_request_pickup_latitude').value);
     const pickupLng = parseFloat(document.getElementById('delivery_request_pickup_longitude').value);
     const deliveryLat = parseFloat(document.getElementById('delivery_request_delivery_latitude').value);
     const deliveryLng = parseFloat(document.getElementById('delivery_request_delivery_longitude').value);
+    const distanceInput = document.getElementById('delivery_request_estimated_distance_km');
     
-    if (pickupLat && pickupLng && deliveryLat && deliveryLng) {
-      // Haversine formula for distance calculation
-      const R = 6371; // Earth's radius in km
-      const dLat = (deliveryLat - pickupLat) * Math.PI / 180;
-      const dLng = (deliveryLng - pickupLng) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(pickupLat * Math.PI / 180) * Math.cos(deliveryLat * Math.PI / 180) *
-                Math.sin(dLng/2) * Math.sin(dLng/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      const distance = R * c;
-      
+    if (pickupLat && pickupLng && deliveryLat && deliveryLng && distanceInput) {
+      const distance = this.haversineDistance(pickupLat, pickupLng, deliveryLat, deliveryLng);
       distanceInput.value = distance.toFixed(2);
     }
   }
-  
-  latInputs.forEach(input => {
-    input.addEventListener('change', calculateDistance);
-  });
+
+  haversineDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  getCurrentQuery(locationType) {
+    const input = document.querySelector(`[data-location-type="${locationType}"].address-search`);
+    return input ? input.value.trim() : '';
+  }
+
+  highlightQuery(text, query) {
+    if (!query) return this.escapeHtml(text);
+    
+    const escapedText = this.escapeHtml(text);
+    const escapedQuery = this.escapeHtml(query);
+    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+    return escapedText.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-600">$1</mark>');
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  showError(input, message) {
+    this.clearError(input);
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'address-error mt-1 text-sm text-red-600 dark:text-red-400';
+    errorDiv.textContent = message;
+    input.parentNode.insertBefore(errorDiv, input.nextSibling);
+  }
+
+  clearError(input) {
+    const existingError = input.parentNode.querySelector('.address-error');
+    if (existingError) {
+      existingError.remove();
+    }
+  }
+}
+
+// Initialize the form when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  new DeliveryRequestForm();
 });
 </script>

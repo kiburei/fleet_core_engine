@@ -2,7 +2,7 @@ class DeliveryRequestsController < ApplicationController
   before_action :set_delivery_request, only: [:show, :edit, :update, :destroy, :assign_driver, :cancel_delivery, :auto_dispatch]
   
   def index
-    @delivery_requests = DeliveryRequest.includes(:driver, :customer, :fleet_provider, :marketplace_order)
+    @delivery_requests = DeliveryRequest.includes(:driver, :business_customer, :fleet_provider, :marketplace_order)
     
     # Filter by status if specified
     if params[:status].present?
@@ -42,7 +42,7 @@ class DeliveryRequestsController < ApplicationController
 
   def new
     @delivery_request = DeliveryRequest.new
-    @customers = User.all.order(:first_name, :last_name)
+    @customers = Customer.active.order(:business_name)
     @fleet_providers = FleetProvider.all
     @drivers = Driver.includes(:fleet_provider).order(:first_name, :last_name)
   end
@@ -68,7 +68,7 @@ class DeliveryRequestsController < ApplicationController
       flash[:notice] = "Delivery request #{@delivery_request.request_number} was successfully created."
       redirect_to delivery_request_path(@delivery_request)
     else
-      @customers = User.all.order(:first_name, :last_name)
+      @customers = Customer.active.order(:business_name)
       @fleet_providers = FleetProvider.all
       @drivers = Driver.includes(:fleet_provider).order(:first_name, :last_name)
       render :new
@@ -76,7 +76,7 @@ class DeliveryRequestsController < ApplicationController
   end
 
   def edit
-    @customers = User.all.order(:first_name, :last_name)
+    @customers = Customer.active.order(:business_name)
     @fleet_providers = FleetProvider.all
     @drivers = Driver.includes(:fleet_provider).order(:first_name, :last_name)
   end
@@ -86,7 +86,7 @@ class DeliveryRequestsController < ApplicationController
       flash[:notice] = "Delivery request #{@delivery_request.request_number} was successfully updated."
       redirect_to delivery_request_path(@delivery_request)
     else
-      @customers = User.all.order(:first_name, :last_name)
+      @customers = Customer.active.order(:business_name)
       @fleet_providers = FleetProvider.all
       @drivers = Driver.includes(:fleet_provider).order(:first_name, :last_name)
       render :edit
@@ -197,19 +197,22 @@ class DeliveryRequestsController < ApplicationController
 
   def delivery_request_params
     params.require(:delivery_request).permit(
-      :customer_id, :fleet_provider_id, :pickup_address, :pickup_latitude, :pickup_longitude,
+      :business_customer_id, :fleet_provider_id, :pickup_address, :pickup_latitude, :pickup_longitude,
       :pickup_instructions, :pickup_contact_name, :pickup_contact_phone,
       :delivery_address, :delivery_latitude, :delivery_longitude,
       :delivery_instructions, :delivery_contact_name, :delivery_contact_phone,
-      :delivery_fee, :priority, :estimated_distance_km, :estimated_duration_minutes
+      :delivery_fee, :priority, :estimated_distance_km, :estimated_duration_minutes,
+      :end_customer_name, :end_customer_phone, :end_customer_email,
+      :order_value, :order_items_count, :payment_method, :special_instructions
     )
   end
 
   def create_marketplace_order
+    customer = Customer.find(delivery_request_params[:business_customer_id])
     Marketplace::Order.create!(
-      user: User.find(delivery_request_params[:customer_id]),
+      user: customer.account_manager || User.first, # Fallback to first user if no account manager
       order_number: "DEL-#{Time.current.strftime('%Y%m%d')}-#{SecureRandom.hex(3).upcase}",
-      total_amount: delivery_request_params[:delivery_fee].to_f,
+      total_amount: delivery_request_params[:order_value]&.to_f || 0.0,
       status: :pending,
       payment_status: :paid
     )

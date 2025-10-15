@@ -57,6 +57,103 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_173741) do
     t.index ["vehicle_id"], name: "index_activities_on_vehicle_id"
   end
 
+  create_table "customer_pricing_rules", force: :cascade do |t|
+    t.integer "customer_id", null: false
+    t.string "rule_name", null: false
+    t.text "description"
+    t.decimal "min_distance_km", precision: 8, scale: 2, default: "0.0"
+    t.decimal "max_distance_km", precision: 8, scale: 2
+    t.time "start_time"
+    t.time "end_time"
+    t.json "applicable_days"
+    t.decimal "min_order_value", precision: 10, scale: 2
+    t.decimal "max_order_value", precision: 10, scale: 2
+    t.integer "pricing_type", default: 0
+    t.decimal "base_rate", precision: 10, scale: 2
+    t.decimal "per_km_rate", precision: 10, scale: 2, default: "0.0"
+    t.decimal "percentage_rate", precision: 5, scale: 2, default: "0.0"
+    t.json "tiered_rates"
+    t.boolean "active", default: true
+    t.integer "priority", default: 0
+    t.datetime "valid_from"
+    t.datetime "valid_until"
+    t.integer "usage_count", default: 0
+    t.datetime "last_used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_customer_pricing_rules_on_active"
+    t.index ["customer_id"], name: "index_customer_pricing_rules_on_customer_id"
+    t.index ["min_distance_km", "max_distance_km"], name: "idx_on_min_distance_km_max_distance_km_c0b27a6d91"
+    t.index ["priority"], name: "index_customer_pricing_rules_on_priority"
+    t.index ["valid_from", "valid_until"], name: "index_customer_pricing_rules_on_valid_from_and_valid_until"
+  end
+
+  create_table "customers", force: :cascade do |t|
+    t.string "business_name", null: false
+    t.string "business_type"
+    t.string "business_registration_number"
+    t.text "business_description"
+    t.string "primary_contact_name", null: false
+    t.string "primary_contact_phone", null: false
+    t.string "primary_contact_email", null: false
+    t.string "secondary_contact_name"
+    t.string "secondary_contact_phone"
+    t.string "secondary_contact_email"
+    t.text "business_address", null: false
+    t.decimal "business_latitude", precision: 10, scale: 6
+    t.decimal "business_longitude", precision: 10, scale: 6
+    t.string "business_place_id"
+    t.string "city"
+    t.string "state"
+    t.string "country"
+    t.string "postal_code"
+    t.json "operating_hours"
+    t.string "timezone", default: "UTC"
+    t.string "payment_terms"
+    t.string "billing_contact_name"
+    t.string "billing_contact_email"
+    t.string "billing_contact_phone"
+    t.text "billing_address"
+    t.string "tax_id_number"
+    t.integer "default_payment_method", default: 0
+    t.decimal "business_payment_percentage", precision: 5, scale: 2, default: "0.0"
+    t.decimal "base_delivery_rate", precision: 10, scale: 2
+    t.decimal "per_km_rate", precision: 10, scale: 2
+    t.decimal "minimum_order_value", precision: 10, scale: 2, default: "0.0"
+    t.decimal "free_delivery_threshold", precision: 10, scale: 2
+    t.integer "max_delivery_radius_km", default: 50
+    t.integer "estimated_prep_time_minutes", default: 30
+    t.boolean "allows_cash_on_delivery", default: true
+    t.boolean "allows_card_on_delivery", default: false
+    t.boolean "requires_signature", default: false
+    t.boolean "allows_contactless_delivery", default: true
+    t.integer "status", default: 0
+    t.text "status_notes"
+    t.datetime "activated_at"
+    t.datetime "suspended_at"
+    t.integer "fleet_provider_id", null: false
+    t.integer "account_manager_id"
+    t.datetime "agreement_signed_at"
+    t.string "agreement_version"
+    t.text "special_terms"
+    t.integer "total_deliveries_count", default: 0
+    t.decimal "total_revenue", precision: 15, scale: 2, default: "0.0"
+    t.decimal "average_order_value", precision: 10, scale: 2, default: "0.0"
+    t.decimal "customer_rating", precision: 3, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_manager_id"], name: "index_customers_on_account_manager_id"
+    t.index ["business_latitude", "business_longitude"], name: "index_customers_on_business_latitude_and_business_longitude"
+    t.index ["business_name"], name: "index_customers_on_business_name"
+    t.index ["business_type"], name: "index_customers_on_business_type"
+    t.index ["created_at"], name: "index_customers_on_created_at"
+    t.index ["customer_rating"], name: "index_customers_on_customer_rating"
+    t.index ["fleet_provider_id"], name: "index_customers_on_fleet_provider_id"
+    t.index ["primary_contact_email"], name: "index_customers_on_primary_contact_email", unique: true
+    t.index ["status"], name: "index_customers_on_status"
+    t.index ["total_deliveries_count"], name: "index_customers_on_total_deliveries_count"
+  end
+
   create_table "delivery_notifications", force: :cascade do |t|
     t.integer "delivery_request_id", null: false
     t.integer "recipient_id", null: false
@@ -78,18 +175,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_173741) do
 
   create_table "delivery_requests", force: :cascade do |t|
     t.integer "marketplace_order_id", null: false
-    t.integer "customer_id", null: false
+    t.integer "business_customer_id", null: false
     t.integer "driver_id"
     t.integer "fleet_provider_id", null: false
     t.string "pickup_address", null: false
-    t.decimal "pickup_latitude", precision: 10, scale: 6, null: false
-    t.decimal "pickup_longitude", precision: 10, scale: 6, null: false
+    t.decimal "pickup_latitude", precision: 10, scale: 6
+    t.decimal "pickup_longitude", precision: 10, scale: 6
     t.text "pickup_instructions"
     t.string "pickup_contact_name"
     t.string "pickup_contact_phone"
     t.string "delivery_address", null: false
-    t.decimal "delivery_latitude", precision: 10, scale: 6, null: false
-    t.decimal "delivery_longitude", precision: 10, scale: 6, null: false
+    t.decimal "delivery_latitude", precision: 10, scale: 6
+    t.decimal "delivery_longitude", precision: 10, scale: 6
     t.text "delivery_instructions"
     t.string "delivery_contact_name"
     t.string "delivery_contact_phone"
@@ -110,12 +207,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_173741) do
     t.decimal "platform_fee", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["customer_id"], name: "index_delivery_requests_on_customer_id"
+    t.string "pickup_place_id"
+    t.string "delivery_place_id"
+    t.string "end_customer_name"
+    t.string "end_customer_phone"
+    t.string "end_customer_email"
+    t.decimal "order_value", precision: 10, scale: 2
+    t.integer "order_items_count", default: 1
+    t.text "special_instructions"
+    t.decimal "business_payment_amount", precision: 10, scale: 2, default: "0.0"
+    t.decimal "customer_payment_amount", precision: 10, scale: 2, default: "0.0"
+    t.string "payment_method"
+    t.index ["business_customer_id"], name: "index_delivery_requests_on_business_customer_id"
     t.index ["delivery_latitude", "delivery_longitude"], name: "idx_on_delivery_latitude_delivery_longitude_a9efd74e32"
+    t.index ["delivery_place_id"], name: "index_delivery_requests_on_delivery_place_id"
     t.index ["driver_id"], name: "index_delivery_requests_on_driver_id"
+    t.index ["end_customer_phone"], name: "index_delivery_requests_on_end_customer_phone"
     t.index ["fleet_provider_id"], name: "index_delivery_requests_on_fleet_provider_id"
     t.index ["marketplace_order_id"], name: "index_delivery_requests_on_marketplace_order_id"
+    t.index ["order_value"], name: "index_delivery_requests_on_order_value"
+    t.index ["payment_method"], name: "index_delivery_requests_on_payment_method"
     t.index ["pickup_latitude", "pickup_longitude"], name: "idx_on_pickup_latitude_pickup_longitude_3a838c05f0"
+    t.index ["pickup_place_id"], name: "index_delivery_requests_on_pickup_place_id"
     t.index ["priority"], name: "index_delivery_requests_on_priority"
     t.index ["request_number"], name: "index_delivery_requests_on_request_number", unique: true
     t.index ["requested_at"], name: "index_delivery_requests_on_requested_at"
@@ -407,12 +520,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_173741) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "activities", "vehicles"
+  add_foreign_key "customer_pricing_rules", "customers"
+  add_foreign_key "customers", "fleet_providers"
+  add_foreign_key "customers", "users", column: "account_manager_id"
   add_foreign_key "delivery_notifications", "delivery_requests"
   add_foreign_key "delivery_notifications", "users", column: "recipient_id"
+  add_foreign_key "delivery_requests", "customers", column: "business_customer_id"
   add_foreign_key "delivery_requests", "drivers"
   add_foreign_key "delivery_requests", "fleet_providers"
   add_foreign_key "delivery_requests", "marketplace_orders"
-  add_foreign_key "delivery_requests", "users", column: "customer_id"
   add_foreign_key "drivers", "fleet_providers"
   add_foreign_key "drivers", "users"
   add_foreign_key "drivers", "vehicles"

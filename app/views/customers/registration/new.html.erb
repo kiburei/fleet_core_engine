@@ -1,0 +1,288 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-extrabold text-gray-900">
+        Join Our Delivery Network
+      </h2>
+      <p class="mt-2 text-lg text-gray-600">
+        Register your business to start receiving deliveries from our fleet partners
+      </p>
+    </div>
+
+    <div class="bg-white shadow-xl rounded-lg">
+      <div class="px-6 py-8">
+        <%= form_with model: @customer, url: register_customers_path, local: true, class: "space-y-8" do |f| %>
+          
+          <!-- Progress Indicator -->
+          <div class="mb-8">
+            <div class="flex items-center justify-center space-x-4">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-medium text-white">1</span>
+                </div>
+                <span class="ml-2 text-sm font-medium text-blue-600">Business Info</span>
+              </div>
+              <div class="flex-shrink-0 w-16 h-0.5 bg-gray-300"></div>
+              <div class="flex items-center">
+                <div class="flex-shrink-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-medium text-gray-500">2</span>
+                </div>
+                <span class="ml-2 text-sm font-medium text-gray-500">Review</span>
+              </div>
+              <div class="flex-shrink-0 w-16 h-0.5 bg-gray-300"></div>
+              <div class="flex items-center">
+                <div class="flex-shrink-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-medium text-gray-500">3</span>
+                </div>
+                <span class="ml-2 text-sm font-medium text-gray-500">Complete</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Business Information -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Business Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="md:col-span-2">
+                <%= f.label :business_name, "Business Name *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.text_field :business_name, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500", required: true %>
+              </div>
+
+              <div>
+                <%= f.label :business_type, "Business Type *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.select :business_type, 
+                    options_for_select([['Select Type', '']] + @business_types.map { |type| [type.humanize, type] }),
+                    {},
+                    { class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500", required: true } %>
+              </div>
+
+              <div>
+                <%= f.label :business_registration_number, "Registration Number", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.text_field :business_registration_number, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+              </div>
+
+              <div class="md:col-span-2">
+                <%= f.label :business_description, "Business Description", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.text_area :business_description, rows: 3, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500", placeholder: "Briefly describe your business..." %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Information -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Primary Contact</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <%= f.label :primary_contact_name, "Contact Name *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.text_field :primary_contact_name, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500", required: true %>
+              </div>
+
+              <div>
+                <%= f.label :primary_contact_phone, "Phone Number *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.telephone_field :primary_contact_phone, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500", required: true %>
+              </div>
+
+              <div class="md:col-span-2">
+                <%= f.label :primary_contact_email, "Email Address *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.email_field :primary_contact_email, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500", required: true %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Business Address -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Business Address</h3>
+            <div class="grid grid-cols-1 gap-6">
+              <div>
+                <%= f.label :business_address, "Full Address *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.text_area :business_address, rows: 2, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500", required: true, placeholder: "Street address, building number, etc." %>
+              </div>
+
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <%= f.label :city, "City *", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.text_field :city, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500", required: true %>
+                </div>
+
+                <div>
+                  <%= f.label :state, "State/Province", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.text_field :state, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                </div>
+
+                <div>
+                  <%= f.label :postal_code, "Postal Code", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.text_field :postal_code, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                </div>
+
+                <div>
+                  <%= f.label :country, "Country", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                  <%= f.text_field :country, value: "Kenya", class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fleet Provider Selection -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Choose Your Fleet Partner</h3>
+            <div class="space-y-4">
+              <% @fleet_providers.each do |provider| %>
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+                  <label class="flex items-start space-x-3 cursor-pointer">
+                    <%= f.radio_button :fleet_provider_id, provider.id, class: "mt-1", required: true %>
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-2">
+                        <% if provider.logo.attached? %>
+                          <%= image_tag provider.logo, class: "w-8 h-8 rounded" %>
+                        <% end %>
+                        <h4 class="text-lg font-medium text-gray-900"><%= provider.name %></h4>
+                      </div>
+                      <p class="mt-1 text-sm text-gray-600">
+                        Delivery radius: <%= provider.delivery_radius_km || 50 %> km |
+                        Min fee: $<%= provider.min_delivery_fee || 5 %>
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Delivery Preferences -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Delivery Preferences</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <%= f.label :max_delivery_radius_km, "Maximum Delivery Radius (km)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.number_field :max_delivery_radius_km, value: 25, min: 1, max: 100, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                <p class="mt-1 text-xs text-gray-500">How far are you willing to deliver? (1-100 km)</p>
+              </div>
+
+              <div>
+                <%= f.label :estimated_prep_time_minutes, "Preparation Time (minutes)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+                <%= f.number_field :estimated_prep_time_minutes, value: 30, min: 5, max: 240, class: "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                <p class="mt-1 text-xs text-gray-500">Average time to prepare orders for pickup</p>
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Payment Methods Accepted</label>
+                <div class="grid grid-cols-2 gap-4">
+                  <label class="flex items-center space-x-2">
+                    <%= f.check_box :allows_cash_on_delivery, class: "rounded" %>
+                    <span class="text-sm text-gray-700">Cash on Delivery</span>
+                  </label>
+                  <label class="flex items-center space-x-2">
+                    <%= f.check_box :allows_card_on_delivery, class: "rounded" %>
+                    <span class="text-sm text-gray-700">Card on Delivery</span>
+                  </label>
+                  <label class="flex items-center space-x-2">
+                    <%= f.check_box :allows_contactless_delivery, { checked: true }, { class: "rounded" } %>
+                    <span class="text-sm text-gray-700">Contactless Delivery</span>
+                  </label>
+                  <label class="flex items-center space-x-2">
+                    <%= f.check_box :requires_signature, class: "rounded" %>
+                    <span class="text-sm text-gray-700">Require Signature</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Terms and Conditions -->
+          <div class="border-t pt-6">
+            <div class="flex items-start space-x-3">
+              <%= check_box_tag :agree_terms, "1", false, class: "mt-1 rounded", required: true %>
+              <label for="agree_terms" class="text-sm text-gray-700">
+                I agree to the 
+                <a href="#" class="text-blue-600 hover:text-blue-500 underline">Terms of Service</a> 
+                and 
+                <a href="#" class="text-blue-600 hover:text-blue-500 underline">Privacy Policy</a>.
+                I understand that my registration will be reviewed and I will be notified of approval status via email.
+              </label>
+            </div>
+          </div>
+
+          <!-- Error Messages -->
+          <% if @customer.errors.any? %>
+            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+              <h3 class="text-sm font-medium text-red-800">Please fix the following errors:</h3>
+              <ul class="mt-2 text-sm text-red-700 list-disc list-inside space-y-1">
+                <% @customer.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <!-- Submit Button -->
+          <div class="flex justify-between items-center pt-6 border-t">
+            <%= link_to "Back to Home", root_path, class: "text-gray-600 hover:text-gray-900" %>
+            <%= f.submit "Submit Registration", class: "px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="mt-8 text-center">
+      <p class="text-sm text-gray-600">
+        Need help? Contact our support team at 
+        <a href="mailto:support@fleetcore.co.ke" class="text-blue-600 hover:text-blue-500">support@fleetcore.co.ke</a> 
+        or call +254 700 000 000
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Auto-format phone number
+  const phoneField = document.querySelector('input[type="tel"]');
+  if (phoneField) {
+    phoneField.addEventListener('input', function() {
+      let value = this.value.replace(/\D/g, '');
+      if (value.startsWith('0')) {
+        value = '254' + value.substring(1);
+      }
+      if (value.length > 12) {
+        value = value.substring(0, 12);
+      }
+      if (value.length > 3) {
+        value = '+' + value.substring(0, 3) + ' ' + value.substring(3);
+      }
+      if (value.length > 8) {
+        value = value.substring(0, 8) + ' ' + value.substring(8);
+      }
+      this.value = value;
+    });
+  }
+
+  // Address geocoding simulation
+  const addressField = document.querySelector('textarea[name*="business_address"]');
+  const cityField = document.querySelector('input[name*="city"]');
+  
+  if (addressField && cityField) {
+    addressField.addEventListener('blur', function() {
+      // In a real app, you'd geocode the address here
+      console.log('Address geocoding would happen here:', this.value);
+    });
+  }
+
+  // Fleet provider selection highlighting
+  const radioButtons = document.querySelectorAll('input[type="radio"][name*="fleet_provider_id"]');
+  radioButtons.forEach(radio => {
+    radio.addEventListener('change', function() {
+      // Remove highlighting from all providers
+      document.querySelectorAll('.border-blue-300').forEach(el => {
+        el.classList.remove('border-blue-300', 'bg-blue-50');
+      });
+      
+      // Highlight selected provider
+      if (this.checked) {
+        const container = this.closest('div.border');
+        container.classList.add('border-blue-300', 'bg-blue-50');
+      }
+    });
+  });
+});
+</script>

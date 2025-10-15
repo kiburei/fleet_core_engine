@@ -1,0 +1,721 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: @customer.business_name } do %>
+    <div class="flex items-center gap-3">
+      <%= link_to "Back to Customers", customers_path, class: "btn btn-secondary" %>
+      <%= link_to "Edit Customer", edit_customer_path(@customer), class: "btn btn-secondary" %>
+      
+      <% if @customer.pending_approval? %>
+        <%= link_to "Activate", activate_customer_path(@customer), method: :patch, 
+            confirm: "Activate #{@customer.business_name}?", 
+            class: "btn btn-success" %>
+      <% elsif @customer.active? %>
+        <%= link_to "Suspend", suspend_customer_path(@customer), method: :patch, 
+            confirm: "Suspend #{@customer.business_name}?", 
+            class: "btn btn-danger" %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+<% content_for :title, "Customer: #{@customer.business_name}" %>
+
+<!-- Header Section -->
+<div class="px-4 mb-6">
+  <div class="container mx-auto max-w-7xl">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-600 overflow-hidden">
+      <div class="bg-slate-50 dark:bg-slate-800 px-8 py-6 border-b border-slate-200 dark:border-slate-600">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start space-x-4">
+            <div class="flex-shrink-0">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2"><%= @customer.business_name %></h1>
+              <p class="text-lg text-slate-600 dark:text-slate-400 mb-3"><%= @customer.business_type&.humanize || 'Business' %></p>
+              
+              <!-- Enhanced Status Badge -->
+              <div class="flex items-center space-x-3">
+                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-sm
+                  <%= case @customer.status
+                      when 'active' then 'bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-600'
+                      when 'pending_approval' then 'bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-600'
+                      when 'suspended' then 'bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-600'
+                      when 'inactive' then 'bg-gray-100 text-gray-800 border border-gray-300 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-600'
+                      else 'bg-gray-100 text-gray-800 border border-gray-300 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-600'
+                      end %>">
+                  <%= @customer.status.humanize %>
+                </span>
+                <% if @customer.fleet_provider&.name %>
+                  <span class="text-sm text-slate-600 dark:text-slate-400">
+                    Fleet: <strong class="text-slate-900 dark:text-white"><%= @customer.fleet_provider.name %></strong>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Action Buttons -->
+          <div class="flex items-center space-x-3">
+            <% if @customer.pending_approval? %>
+              <%= button_to "Activate", activate_customer_path(@customer), 
+                  method: :patch, 
+                  confirm: "Activate #{@customer.business_name}?", 
+                  class: "inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0" %>
+            <% elsif @customer.active? %>
+              <%= button_to "Suspend", suspend_customer_path(@customer), 
+                  method: :patch,
+                  confirm: "Suspend #{@customer.business_name}?",
+                  class: "inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0" %>
+            <% end %>
+            <%= link_to "Edit Customer", edit_customer_path(@customer), 
+                class: "inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200" %>
+          </div>
+        </div>
+        
+        <!-- Status Description -->
+        <% if @customer.status.present? %>
+          <div class="mt-4 p-3 rounded-lg
+            <%= case @customer.status
+                when 'active' then 'bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-700'
+                when 'pending_approval' then 'bg-yellow-50 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700'
+                when 'suspended' then 'bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-700'
+                when 'inactive' then 'bg-slate-50 border border-slate-200 dark:bg-slate-700 dark:border-slate-600'
+                else 'bg-slate-50 border border-slate-200 dark:bg-slate-700 dark:border-slate-600'
+                end %>">
+            <p class="text-sm font-medium
+              <%= case @customer.status
+                  when 'active' then 'text-green-800 dark:text-green-300'
+                  when 'pending_approval' then 'text-yellow-800 dark:text-yellow-300'
+                  when 'suspended' then 'text-red-800 dark:text-red-300'
+                  when 'inactive' then 'text-slate-700 dark:text-slate-300'
+                  else 'text-slate-700 dark:text-slate-300'
+                  end %>">
+              <%= case @customer.status
+                  when 'active' then "✓ This customer is active and can receive deliveries."
+                  when 'pending_approval' then "⏳ This customer is awaiting approval. Review their information and activate when ready."
+                  when 'suspended' then "⚠️ This customer is suspended and cannot receive deliveries."
+                  when 'inactive' then "💤 This customer is inactive."
+                  else "❓ Status unknown."
+                  end %>
+            </p>
+            <% if @customer.status_notes.present? %>
+              <p class="text-xs mt-1 opacity-80"><%= @customer.status_notes %></p>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Analytics Cards -->
+<% if @analytics.present? %>
+  <div class="px-4 mb-6">
+    <div class="container mx-auto max-w-7xl">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Total Deliveries Card -->
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-600 p-5 hover:shadow-lg transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center space-x-3 mb-3">
+                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-600 dark:text-slate-400">Total Deliveries</p>
+                  <p class="text-2xl font-bold text-slate-900 dark:text-white"><%= @analytics[:total_deliveries] %></p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="flex items-center text-green-600 dark:text-green-400">
+                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span class="text-sm font-medium">+<%= @analytics[:monthly_deliveries] %></span>
+                </div>
+                <span class="text-xs text-slate-500 dark:text-slate-400">this month</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success Rate Card -->
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-600 p-5 hover:shadow-lg transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center space-x-3 mb-3">
+                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-600 dark:text-slate-400">Success Rate</p>
+                  <p class="text-2xl font-bold text-green-600 dark:text-green-400"><%= @analytics[:success_rate] %>%</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400"><%= @analytics[:completed_deliveries] %> completed deliveries</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Revenue Card -->
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-600 p-5 hover:shadow-lg transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center space-x-3 mb-3">
+                <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-600 dark:text-slate-400">Total Revenue</p>
+                  <p class="text-2xl font-bold text-slate-900 dark:text-white">$<%= number_with_delimiter(@analytics[:total_revenue]) %></p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="flex items-center text-green-600 dark:text-green-400">
+                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span class="text-sm font-medium">$<%= number_with_delimiter(@analytics[:monthly_revenue]) %></span>
+                </div>
+                <span class="text-xs text-slate-500 dark:text-slate-400">this month</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Average Rating Card -->
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-600 p-5 hover:shadow-lg transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center space-x-3 mb-3">
+                <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-600 dark:text-slate-400">Average Rating</p>
+                  <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                    <%= @customer.customer_rating ? number_with_precision(@customer.customer_rating, precision: 1) : 'N/A' %>
+                  </p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">from driver reviews</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<div class="px-4 mb-12">
+  <div class="container mx-auto max-w-7xl">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Customer Information -->
+    <div class="lg:col-span-8 space-y-6">
+      <!-- Business Details Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-600 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Business Information</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Company details and registration information</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-5 bg-slate-50/50 dark:bg-slate-800/50">
+          <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Business Name</dt>
+              <dd class="text-base font-medium text-slate-900 dark:text-white"><%= @customer.business_name %></dd>
+            </div>
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Business Type</dt>
+              <dd class="text-base font-medium text-slate-900 dark:text-white"><%= @customer.business_type&.humanize || 'Not specified' %></dd>
+            </div>
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Registration Number</dt>
+              <dd class="text-base font-medium text-slate-900 dark:text-white">
+                <%= @customer.business_registration_number || 'Not provided' %>
+              </dd>
+            </div>
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1">Fleet Provider</dt>
+              <dd class="text-base font-medium text-slate-900 dark:text-white"><%= @customer.fleet_provider&.name || 'Unassigned' %></dd>
+            </div>
+            <% if @customer.business_description.present? %>
+              <div class="sm:col-span-2 bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+                <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">Description</dt>
+                <dd class="text-base text-slate-900 dark:text-white leading-relaxed"><%= @customer.business_description %></dd>
+              </div>
+            <% end %>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Contact Information Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-600 overflow-hidden">
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border-2 border-slate-200 dark:border-slate-600 overflow-hidden">
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Contact Information</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Primary contacts and business address</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-5 bg-slate-50/50 dark:bg-slate-800/50">
+          <div class="grid grid-cols-1 gap-6">
+            <!-- Primary Contact Info -->
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <h4 class="text-base font-semibold text-slate-900 dark:text-white mb-3 flex items-center">
+                <svg class="w-4 h-4 text-green-600 dark:text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                Primary Contact
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Name</dt>
+                  <dd class="mt-1 text-sm font-semibold text-slate-900 dark:text-white"><%= @customer.primary_contact_name %></dd>
+                </div>
+                <div>
+                  <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Email</dt>
+                  <dd class="mt-1">
+                    <a href="mailto:<%= @customer.primary_contact_email %>" class="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                      <%= @customer.primary_contact_email %>
+                    </a>
+                  </dd>
+                </div>
+                <div>
+                  <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Phone</dt>
+                  <dd class="mt-1">
+                    <a href="tel:<%= @customer.primary_contact_phone %>" class="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                      <%= @customer.primary_contact_phone %>
+                    </a>
+                  </dd>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Secondary Contact Info -->
+            <% if @customer.secondary_contact_name.present? %>
+              <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+                <h4 class="text-base font-semibold text-slate-900 dark:text-white mb-3 flex items-center">
+                  <svg class="w-4 h-4 text-slate-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-8.803a3 3 0 00-6 0m6 0a3 3 0 01-6 0m6 0v1.5a2 2 0 01-2 2H9a2 2 0 01-2-2V15"></path>
+                  </svg>
+                  Secondary Contact
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Name</dt>
+                    <dd class="mt-1 text-sm font-semibold text-slate-900 dark:text-white"><%= @customer.secondary_contact_name %></dd>
+                  </div>
+                  <% if @customer.secondary_contact_email.present? %>
+                    <div>
+                      <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Email</dt>
+                      <dd class="mt-1">
+                        <a href="mailto:<%= @customer.secondary_contact_email %>" class="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                          <%= @customer.secondary_contact_email %>
+                        </a>
+                      </dd>
+                    </div>
+                  <% end %>
+                  <% if @customer.secondary_contact_phone.present? %>
+                    <div>
+                      <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Phone</dt>
+                      <dd class="mt-1">
+                        <a href="tel:<%= @customer.secondary_contact_phone %>" class="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                          <%= @customer.secondary_contact_phone %>
+                        </a>
+                      </dd>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+            
+            <!-- Business Address -->
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <h4 class="text-base font-semibold text-slate-900 dark:text-white mb-3 flex items-center">
+                <svg class="w-4 h-4 text-purple-600 dark:text-purple-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                Business Address
+              </h4>
+              <div class="text-sm text-slate-900 dark:text-white leading-relaxed">
+                <%= @customer.business_address %>
+                <% if @customer.city.present? %>
+                  <br><%= [@customer.city, @customer.state, @customer.country].compact.join(', ') %>
+                  <%= @customer.postal_code %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery Settings Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-600 overflow-hidden">
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border-2 border-slate-200 dark:border-slate-600 overflow-hidden">
+        <div class="bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-cyan-100 dark:bg-cyan-900 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Delivery Settings</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Delivery parameters and payment preferences</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-5 bg-slate-50/50 dark:bg-slate-800/50">
+          <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center">
+                <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
+                </svg>
+                Delivery Radius
+              </dt>
+              <dd class="text-lg font-bold text-slate-900 dark:text-white"><%= @customer.max_delivery_radius_km || 'N/A' %> km</dd>
+            </div>
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center">
+                <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Prep Time
+              </dt>
+              <dd class="text-lg font-bold text-slate-900 dark:text-white"><%= @customer.estimated_prep_time_minutes || 'N/A' %> min</dd>
+            </div>
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center">
+                <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Base Rate
+              </dt>
+              <dd class="text-lg font-bold text-slate-900 dark:text-white">$<%= @customer.base_delivery_rate || 'Default' %></dd>
+            </div>
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center">
+                <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                Per KM Rate
+              </dt>
+              <dd class="text-lg font-bold text-slate-900 dark:text-white">$<%= @customer.per_km_rate || 'Default' %></dd>
+            </div>
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center">
+                <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                Payment Method
+              </dt>
+              <dd class="text-lg font-bold text-slate-900 dark:text-white"><%= @customer.default_payment_method&.humanize || 'Not set' %></dd>
+            </div>
+            <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center">
+                <svg class="w-4 h-4 text-cyan-600 dark:text-cyan-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                Account Manager
+              </dt>
+              <dd class="text-lg font-bold text-slate-900 dark:text-white"><%= @customer.account_manager&.full_name || 'Unassigned' %></dd>
+            </div>
+            <div class="sm:col-span-2 bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+              <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">Payment Options</dt>
+              <dd class="flex flex-wrap gap-2">
+                <% if @customer.allows_cash_on_delivery %>
+                  <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border border-green-300 dark:border-green-600">💵 Cash on Delivery</span>
+                <% end %>
+                <% if @customer.allows_card_on_delivery %>
+                  <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-300 dark:border-blue-600">💳 Card on Delivery</span>
+                <% end %>
+                <% if @customer.allows_contactless_delivery %>
+                  <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-300 dark:border-purple-600">📱 Contactless</span>
+                <% end %>
+                <% if @customer.requires_signature %>
+                  <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 border border-yellow-300 dark:border-yellow-600">✍️ Signature Required</span>
+                <% end %>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Recent Deliveries Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-600 overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Recent Deliveries</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Latest delivery requests and their status</p>
+            </div>
+          </div>
+        </div>
+        <div class="overflow-hidden">
+          <% if @delivery_requests.any? %>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-600">
+                <thead class="bg-slate-50 dark:bg-slate-700">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Request #</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Driver</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Fee</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Date</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-600">
+                  <% @delivery_requests.each do |delivery| %>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-white">
+                        <%= delivery.request_number %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                          <%= case delivery.status
+                              when 'delivered' then 'bg-green-100 text-green-800 border border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-600'
+                              when 'cancelled' then 'bg-red-100 text-red-800 border border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-600'
+                              when 'pending' then 'bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-600'
+                              else 'bg-blue-100 text-blue-800 border border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-600'
+                              end %>">
+                          <%= delivery.status.humanize %>
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white">
+                        <%= delivery.driver&.user&.full_name || 'Unassigned' %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-white">
+                        $<%= delivery.delivery_fee %>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+                        <%= delivery.requested_at.strftime('%b %d, %Y') %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-12">
+              <div class="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 009.586 13H7"></path>
+                </svg>
+              </div>
+              <p class="text-slate-500 dark:text-slate-400 font-medium">No deliveries found</p>
+              <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Delivery requests will appear here once created</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modern Sidebar -->
+    <div class="lg:col-span-4 space-y-5">
+      <!-- Quick Actions Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-600 overflow-hidden">
+        <div class="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Quick Actions</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Manage customer status and communications</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-5 bg-slate-50/50 dark:bg-slate-800/50 space-y-3">
+          <% if @customer.pending_approval? %>
+            <%= button_to activate_customer_path(@customer), 
+                method: :patch, 
+                confirm: "Activate #{@customer.business_name}?",
+                class: "w-full inline-flex justify-center items-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0" do %>
+              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              Activate Customer
+            <% end %>
+          <% elsif @customer.active? %>
+            <%= button_to suspend_customer_path(@customer), 
+                method: :patch, 
+                confirm: "Suspend #{@customer.business_name}?",
+                class: "w-full inline-flex justify-center items-center px-4 py-3 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border-0" do %>
+              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"></path>
+              </svg>
+              Suspend Customer
+            <% end %>
+          <% end %>
+
+          <a href="mailto:<%= @customer.primary_contact_email %>" 
+             class="w-full inline-flex justify-center items-center px-4 py-3 border-2 border-slate-300 dark:border-slate-600 text-sm font-semibold rounded-lg text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-md hover:shadow-lg transition-all duration-200">
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+            </svg>
+            Send Email
+          </a>
+
+          <a href="tel:<%= @customer.primary_contact_phone %>" 
+             class="w-full inline-flex justify-center items-center px-4 py-3 border-2 border-slate-300 dark:border-slate-600 text-sm font-semibold rounded-lg text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-md hover:shadow-lg transition-all duration-200">
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+            </svg>
+            Call Customer
+          </a>
+        </div>
+      </div>
+
+      <!-- Customer Timeline Card -->
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-600 overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700 px-6 py-4 border-b border-slate-200 dark:border-slate-600">
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Timeline</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-400">Important customer milestones and events</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-5 bg-slate-50/50 dark:bg-slate-800/50">
+          <div class="flow-root">
+            <ul class="-mb-8">
+              <li>
+                <div class="relative pb-8">
+                  <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200 dark:bg-slate-600" aria-hidden="true"></span>
+                  <div class="relative flex items-center space-x-3">
+                    <div>
+                      <span class="h-8 w-8 rounded-full bg-green-500 dark:bg-green-600 flex items-center justify-center ring-4 ring-white dark:ring-slate-800 shadow-lg">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                      </span>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <div class="bg-white dark:bg-slate-700 rounded-lg px-4 py-3 shadow-sm border border-slate-200 dark:border-slate-600">
+                        <p class="text-sm font-semibold text-slate-900 dark:text-white mb-1">🎉 Customer registered</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-400">
+                          <time datetime="<%= @customer.created_at.iso8601 %>">
+                            <%= @customer.created_at.strftime('%b %d, %Y at %I:%M %p') %>
+                          </time>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              
+              <% if @customer.activated_at %>
+                <li>
+                  <div class="relative pb-8">
+                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200 dark:bg-slate-600" aria-hidden="true"></span>
+                    <div class="relative flex items-center space-x-3">
+                      <div>
+                        <span class="h-8 w-8 rounded-full bg-blue-500 dark:bg-blue-600 flex items-center justify-center ring-4 ring-white dark:ring-slate-800 shadow-lg">
+                          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                          </svg>
+                        </span>
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <div class="bg-white dark:bg-slate-700 rounded-lg px-4 py-3 shadow-sm border border-slate-200 dark:border-slate-600">
+                          <p class="text-sm font-semibold text-slate-900 dark:text-white mb-1">✨ Account activated</p>
+                          <p class="text-xs text-slate-600 dark:text-slate-400">
+                            <time datetime="<%= @customer.activated_at.iso8601 %>">
+                              <%= @customer.activated_at.strftime('%b %d, %Y at %I:%M %p') %>
+                            </time>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+
+              <% if @analytics && @analytics[:last_delivery] %>
+                <li>
+                  <div class="relative">
+                    <div class="relative flex items-center space-x-3">
+                      <div>
+                        <span class="h-8 w-8 rounded-full bg-indigo-500 dark:bg-indigo-600 flex items-center justify-center ring-4 ring-white dark:ring-slate-800 shadow-lg">
+                          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                          </svg>
+                        </span>
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <div class="bg-white dark:bg-slate-700 rounded-lg px-4 py-3 shadow-sm border border-slate-200 dark:border-slate-600">
+                          <p class="text-sm font-semibold text-slate-900 dark:text-white mb-1">🚚 Last delivery completed</p>
+                          <p class="text-xs text-slate-600 dark:text-slate-400">
+                            <time datetime="<%= @analytics[:last_delivery].iso8601 %>">
+                              <%= @analytics[:last_delivery].strftime('%b %d, %Y at %I:%M %p') %>
+                            </time>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
