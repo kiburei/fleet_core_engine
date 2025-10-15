@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_09_173741) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_15_203739) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -271,7 +271,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_09_173741) do
     t.integer "max_delivery_distance_km", default: 50
     t.integer "user_id"
     t.string "status", default: "offline"
+    t.string "email"
+    t.boolean "create_user_account", default: false
     t.index ["current_latitude", "current_longitude"], name: "index_drivers_on_current_latitude_and_current_longitude"
+    t.index ["email"], name: "index_drivers_on_email", unique: true
     t.index ["fleet_provider_id"], name: "index_drivers_on_fleet_provider_id"
     t.index ["is_available_for_delivery"], name: "index_drivers_on_is_available_for_delivery"
     t.index ["is_online"], name: "index_drivers_on_is_online"

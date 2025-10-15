@@ -5,6 +5,12 @@ Rails.application.routes.draw do
     resource :manifest, only: [ :new, :create, :edit, :update, :show ]
   end
   resources :drivers do
+    member do
+      post :create_user_account
+      patch :reset_password
+      patch :deactivate_user
+      patch :reactivate_user
+    end
     resources :documents, only: [ :index, :new, :create, :show ]
     resources :incidents, only: [ :index, :new, :create, :show ]
     resources :trips, only: [ :index, :show ]

@@ -21,6 +21,12 @@ class Driver < ApplicationRecord
   # Validations
   validates :phone_number, presence: true, if: :is_available_for_delivery?
   validates :current_latitude, :current_longitude, presence: true, if: :is_online?
+  validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }, if: :should_create_user_account?
+  
+  # Callbacks
+  before_validation :set_email_from_phone, if: :should_auto_generate_email?
+  after_create :create_user_account, if: :should_create_user_account?
+  after_update :update_user_account, if: :should_update_user_account?
 
   # Scopes
   scope :available_for_delivery, -> { where(is_available_for_delivery: true, is_online: true) }
@@ -106,5 +112,152 @@ class Driver < ApplicationRecord
     return false unless available_for_new_delivery?
     return false if distance_to(delivery_request.pickup_latitude, delivery_request.pickup_longitude) > max_delivery_distance_km
     true
+  end
+
+  # User account management methods
+  def has_user_account?
+    user.present?
+  end
+
+  def can_login?
+    has_user_account? && user.email.present?
+  end
+
+  def create_user_account!
+    return user if user.present?
+    
+    email_to_use = email.presence || generate_email_from_phone
+    password = generate_temporary_password
+    
+    new_user = User.create!(
+      email: email_to_use,
+      password: password,
+      password_confirmation: password,
+      first_name: first_name,
+      last_name: last_name,
+      phone: phone_number
+    )
+    
+    # Assign driver role
+    new_user.add_role(:fleet_provider_driver)
+    
+    # Link the user to this driver
+    update!(user: new_user, email: email_to_use)
+    
+    # Store the temporary password for sending to the driver
+    @temporary_password = password
+    
+    new_user
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error "Failed to create user account for driver #{id}: #{e.message}"
+    raise e
+  end
+
+  def generate_temporary_password
+    SecureRandom.hex(8)
+  end
+
+  def temporary_password
+    @temporary_password
+  end
+
+  def send_login_credentials
+    return unless user.present? && @temporary_password.present?
+    
+    # Here you would send SMS or email with login credentials
+    # For now, we'll just log it (in production, integrate with your SMS/email service)
+    Rails.logger.info "Driver #{full_name} login credentials: Email: #{user.email}, Password: #{@temporary_password}"
+    
+    # You can integrate with services like:
+    # - Twilio for SMS
+    # - ActionMailer for email
+    # - Push notifications
+    
+    # Example SMS integration (uncomment and configure as needed):
+    # DriverCredentialsSmsJob.perform_later(self, @temporary_password)
+    
+    # Example email integration:
+    # DriverMailer.login_credentials(self, @temporary_password).deliver_later
+  end
+
+  def reset_password!
+    return unless user.present?
+    
+    new_password = generate_temporary_password
+    user.update!(
+      password: new_password,
+      password_confirmation: new_password
+    )
+    
+    @temporary_password = new_password
+    send_login_credentials
+    
+    new_password
+  end
+
+  def deactivate_user_account!
+    return unless user.present?
+    
+    # Remove driver role - this prevents API access
+    user.remove_role(:fleet_provider_driver)
+    
+    # Update driver status to reflect deactivation
+    update!(is_online: false, is_available_for_delivery: false)
+  end
+
+  def reactivate_user_account!
+    return unless user.present?
+    
+    # Restore driver role
+    user.add_role(:fleet_provider_driver) unless user.has_role?(:fleet_provider_driver)
+  end
+
+  private
+
+  def should_create_user_account?
+    create_user_account == true || create_user_account == '1'
+  end
+
+  def should_auto_generate_email?
+    should_create_user_account? && email.blank? && phone_number.present?
+  end
+
+  def should_update_user_account?
+    user.present? && (saved_change_to_first_name? || saved_change_to_last_name? || saved_change_to_phone_number?)
+  end
+
+  def set_email_from_phone
+    self.email = generate_email_from_phone if email.blank?
+  end
+
+  def generate_email_from_phone
+    return nil unless phone_number.present?
+    
+    # Clean phone number (remove non-digits)
+    clean_phone = phone_number.gsub(/\D/, '')
+    
+    # Generate email: phone@fleet-provider-name.drivers
+    fleet_name = fleet_provider.name.downcase.gsub(/\s+/, '-').gsub(/[^a-z0-9\-]/, '')
+    "#{clean_phone}@#{fleet_name}.drivers"
+  end
+
+  def create_user_account
+    create_user_account!
+    send_login_credentials
+  rescue => e
+    Rails.logger.error "Failed to create user account for driver #{id}: #{e.message}"
+    # Don't raise the error to prevent driver creation from failing
+  end
+
+  def update_user_account
+    return unless user.present?
+    
+    user.update!(
+      first_name: first_name,
+      last_name: last_name,
+      phone: phone_number
+    )
+  rescue => e
+    Rails.logger.error "Failed to update user account for driver #{id}: #{e.message}"
   end
 end

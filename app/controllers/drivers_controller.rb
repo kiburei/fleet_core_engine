@@ -1,5 +1,5 @@
 class DriversController < ApplicationController
-  before_action :set_driver, only: %i[ show edit update destroy ]
+  before_action :set_driver, only: %i[ show edit update destroy create_user_account reset_password deactivate_user reactivate_user ]
 
   # GET /drivers or /drivers.json
   def index
@@ -136,6 +136,105 @@ class DriversController < ApplicationController
     end
   end
 
+  # POST /drivers/:id/create_user_account
+  def create_user_account
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
+      redirect_to @driver, alert: "You are not authorized to create user accounts."
+      return
+    end
+
+    if @driver.has_user_account?
+      redirect_to @driver, alert: "Driver already has a user account."
+      return
+    end
+
+    begin
+      user = @driver.create_user_account!
+      @driver.send_login_credentials
+      
+      flash[:notice] = "User account created successfully for #{@driver.full_name}."
+      flash[:info] = "Login credentials: Email: #{user.email}, Temporary Password: #{@driver.temporary_password}"
+      
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:alert] = "Failed to create user account: #{e.message}"
+    rescue => e
+      flash[:alert] = "An error occurred while creating the user account: #{e.message}"
+    end
+
+    redirect_to @driver
+  end
+
+  # PATCH /drivers/:id/reset_password
+  def reset_password
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
+      redirect_to @driver, alert: "You are not authorized to reset passwords."
+      return
+    end
+
+    unless @driver.has_user_account?
+      redirect_to @driver, alert: "Driver does not have a user account."
+      return
+    end
+
+    begin
+      new_password = @driver.reset_password!
+      
+      flash[:notice] = "Password reset successfully for #{@driver.full_name}."
+      flash[:info] = "New temporary password: #{new_password}"
+      
+    rescue => e
+      flash[:alert] = "Failed to reset password: #{e.message}"
+    end
+
+    redirect_to @driver
+  end
+
+  # PATCH /drivers/:id/deactivate_user
+  def deactivate_user
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
+      redirect_to @driver, alert: "You are not authorized to deactivate user accounts."
+      return
+    end
+
+    unless @driver.has_user_account?
+      redirect_to @driver, alert: "Driver does not have a user account."
+      return
+    end
+
+    begin
+      @driver.deactivate_user_account!
+      flash[:notice] = "User account deactivated for #{@driver.full_name}."
+      
+    rescue => e
+      flash[:alert] = "Failed to deactivate user account: #{e.message}"
+    end
+
+    redirect_to @driver
+  end
+
+  # PATCH /drivers/:id/reactivate_user
+  def reactivate_user
+    unless current_user.fleet_provider_admin? || current_user.fleet_provider_manager?
+      redirect_to @driver, alert: "You are not authorized to reactivate user accounts."
+      return
+    end
+
+    unless @driver.has_user_account?
+      redirect_to @driver, alert: "Driver does not have a user account."
+      return
+    end
+
+    begin
+      @driver.reactivate_user_account!
+      flash[:notice] = "User account reactivated for #{@driver.full_name}."
+      
+    rescue => e
+      flash[:alert] = "Failed to reactivate user account: #{e.message}"
+    end
+
+    redirect_to @driver
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_driver
@@ -144,6 +243,6 @@ class DriversController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def driver_params
-      params.expect(driver: [ :first_name, :middle_name, :last_name, :license_number, :phone_number, :vehicle_id, :profile_picture, :fleet_provider_id ])
+      params.expect(driver: [ :first_name, :middle_name, :last_name, :license_number, :phone_number, :vehicle_id, :profile_picture, :fleet_provider_id, :email, :create_user_account ])
     end
 end

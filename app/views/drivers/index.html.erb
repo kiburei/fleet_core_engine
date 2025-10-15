@@ -58,7 +58,7 @@
       <% @drivers.each do | driver | %>
         <!-- vehicle start -->
         <li
-          class="px-4 py-5 sm:text-base text-sm items-start grid grid-cols-2 sm:grid-cols-12 gap-3 sm:gap-0 before:content-[''] before:absolute relative before:left-2 before:h-[calc(100%-30px)] before:w-2 before:rounded-full before:bottom-1 before:top-4 pl-8 before:flex before:flex-col before:items-center before:justify-center hover:bg-slate-50 transition ease-in-out duration-200 dark:hover:bg-slate-800 before:bg-amber-500">
+          class="px-4 py-5 sm:text-base text-sm items-start grid grid-cols-2 sm:grid-cols-13 gap-3 sm:gap-0 before:content-[''] before:absolute relative before:left-2 before:h-[calc(100%-30px)] before:w-2 before:rounded-full before:bottom-1 before:top-4 pl-8 before:flex before:flex-col before:items-center before:justify-center hover:bg-slate-50 transition ease-in-out duration-200 dark:hover:bg-slate-800 before:bg-amber-500">
           <div class="flex items-center gap-3 sm:col-span-3 sm:mb-0 mb-4 col-span-2">
             <% if respond_to?(:admin_profile_path) %>
               <%= link_to admin_profile_path do %>
@@ -119,6 +119,26 @@
               <p class="text-sm text-slate-500">delivery status</p>
             </div>
           <% end %>
+          
+          <!-- User Account Status -->
+          <div class="sm:col-span-1 col-span-1">
+            <div class="flex items-center space-x-1">
+              <% if driver.has_user_account? %>
+                <% if driver.user.has_role?(:fleet_provider_driver) %>
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span class="text-sm text-blue-600 font-medium">Active</span>
+                <% else %>
+                  <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span class="text-sm text-orange-600 font-medium">Inactive</span>
+                <% end %>
+              <% else %>
+                <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                <span class="text-sm text-gray-500">No Account</span>
+              <% end %>
+            </div>
+            <p class="text-sm text-slate-500">app access</p>
+          </div>
+          
           <div data-controller="railsui-dropdown" class="sm:col-span-1 relative col-span-2">
             <div class="flex justify-end">
               <button data-action="click->railsui-dropdown#toggle click@window->railsui-dropdown#hide"

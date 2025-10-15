@@ -61,6 +61,46 @@
       <%= form.file_field :profile_picture, class: "mt-1 block w-full" %>
     </div>
 
+    <!-- User Account Creation Section -->
+    <div class="border-t border-slate-200 dark:border-slate-600 pt-6 mt-6">
+      <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-4">System Access</h3>
+      
+      <div class="space-y-4">
+        <div>
+          <%= form.label :email, "Email Address (Optional)", class: "block text-sm font-medium text-slate-700 dark:text-slate-200" %>
+          <%= form.email_field :email, 
+                class: "form-input mt-1 block w-full",
+                placeholder: "If left blank, will be auto-generated from phone number" %>
+          <p class="text-xs text-slate-500 mt-1">
+            Email will be used for the driver's login. If not provided, one will be generated automatically.
+          </p>
+        </div>
+        
+        <div class="flex items-center space-x-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-700">
+          <%= form.check_box :create_user_account, 
+                { class: "form-checkbox h-4 w-4 text-blue-600", id: "create_user_account" } %>
+          <%= form.label :create_user_account, 
+                "Create user account for app access", 
+                class: "text-sm font-medium text-blue-800 dark:text-blue-200" %>
+        </div>
+        
+        <div id="account_creation_info" class="hidden p-3 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-700">
+          <p class="text-sm text-green-700 dark:text-green-300">
+            <strong>✓ Creating user account will:</strong>
+          </p>
+          <ul class="text-xs text-green-600 dark:text-green-400 mt-2 space-y-1 list-disc list-inside">
+            <li>Generate login credentials for the driver</li>
+            <li>Allow the driver to access the mobile app</li>
+            <li>Enable delivery request assignments</li>
+            <li>Provide real-time location tracking capabilities</li>
+          </ul>
+          <p class="text-xs text-green-600 dark:text-green-400 mt-2">
+            <em>Login credentials will be displayed after successful creation.</em>
+          </p>
+        </div>
+      </div>
+    </div>
+
     <div class="pt-4">
       <%= form.submit "Save Driver", class: "btn btn-primary" %>
     </div>
@@ -81,10 +121,29 @@
     vehicleSelect.value = ""; // reset selection
   }
 
+  // Handle user account creation checkbox
+  function toggleAccountInfo() {
+    const checkbox = document.getElementById("create_user_account");
+    const info = document.getElementById("account_creation_info");
+    
+    if (checkbox.checked) {
+      info.classList.remove("hidden");
+    } else {
+      info.classList.add("hidden");
+    }
+  }
+
   // Run once if fleet provider pre-selected (e.g. on edit form)
   document.addEventListener("DOMContentLoaded", function () {
     if (document.getElementById("fleet_provider_select").value) {
       filterVehicles();
+    }
+    
+    // Set up account creation checkbox listener
+    const accountCheckbox = document.getElementById("create_user_account");
+    if (accountCheckbox) {
+      accountCheckbox.addEventListener("change", toggleAccountInfo);
+      toggleAccountInfo(); // Initialize state
     }
   });
 </script>
