@@ -1,0 +1,581 @@
+<% content_for :header do %>
+  <%= render "rui/shared/admin/nav", { header_title: "Edit Delivery Request ##{@delivery_request.request_number || @delivery_request.id}" } do %>
+    <div class="flex items-center gap-3">
+      <%= link_to "Back to Delivery", delivery_request_path(@delivery_request), class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+<% end %>
+
+<% content_for :title, "Edit Delivery Request ##{@delivery_request.request_number || @delivery_request.id}" %>
+
+<div class="px-4 mb-16">
+  <div class="container mx-auto max-w-4xl">
+    <%= form_with model: @delivery_request, local: true, class: "space-y-6", data: { turbo: false } do |f| %>
+      <div class="bg-white dark:bg-slate-800 shadow border border-slate-200 dark:border-slate-600/80 rounded-lg p-6">
+        <h2 class="text-lg font-medium text-slate-900 dark:text-white mb-4">Business & Order Information</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <%= f.label :business_customer_id, "Business Customer", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.select :business_customer_id, 
+                options_from_collection_for_select(@customers, :id, :display_name, @delivery_request.business_customer_id),
+                { prompt: "Select Business Customer" },
+                { class: "form-select", required: true } %>
+          </div>
+
+          <div>
+            <%= f.label :fleet_provider_id, "Fleet Provider", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.select :fleet_provider_id, 
+                options_from_collection_for_select(@fleet_providers, :id, :name, @delivery_request.fleet_provider_id),
+                { prompt: "Select Fleet Provider" },
+                { class: "form-select", required: true } %>
+          </div>
+        </div>
+        
+        <!-- Order Information -->
+        <div class="mt-4 border-t border-slate-200 dark:border-slate-600 pt-4">
+          <h3 class="text-md font-medium text-slate-900 dark:text-white mb-3">Order Details</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <%= f.label :order_value, "Order Value ($)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.number_field :order_value, step: 0.01, min: 0, class: "form-input", placeholder: "0.00" %>
+            </div>
+            <div>
+              <%= f.label :order_items_count, "Number of Items", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.number_field :order_items_count, min: 1, class: "form-input" %>
+            </div>
+            <div>
+              <%= f.label :payment_method, "Payment Method", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.select :payment_method,
+                  options_for_select([
+                    ['Cash on Delivery', 'cash'],
+                    ['Card on Delivery', 'card'],
+                    ['Prepaid', 'prepaid'],
+                    ['Business Account', 'business_account']
+                  ], @delivery_request.payment_method),
+                  { prompt: "Select Payment Method" },
+                  { class: "form-select" } %>
+            </div>
+          </div>
+        </div>
+        
+        <!-- End Customer Information -->
+        <div class="mt-4 border-t border-slate-200 dark:border-slate-600 pt-4">
+          <h3 class="text-md font-medium text-slate-900 dark:text-white mb-3">Delivery Recipient</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <%= f.label :end_customer_name, "Recipient Name", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.text_field :end_customer_name, class: "form-input", required: true %>
+            </div>
+            <div>
+              <%= f.label :end_customer_phone, "Recipient Phone", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.telephone_field :end_customer_phone, class: "form-input", required: true %>
+            </div>
+            <div>
+              <%= f.label :end_customer_email, "Recipient Email (Optional)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.email_field :end_customer_email, class: "form-input" %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 shadow border border-slate-200 dark:border-slate-600/80 rounded-lg p-6">
+        <h2 class="text-lg font-medium text-slate-900 dark:text-white mb-4">Pickup Information</h2>
+        
+        <div class="space-y-4">
+          <!-- Address Search Section -->
+          <div>
+            <%= f.label :pickup_address, "Pickup Address", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <div class="relative">
+              <%= f.text_field :pickup_address, placeholder: "Start typing an address...", class: "form-input address-search", required: true, data: { location_type: "pickup" } %>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <!-- Address suggestions dropdown -->
+            <div class="address-suggestions hidden absolute z-50 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md shadow-lg max-h-60 overflow-auto" data-location-type="pickup">
+              <!-- Suggestions will be populated here -->
+            </div>
+          </div>
+
+          <!-- Coordinates Section (can be hidden/shown) -->
+          <div class="coordinates-section">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Coordinates</span>
+              <button type="button" class="toggle-coordinates text-sm text-blue-600 dark:text-blue-400 hover:underline">Show coordinates</button>
+            </div>
+            <div class="coordinates-inputs hidden grid grid-cols-2 gap-4">
+              <div>
+                <%= f.label :pickup_latitude, "Pickup Latitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
+                <%= f.number_field :pickup_latitude, step: :any, class: "form-input text-sm", readonly: true %>
+              </div>
+              <div>
+                <%= f.label :pickup_longitude, "Pickup Longitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
+                <%= f.number_field :pickup_longitude, step: :any, class: "form-input text-sm", readonly: true %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Manual coordinates toggle -->
+          <div class="manual-coordinates-section hidden">
+            <div class="flex items-center mb-2">
+              <input type="checkbox" class="manual-coords-toggle mr-2" />
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enter coordinates manually</span>
+            </div>
+          </div>
+
+          <div>
+            <%= f.label :pickup_contact_name, "Contact Name", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.text_field :pickup_contact_name, class: "form-input" %>
+          </div>
+
+          <div>
+            <%= f.label :pickup_contact_phone, "Contact Phone", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.telephone_field :pickup_contact_phone, class: "form-input" %>
+          </div>
+
+          <div class="md:col-span-2">
+            <%= f.label :pickup_instructions, "Pickup Instructions", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.text_area :pickup_instructions, rows: 2, class: "form-textarea" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 shadow border border-slate-200 dark:border-slate-600/80 rounded-lg p-6">
+        <h2 class="text-lg font-medium text-slate-900 dark:text-white mb-4">Delivery Information</h2>
+        
+        <div class="space-y-4">
+          <!-- Address Search Section -->
+          <div>
+            <%= f.label :delivery_address, "Delivery Address", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <div class="relative">
+              <%= f.text_field :delivery_address, placeholder: "Start typing an address...", class: "form-input address-search", required: true, data: { location_type: "delivery" } %>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <!-- Address suggestions dropdown -->
+            <div class="address-suggestions hidden absolute z-50 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md shadow-lg max-h-60 overflow-auto" data-location-type="delivery">
+              <!-- Suggestions will be populated here -->
+            </div>
+          </div>
+
+          <!-- Coordinates Section (can be hidden/shown) -->
+          <div class="coordinates-section">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Coordinates</span>
+              <button type="button" class="toggle-coordinates text-sm text-blue-600 dark:text-blue-400 hover:underline">Show coordinates</button>
+            </div>
+            <div class="coordinates-inputs hidden grid grid-cols-2 gap-4">
+              <div>
+                <%= f.label :delivery_latitude, "Delivery Latitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
+                <%= f.number_field :delivery_latitude, step: :any, class: "form-input text-sm", readonly: true %>
+              </div>
+              <div>
+                <%= f.label :delivery_longitude, "Delivery Longitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
+                <%= f.number_field :delivery_longitude, step: :any, class: "form-input text-sm", readonly: true %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Manual coordinates toggle -->
+          <div class="manual-coordinates-section hidden">
+            <div class="flex items-center mb-2">
+              <input type="checkbox" class="manual-coords-toggle mr-2" />
+              <span class="text-sm text-slate-600 dark:text-slate-400">Enter coordinates manually</span>
+            </div>
+          </div>
+
+          <div>
+            <%= f.label :delivery_contact_name, "Contact Name", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.text_field :delivery_contact_name, class: "form-input" %>
+          </div>
+
+          <div>
+            <%= f.label :delivery_contact_phone, "Contact Phone", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.telephone_field :delivery_contact_phone, class: "form-input" %>
+          </div>
+
+          <div class="md:col-span-2">
+            <%= f.label :delivery_instructions, "Delivery Instructions", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.text_area :delivery_instructions, rows: 2, class: "form-textarea" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 shadow border border-slate-200 dark:border-slate-600/80 rounded-lg p-6">
+        <h2 class="text-lg font-medium text-slate-900 dark:text-white mb-4">Delivery Details</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <%= f.label :delivery_fee, "Delivery Fee ($)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.number_field :delivery_fee, step: 0.01, min: 0, class: "form-input", required: true %>
+          </div>
+
+          <div>
+            <%= f.label :priority, "Priority", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.select :priority,
+                options_for_select([
+                  ['Normal', 'normal'],
+                  ['High', 'high'],
+                  ['Urgent', 'urgent']
+                ], @delivery_request.priority),
+                {},
+                { class: "form-select" } %>
+          </div>
+
+          <div>
+            <%= f.label :estimated_distance_km, "Distance (km)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.number_field :estimated_distance_km, step: 0.1, min: 0, class: "form-input" %>
+          </div>
+
+          <div>
+            <%= f.label :estimated_duration_minutes, "Est. Duration (min)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+            <%= f.number_field :estimated_duration_minutes, min: 0, class: "form-input" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-slate-800 shadow border border-slate-200 dark:border-slate-600/80 rounded-lg p-6">
+        <h2 class="text-lg font-medium text-slate-900 dark:text-white mb-4">Special Instructions</h2>
+        
+        <div>
+          <%= f.label :special_instructions, "Special Instructions", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+          <%= f.text_area :special_instructions, rows: 3, class: "form-textarea", placeholder: "Any special handling requirements or additional notes..." %>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-3">
+        <%= link_to "Cancel", delivery_request_path(@delivery_request), class: "btn btn-secondary" %>
+        <%= f.submit "Update Delivery", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+
+    <% if @delivery_request.errors.any? %>
+      <div class="mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+        <h3 class="text-sm font-medium text-red-800 dark:text-red-400">Please fix the following errors:</h3>
+        <ul class="mt-2 text-sm text-red-700 dark:text-red-300 list-disc list-inside">
+          <% @delivery_request.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+class DeliveryRequestEditForm {
+  constructor() {
+    this.searchTimeouts = new Map();
+    this.activeSuggestion = null;
+    this.initializeEventListeners();
+  }
+
+  initializeEventListeners() {
+    // Address search functionality
+    this.initializeAddressSearch();
+    
+    // Coordinate toggles
+    this.initializeCoordinateToggles();
+    
+    // Distance calculation
+    this.initializeDistanceCalculation();
+  }
+
+  initializeAddressSearch() {
+    const addressInputs = document.querySelectorAll('.address-search');
+    
+    addressInputs.forEach(input => {
+      input.addEventListener('input', (e) => this.handleAddressInput(e));
+      input.addEventListener('focus', (e) => this.handleAddressFocus(e));
+      input.addEventListener('blur', (e) => this.handleAddressBlur(e));
+      input.addEventListener('keydown', (e) => this.handleAddressKeydown(e));
+    });
+  }
+
+  initializeCoordinateToggles() {
+    const toggleButtons = document.querySelectorAll('.toggle-coordinates');
+    const manualToggles = document.querySelectorAll('.manual-coords-toggle');
+    
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const section = button.closest('.coordinates-section');
+        const coordsInputs = section.querySelector('.coordinates-inputs');
+        const isHidden = coordsInputs.classList.contains('hidden');
+        
+        coordsInputs.classList.toggle('hidden');
+        button.textContent = isHidden ? 'Hide coordinates' : 'Show coordinates';
+      });
+    });
+
+    manualToggles.forEach(toggle => {
+      toggle.addEventListener('change', (e) => {
+        const section = toggle.closest('.coordinates-section');
+        const coordsInputs = section.querySelectorAll('input[type="number"]');
+        
+        coordsInputs.forEach(input => {
+          input.readOnly = !e.target.checked;
+        });
+      });
+    });
+  }
+
+  initializeDistanceCalculation() {
+    const latInputs = document.querySelectorAll('input[type="number"][id$="_latitude"], input[type="number"][id$="_longitude"]');
+    const distanceInput = document.getElementById('delivery_request_estimated_distance_km');
+    
+    const calculateDistance = () => {
+      const pickupLat = parseFloat(document.getElementById('delivery_request_pickup_latitude').value);
+      const pickupLng = parseFloat(document.getElementById('delivery_request_pickup_longitude').value);
+      const deliveryLat = parseFloat(document.getElementById('delivery_request_delivery_latitude').value);
+      const deliveryLng = parseFloat(document.getElementById('delivery_request_delivery_longitude').value);
+      
+      if (pickupLat && pickupLng && deliveryLat && deliveryLng) {
+        const distance = this.haversineDistance(pickupLat, pickupLng, deliveryLat, deliveryLng);
+        if (distanceInput) {
+          distanceInput.value = distance.toFixed(2);
+        }
+      }
+    };
+    
+    latInputs.forEach(input => {
+      input.addEventListener('change', calculateDistance);
+    });
+  }
+
+  async handleAddressInput(event) {
+    const input = event.target;
+    const query = input.value.trim();
+    const locationType = input.dataset.locationType;
+    
+    // Clear previous timeout
+    if (this.searchTimeouts.has(input)) {
+      clearTimeout(this.searchTimeouts.get(input));
+    }
+    
+    if (query.length < 3) {
+      this.hideSuggestions(locationType);
+      return;
+    }
+    
+    // Debounce the search
+    const timeoutId = setTimeout(async () => {
+      try {
+        await this.searchAddresses(query, locationType);
+      } catch (error) {
+        console.error('Address search failed:', error);
+        this.showError(input, 'Address search temporarily unavailable');
+      }
+    }, 300);
+    
+    this.searchTimeouts.set(input, timeoutId);
+  }
+
+  async searchAddresses(query, locationType) {
+    try {
+      const response = await fetch(`/api/v1/locations/search?query=${encodeURIComponent(query)}&limit=5`);
+      const data = await response.json();
+      
+      if (data.success && data.data.places) {
+        this.displaySuggestions(data.data.places, locationType);
+      } else {
+        this.hideSuggestions(locationType);
+      }
+    } catch (error) {
+      console.error('Search request failed:', error);
+      this.hideSuggestions(locationType);
+    }
+  }
+
+  displaySuggestions(places, locationType) {
+    const suggestionsContainer = document.querySelector(`[data-location-type="${locationType}"].address-suggestions`);
+    
+    if (!suggestionsContainer || places.length === 0) {
+      this.hideSuggestions(locationType);
+      return;
+    }
+    
+    suggestionsContainer.innerHTML = places.map((place, index) => `
+      <div class="suggestion-item p-3 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer border-b border-slate-100 dark:border-slate-600 last:border-b-0"
+           data-index="${index}"
+           data-address="${this.escapeHtml(place.formatted_address)}"
+           data-latitude="${place.latitude}"
+           data-longitude="${place.longitude}">
+        <div class="font-medium text-slate-900 dark:text-white">${this.highlightQuery(place.formatted_address, this.getCurrentQuery(locationType))}</div>
+        <div class="text-sm text-slate-500 dark:text-slate-400">${place.place_type || 'Address'}</div>
+      </div>
+    `).join('');
+    
+    // Add click listeners
+    suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => {
+      item.addEventListener('click', () => this.selectSuggestion(item, locationType));
+    });
+    
+    suggestionsContainer.classList.remove('hidden');
+  }
+
+  hideSuggestions(locationType) {
+    const suggestionsContainer = document.querySelector(`[data-location-type="${locationType}"].address-suggestions`);
+    if (suggestionsContainer) {
+      suggestionsContainer.classList.add('hidden');
+    }
+  }
+
+  selectSuggestion(item, locationType) {
+    const address = item.dataset.address;
+    const latitude = parseFloat(item.dataset.latitude);
+    const longitude = parseFloat(item.dataset.longitude);
+    
+    // Update input fields
+    const addressInput = document.querySelector(`[data-location-type="${locationType}"].address-search`);
+    const latInput = document.getElementById(`delivery_request_${locationType}_latitude`);
+    const lngInput = document.getElementById(`delivery_request_${locationType}_longitude`);
+    
+    if (addressInput) addressInput.value = address;
+    if (latInput) latInput.value = latitude;
+    if (lngInput) lngInput.value = longitude;
+    
+    this.hideSuggestions(locationType);
+    this.clearError(addressInput);
+    
+    // Trigger distance calculation
+    this.recalculateDistance();
+  }
+
+  handleAddressFocus(event) {
+    const input = event.target;
+    const locationType = input.dataset.locationType;
+    
+    // Show suggestions if there are any
+    const suggestionsContainer = document.querySelector(`[data-location-type="${locationType}"].address-suggestions`);
+    if (suggestionsContainer && suggestionsContainer.innerHTML.trim()) {
+      suggestionsContainer.classList.remove('hidden');
+    }
+  }
+
+  handleAddressBlur(event) {
+    const input = event.target;
+    const locationType = input.dataset.locationType;
+    
+    // Hide suggestions after a delay to allow for clicks
+    setTimeout(() => {
+      this.hideSuggestions(locationType);
+    }, 200);
+  }
+
+  handleAddressKeydown(event) {
+    const locationType = event.target.dataset.locationType;
+    const suggestionsContainer = document.querySelector(`[data-location-type="${locationType}"].address-suggestions`);
+    
+    if (!suggestionsContainer || suggestionsContainer.classList.contains('hidden')) {
+      return;
+    }
+    
+    const suggestions = suggestionsContainer.querySelectorAll('.suggestion-item');
+    let currentIndex = Array.from(suggestions).findIndex(item => item.classList.contains('highlighted'));
+    
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        currentIndex = Math.min(currentIndex + 1, suggestions.length - 1);
+        this.highlightSuggestion(suggestions, currentIndex);
+        break;
+        
+      case 'ArrowUp':
+        event.preventDefault();
+        currentIndex = Math.max(currentIndex - 1, 0);
+        this.highlightSuggestion(suggestions, currentIndex);
+        break;
+        
+      case 'Enter':
+        event.preventDefault();
+        const highlighted = suggestionsContainer.querySelector('.suggestion-item.highlighted');
+        if (highlighted) {
+          this.selectSuggestion(highlighted, locationType);
+        }
+        break;
+        
+      case 'Escape':
+        this.hideSuggestions(locationType);
+        break;
+    }
+  }
+
+  highlightSuggestion(suggestions, index) {
+    suggestions.forEach(item => item.classList.remove('highlighted', 'bg-slate-100', 'dark:bg-slate-600'));
+    if (suggestions[index]) {
+      suggestions[index].classList.add('highlighted', 'bg-slate-100', 'dark:bg-slate-600');
+    }
+  }
+
+  recalculateDistance() {
+    const pickupLat = parseFloat(document.getElementById('delivery_request_pickup_latitude').value);
+    const pickupLng = parseFloat(document.getElementById('delivery_request_pickup_longitude').value);
+    const deliveryLat = parseFloat(document.getElementById('delivery_request_delivery_latitude').value);
+    const deliveryLng = parseFloat(document.getElementById('delivery_request_delivery_longitude').value);
+    const distanceInput = document.getElementById('delivery_request_estimated_distance_km');
+    
+    if (pickupLat && pickupLng && deliveryLat && deliveryLng && distanceInput) {
+      const distance = this.haversineDistance(pickupLat, pickupLng, deliveryLat, deliveryLng);
+      distanceInput.value = distance.toFixed(2);
+    }
+  }
+
+  haversineDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  getCurrentQuery(locationType) {
+    const input = document.querySelector(`[data-location-type="${locationType}"].address-search`);
+    return input ? input.value.trim() : '';
+  }
+
+  highlightQuery(text, query) {
+    if (!query) return this.escapeHtml(text);
+    
+    const escapedText = this.escapeHtml(text);
+    const escapedQuery = this.escapeHtml(query);
+    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+    return escapedText.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-600">$1</mark>');
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  showError(input, message) {
+    this.clearError(input);
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'address-error mt-1 text-sm text-red-600 dark:text-red-400';
+    errorDiv.textContent = message;
+    input.parentNode.insertBefore(errorDiv, input.nextSibling);
+  }
+
+  clearError(input) {
+    const existingError = input.parentNode.querySelector('.address-error');
+    if (existingError) {
+      existingError.remove();
+    }
+  }
+}
+
+// Initialize the form when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  new DeliveryRequestEditForm();
+});
+</script>

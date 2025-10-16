@@ -2,7 +2,13 @@ class DeliveryRequestsController < ApplicationController
   before_action :set_delivery_request, only: [:show, :edit, :update, :destroy, :assign_driver, :cancel_delivery, :auto_dispatch]
   
   def index
-    @delivery_requests = DeliveryRequest.includes(:driver, :business_customer, :fleet_provider, :marketplace_order)
+    # Scope delivery requests based on user permissions
+    @delivery_requests = if current_user.admin?
+                          DeliveryRequest.includes(:driver, :business_customer, :fleet_provider, :marketplace_order)
+                        else
+                          DeliveryRequest.where(fleet_provider_id: current_user.fleet_provider_ids)
+                                        .includes(:driver, :business_customer, :fleet_provider, :marketplace_order)
+                        end
     
     # Filter by status if specified
     if params[:status].present?
@@ -30,12 +36,30 @@ class DeliveryRequestsController < ApplicationController
     
     @delivery_requests = @delivery_requests.recent.page(params[:page])
     
-    @fleet_providers = FleetProvider.all
-    @drivers = Driver.includes(:fleet_provider).order(:first_name, :last_name)
+    # Scope fleet providers and drivers based on user permissions
+    @fleet_providers = if current_user.admin?
+                        FleetProvider.all
+                      else
+                        current_user.fleet_providers
+                      end
+    
+    @drivers = if current_user.admin?
+                Driver.includes(:fleet_provider).order(:first_name, :last_name)
+              else
+                Driver.where(fleet_provider_id: current_user.fleet_provider_ids)
+                      .includes(:fleet_provider).order(:first_name, :last_name)
+              end
+              
     @stats = calculate_delivery_stats
   end
 
   def show
+    # Check authorization for non-admin users
+    unless current_user.admin? || current_user.fleet_provider_ids.include?(@delivery_request.fleet_provider_id)
+      redirect_to delivery_requests_path, alert: "You are not authorized to view this delivery request."
+      return
+    end
+    
     @timeline = build_delivery_timeline(@delivery_request)
     @available_drivers = find_available_drivers_for_delivery(@delivery_request) if @delivery_request.can_be_assigned?
   end
@@ -43,8 +67,19 @@ class DeliveryRequestsController < ApplicationController
   def new
     @delivery_request = DeliveryRequest.new
     @customers = Customer.active.order(:business_name)
-    @fleet_providers = FleetProvider.all
-    @drivers = Driver.includes(:fleet_provider).order(:first_name, :last_name)
+    # Scope fleet providers based on user permissions
+    @fleet_providers = if current_user.admin?
+                        FleetProvider.all
+                      else
+                        current_user.fleet_providers
+                      end
+    # Scope drivers based on user permissions
+    @drivers = if current_user.admin?
+                Driver.includes(:fleet_provider).order(:first_name, :last_name)
+              else
+                Driver.where(fleet_provider_id: current_user.fleet_provider_ids)
+                      .includes(:fleet_provider).order(:first_name, :last_name)
+              end
   end
 
   def create
@@ -69,31 +104,82 @@ class DeliveryRequestsController < ApplicationController
       redirect_to delivery_request_path(@delivery_request)
     else
       @customers = Customer.active.order(:business_name)
-      @fleet_providers = FleetProvider.all
-      @drivers = Driver.includes(:fleet_provider).order(:first_name, :last_name)
+      # Scope fleet providers based on user permissions
+      @fleet_providers = if current_user.admin?
+                          FleetProvider.all
+                        else
+                          current_user.fleet_providers
+                        end
+      # Scope drivers based on user permissions
+      @drivers = if current_user.admin?
+                  Driver.includes(:fleet_provider).order(:first_name, :last_name)
+                else
+                  Driver.where(fleet_provider_id: current_user.fleet_provider_ids)
+                        .includes(:fleet_provider).order(:first_name, :last_name)
+                end
       render :new
     end
   end
 
   def edit
+    # Check authorization for non-admin users
+    unless current_user.admin? || current_user.fleet_provider_ids.include?(@delivery_request.fleet_provider_id)
+      redirect_to delivery_requests_path, alert: "You are not authorized to edit this delivery request."
+      return
+    end
+    
     @customers = Customer.active.order(:business_name)
-    @fleet_providers = FleetProvider.all
-    @drivers = Driver.includes(:fleet_provider).order(:first_name, :last_name)
+    # Scope fleet providers based on user permissions
+    @fleet_providers = if current_user.admin?
+                        FleetProvider.all
+                      else
+                        current_user.fleet_providers
+                      end
+    # Scope drivers based on user permissions
+    @drivers = if current_user.admin?
+                Driver.includes(:fleet_provider).order(:first_name, :last_name)
+              else
+                Driver.where(fleet_provider_id: current_user.fleet_provider_ids)
+                      .includes(:fleet_provider).order(:first_name, :last_name)
+              end
   end
 
   def update
+    # Check authorization for non-admin users
+    unless current_user.admin? || current_user.fleet_provider_ids.include?(@delivery_request.fleet_provider_id)
+      redirect_to delivery_requests_path, alert: "You are not authorized to update this delivery request."
+      return
+    end
+    
     if @delivery_request.update(delivery_request_params)
       flash[:notice] = "Delivery request #{@delivery_request.request_number} was successfully updated."
       redirect_to delivery_request_path(@delivery_request)
     else
       @customers = Customer.active.order(:business_name)
-      @fleet_providers = FleetProvider.all
-      @drivers = Driver.includes(:fleet_provider).order(:first_name, :last_name)
+      # Scope fleet providers based on user permissions
+      @fleet_providers = if current_user.admin?
+                          FleetProvider.all
+                        else
+                          current_user.fleet_providers
+                        end
+      # Scope drivers based on user permissions
+      @drivers = if current_user.admin?
+                  Driver.includes(:fleet_provider).order(:first_name, :last_name)
+                else
+                  Driver.where(fleet_provider_id: current_user.fleet_provider_ids)
+                        .includes(:fleet_provider).order(:first_name, :last_name)
+                end
       render :edit
     end
   end
 
   def destroy
+    # Check authorization for non-admin users
+    unless current_user.admin? || current_user.fleet_provider_ids.include?(@delivery_request.fleet_provider_id)
+      redirect_to delivery_requests_path, alert: "You are not authorized to delete this delivery request."
+      return
+    end
+    
     request_number = @delivery_request.request_number
     @delivery_request.destroy
     flash[:notice] = "Delivery request #{request_number} was successfully deleted."
@@ -101,6 +187,12 @@ class DeliveryRequestsController < ApplicationController
   end
 
   def assign_driver
+    # Check authorization for non-admin users
+    unless current_user.admin? || current_user.fleet_provider_ids.include?(@delivery_request.fleet_provider_id)
+      redirect_to delivery_requests_path, alert: "You are not authorized to assign drivers to this delivery request."
+      return
+    end
+    
     driver = Driver.find(params[:driver_id])
     
     if driver.can_accept_delivery?(@delivery_request)
@@ -114,6 +206,12 @@ class DeliveryRequestsController < ApplicationController
   end
 
   def cancel_delivery
+    # Check authorization for non-admin users
+    unless current_user.admin? || current_user.fleet_provider_ids.include?(@delivery_request.fleet_provider_id)
+      redirect_to delivery_requests_path, alert: "You are not authorized to cancel this delivery request."
+      return
+    end
+    
     reason = params[:cancellation_reason] || 'Cancelled by user'
     @delivery_request.cancel!(reason)
     flash[:notice] = "Delivery request was cancelled."
@@ -121,6 +219,12 @@ class DeliveryRequestsController < ApplicationController
   end
 
   def auto_dispatch
+    # Check authorization for non-admin users
+    unless current_user.admin? || current_user.fleet_provider_ids.include?(@delivery_request.fleet_provider_id)
+      redirect_to delivery_requests_path, alert: "You are not authorized to dispatch this delivery request."
+      return
+    end
+    
     if @delivery_request.can_be_assigned?
       DeliveryDispatchJob.perform_later(@delivery_request.id)
       flash[:notice] = "Delivery has been dispatched to available drivers."
@@ -210,7 +314,7 @@ class DeliveryRequestsController < ApplicationController
   def create_marketplace_order
     customer = Customer.find(delivery_request_params[:business_customer_id])
     Marketplace::Order.create!(
-      user: customer.account_manager || User.first, # Fallback to first user if no account manager
+      user: customer.account_manager || current_user, # Use current user as fallback instead of first user
       order_number: "DEL-#{Time.current.strftime('%Y%m%d')}-#{SecureRandom.hex(3).upcase}",
       total_amount: delivery_request_params[:order_value]&.to_f || 0.0,
       status: :pending,

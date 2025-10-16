@@ -227,7 +227,15 @@ class DeliveryRequest < ApplicationRecord
     c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
     
     distance = rkm * c
-    update_column(:estimated_distance_km, distance.round(2))
+    
+    # Only update the database if the record has been saved
+    if persisted?
+      update_column(:estimated_distance_km, distance.round(2))
+    else
+      # For new records, just set the attribute
+      self.estimated_distance_km = distance.round(2)
+    end
+    
     distance
   end
 

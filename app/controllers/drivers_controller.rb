@@ -37,6 +37,14 @@ class DriversController < ApplicationController
     
     @total_count = @status_tabs.values.sum { |tab| tab[:count] }
     @current_status = params[:status] || 'active'
+    
+    # Calculate additional stats for the overview cards
+    @stats = {
+      total_drivers: @total_count,
+      active_drivers: @status_tabs['active'][:count],
+      online_drivers: base_drivers.where(is_online: true).count,
+      app_access_drivers: base_drivers.joins(:user).count
+    }
 
     # Filter by status
     @drivers = if @current_status == 'all'
