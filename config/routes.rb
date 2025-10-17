@@ -121,6 +121,10 @@ Rails.application.routes.draw do
   # API routes for mobile app
   namespace :api do
     namespace :v1 do
+      # CORS testing endpoints
+      options 'cors/test', to: 'cors_test#preflight_check'
+      get 'cors/test', to: 'cors_test#test'
+      
       # Authentication
       post 'auth/login', to: 'auth#login'
       post 'auth/register', to: 'auth#register'
