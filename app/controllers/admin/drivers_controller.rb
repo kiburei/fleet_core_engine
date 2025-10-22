@@ -43,6 +43,7 @@ class Admin::DriversController < AdminController
   def create
     @driver = Driver.new(driver_params)
     @fleet_providers = FleetProvider.delivery_enabled
+    @generated_password = nil
     
     # Create user account for driver
     if user_params[:email].present?
@@ -50,8 +51,12 @@ class Admin::DriversController < AdminController
       
       unless @user
         @user = User.new(user_params)
-        @user.password = user_params[:password].presence || generate_password
-        @user.password_confirmation = @user.password
+        password = user_params[:password].presence || generate_password
+        @user.password = password
+        @user.password_confirmation = password
+        
+        # Store generated password for display if it was auto-generated
+        @generated_password = password unless user_params[:password].present?
         
         unless @user.save
           @driver.errors.add(:base, "User creation failed: #{@user.errors.full_messages.join(', ')}")
@@ -66,8 +71,17 @@ class Admin::DriversController < AdminController
       # Assign driver role
       @user&.add_role(:fleet_provider_driver)
       
-      flash[:notice] = "Driver #{@driver.full_name} was successfully created."
-      redirect_to admin_driver_path(@driver)
+      if @generated_password
+        # Store password in flash for the success page
+        flash[:generated_password] = @generated_password
+        flash[:driver_email] = @user.email
+        flash[:driver_name] = @driver.full_name
+        flash[:notice] = "Driver #{@driver.full_name} was successfully created with login credentials."
+        redirect_to admin_driver_path(@driver, show_credentials: true)
+      else
+        flash[:notice] = "Driver #{@driver.full_name} was successfully created."
+        redirect_to admin_driver_path(@driver)
+      end
     else
       render :new
     end

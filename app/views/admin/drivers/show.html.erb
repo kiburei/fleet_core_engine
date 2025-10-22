@@ -17,6 +17,79 @@
 
 <p style="color: green"><%= notice %></p>
 
+<!-- Driver Credentials Section (shown when password was generated) -->
+<% if params[:show_credentials] && flash[:generated_password] %>
+  <div class="bg-green-50 border border-green-200 rounded-md p-4 mb-6 mx-4 sm:mx-6 lg:mx-8">
+    <div class="flex items-start">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3 flex-1">
+        <h3 class="text-sm font-medium text-green-800">Driver Account Created Successfully!</h3>
+        <div class="mt-4 bg-white rounded-md p-4 border border-green-200">
+          <h4 class="text-sm font-medium text-gray-900 mb-3">Login Credentials for <%= flash[:driver_name] %></h4>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Email</label>
+              <div class="mt-1 flex items-center space-x-2">
+                <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono"><%= flash[:driver_email] %></code>
+                <button onclick="copyToClipboard('<%= flash[:driver_email] %>')" 
+                        class="text-xs text-blue-600 hover:text-blue-800 focus:outline-none">
+                  Copy
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Password</label>
+              <div class="mt-1 flex items-center space-x-2">
+                <code id="password-field" class="bg-yellow-100 px-2 py-1 rounded text-sm font-mono font-bold"><%= flash[:generated_password] %></code>
+                <button onclick="copyToClipboard('<%= flash[:generated_password] %>')" 
+                        class="text-xs text-blue-600 hover:text-blue-800 focus:outline-none">
+                  Copy
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button onclick="copyBothCredentials('<%= flash[:driver_email] %>', '<%= flash[:generated_password] %>')" 
+                    class="inline-flex items-center px-3 py-2 border border-green-300 shadow-sm text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+              <svg class="-ml-0.5 mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"></path>
+                <path d="M3 5a2 2 0 012-2 3 3 0 003 3h6a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L14.586 13H19v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"></path>
+              </svg>
+              Copy Both Credentials
+            </button>
+            
+            <a href="mailto:<%= flash[:driver_email] %>?subject=Your Driver Account Credentials&body=Hi <%= flash[:driver_name] %>,%0A%0AYour driver account has been created. Here are your login credentials:%0A%0AEmail: <%= flash[:driver_email] %>%0APassword: <%= flash[:generated_password] %>%0A%0APlease keep these credentials secure and change your password after your first login.%0A%0AThanks!" 
+               class="inline-flex items-center px-3 py-2 border border-blue-300 shadow-sm text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              <svg class="-ml-0.5 mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+              </svg>
+              Share via Email
+            </a>
+            
+            <a href="sms:+<%= @driver.phone_number&.gsub(/[^0-9]/, '') %>?body=Hi <%= flash[:driver_name] %>, your driver account has been created. Email: <%= flash[:driver_email] %>, Password: <%= flash[:generated_password] %>. Please keep these credentials secure." 
+               class="inline-flex items-center px-3 py-2 border border-green-300 shadow-sm text-xs font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+              <svg class="-ml-0.5 mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+              </svg>
+              Share via SMS
+            </a>
+          </div>
+          
+          <div class="mt-3 text-xs text-gray-600">
+            <p><strong>Important:</strong> Please save these credentials securely and share them with the driver. The password will not be shown again for security reasons.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
 <div class="pt-4 px-4 sm:px-6 lg:px-8">
   <div class="max-w-7xl mx-auto">
     <!-- Driver Overview Card -->
@@ -198,3 +271,46 @@
     </div>
   </div>
 </div>
+
+<script>
+  function copyToClipboard(text) {
+    // Create a temporary textarea element
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    
+    // Select and copy the text
+    textarea.select();
+    document.execCommand('copy');
+    
+    // Remove the temporary element
+    document.body.removeChild(textarea);
+    
+    // Show feedback
+    showCopyFeedback();
+  }
+  
+  function copyBothCredentials(email, password) {
+    const credentials = `Email: ${email}\nPassword: ${password}`;
+    copyToClipboard(credentials);
+  }
+  
+  function showCopyFeedback() {
+    // Create or update feedback message
+    let feedback = document.getElementById('copy-feedback');
+    if (!feedback) {
+      feedback = document.createElement('div');
+      feedback.id = 'copy-feedback';
+      feedback.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50';
+      document.body.appendChild(feedback);
+    }
+    
+    feedback.textContent = 'Copied to clipboard!';
+    feedback.style.display = 'block';
+    
+    // Hide after 2 seconds
+    setTimeout(() => {
+      feedback.style.display = 'none';
+    }, 2000);
+  }
+</script>

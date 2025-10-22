@@ -109,16 +109,22 @@
     <% if current_user.fleet_provider_admin? || current_user.fleet_provider_manager? %>
       <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded border border-blue-200 dark:border-blue-700">
         <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">Account Management</h4>
+        <!-- Debug info -->
+        <% if Rails.env.development? %>
+          <div class="text-xs text-gray-600 mb-2">
+            Debug: User admin: <%= current_user.fleet_provider_admin? %>, User manager: <%= current_user.fleet_provider_manager? %>, Driver has account: <%= driver.has_user_account? %>
+          </div>
+        <% end %>
         <div class="flex flex-wrap gap-2">
           <% unless driver.has_user_account? %>
-            <%= link_to "Create User Account", create_user_account_driver_path(driver), 
+            <%= button_to "Create User Account", create_user_account_driver_path(driver), 
                 method: :post, 
                 class: "btn btn-primary btn-sm",
                 data: { 
                   confirm: "This will create a user account for #{driver.full_name} and generate login credentials. Continue?" 
                 } %>
           <% else %>
-            <%= link_to "Reset Password", reset_password_driver_path(driver), 
+            <%= button_to "Reset Password", reset_password_driver_path(driver), 
                 method: :patch, 
                 class: "btn btn-warning btn-sm",
                 data: { 
@@ -126,14 +132,14 @@
                 } %>
             
             <% if driver.user.has_role?(:fleet_provider_driver) %>
-              <%= link_to "Deactivate Access", deactivate_user_driver_path(driver), 
+              <%= button_to "Deactivate Access", deactivate_user_driver_path(driver), 
                   method: :patch, 
                   class: "btn btn-danger btn-sm",
                   data: { 
                     confirm: "This will prevent #{driver.full_name} from logging into the app. Continue?" 
                   } %>
             <% else %>
-              <%= link_to "Reactivate Access", reactivate_user_driver_path(driver), 
+              <%= button_to "Reactivate Access", reactivate_user_driver_path(driver), 
                   method: :patch, 
                   class: "btn btn-success btn-sm",
                   data: { 
@@ -142,6 +148,31 @@
             <% end %>
           <% end %>
         </div>
+      </div>
+    <% else %>
+      <!-- Fallback for non-admin users or debugging -->
+      <div class="bg-gray-50 dark:bg-gray-900/20 p-4 rounded border border-gray-200 dark:border-gray-700">
+        <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3">Account Management (Debug)</h4>
+        <p class="text-xs text-gray-600 mb-3">
+          Current user roles: <%= current_user.roles.pluck(:name).join(', ') %><br>
+          Required: fleet_provider_admin or fleet_provider_manager
+        </p>
+        <% if driver.has_user_account? %>
+          <div class="flex flex-wrap gap-2">
+            <%= button_to "View Credentials", driver_path(driver, show_current_credentials: true), 
+                method: :get, 
+                class: "btn btn-info btn-sm" %>
+            
+            <%= button_to "Reset Password", reset_password_driver_path(driver), 
+                method: :patch, 
+                class: "btn btn-warning btn-sm",
+                data: { 
+                  confirm: "This will generate a new temporary password for #{driver.full_name}. The current password will be replaced. Continue?" 
+                } %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-600">Driver does not have a user account.</p>
+        <% end %>
       </div>
     <% end %>
   </div>

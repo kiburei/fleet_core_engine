@@ -76,28 +76,75 @@
           </p>
         </div>
         
-        <div class="flex items-center space-x-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-700">
-          <%= form.check_box :create_user_account, 
-                { class: "form-checkbox h-4 w-4 text-blue-600", id: "create_user_account" } %>
-          <%= form.label :create_user_account, 
-                "Create user account for app access", 
-                class: "text-sm font-medium text-blue-800 dark:text-blue-200" %>
-        </div>
-        
-        <div id="account_creation_info" class="hidden p-3 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-700">
-          <p class="text-sm text-green-700 dark:text-green-300">
-            <strong>✓ Creating user account will:</strong>
-          </p>
-          <ul class="text-xs text-green-600 dark:text-green-400 mt-2 space-y-1 list-disc list-inside">
-            <li>Generate login credentials for the driver</li>
-            <li>Allow the driver to access the mobile app</li>
-            <li>Enable delivery request assignments</li>
-            <li>Provide real-time location tracking capabilities</li>
-          </ul>
-          <p class="text-xs text-green-600 dark:text-green-400 mt-2">
-            <em>Login credentials will be displayed after successful creation.</em>
-          </p>
-        </div>
+        <% if driver.persisted? && driver.has_user_account? %>
+          <!-- Password Change Section for Existing Users -->
+          <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded border border-yellow-200 dark:border-yellow-700">
+            <h4 class="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-3">Change Password</h4>
+            <div class="space-y-3">
+              <div>
+                <%= form.label :password, "New Password (Leave blank to keep current)", class: "block text-sm font-medium text-yellow-700 dark:text-yellow-200" %>
+                <%= form.password_field :password, 
+                      class: "form-input mt-1 block w-full",
+                      placeholder: "Enter new password",
+                      id: "driver_password" %>
+                <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                  Password must be at least 6 characters long.
+                </p>
+              </div>
+              <div>
+                <%= form.label :password_confirmation, "Confirm New Password", class: "block text-sm font-medium text-yellow-700 dark:text-yellow-200" %>
+                <%= form.password_field :password_confirmation, 
+                      class: "form-input mt-1 block w-full",
+                      placeholder: "Confirm new password",
+                      id: "driver_password_confirmation" %>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button type="button" 
+                        onclick="generateRandomPassword()" 
+                        class="inline-flex items-center px-3 py-2 border border-yellow-300 shadow-sm text-xs font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                  <svg class="-ml-0.5 mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                  </svg>
+                  Generate Random Password
+                </button>
+                <button type="button" 
+                        onclick="togglePasswordVisibility()" 
+                        id="password-visibility-btn"
+                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  <svg class="-ml-0.5 mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  Show Password
+                </button>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <!-- Create User Account Section for New Drivers -->
+          <div class="flex items-center space-x-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-700">
+            <%= form.check_box :create_user_account, 
+                  { class: "form-checkbox h-4 w-4 text-blue-600", id: "create_user_account" } %>
+            <%= form.label :create_user_account, 
+                  "Create user account for app access", 
+                  class: "text-sm font-medium text-blue-800 dark:text-blue-200" %>
+          </div>
+          
+          <div id="account_creation_info" class="hidden p-3 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-700">
+            <p class="text-sm text-green-700 dark:text-green-300">
+              <strong>✓ Creating user account will:</strong>
+            </p>
+            <ul class="text-xs text-green-600 dark:text-green-400 mt-2 space-y-1 list-disc list-inside">
+              <li>Generate login credentials for the driver</li>
+              <li>Allow the driver to access the mobile app</li>
+              <li>Enable delivery request assignments</li>
+              <li>Provide real-time location tracking capabilities</li>
+            </ul>
+            <p class="text-xs text-green-600 dark:text-green-400 mt-2">
+              <em>Login credentials will be displayed after successful creation.</em>
+            </p>
+          </div>
+        <% end %>
       </div>
     </div>
 
@@ -126,11 +173,64 @@
     const checkbox = document.getElementById("create_user_account");
     const info = document.getElementById("account_creation_info");
     
-    if (checkbox.checked) {
-      info.classList.remove("hidden");
-    } else {
-      info.classList.add("hidden");
+    if (checkbox && info) {
+      if (checkbox.checked) {
+        info.classList.remove("hidden");
+      } else {
+        info.classList.add("hidden");
+      }
     }
+  }
+  
+  // Generate random password
+  function generateRandomPassword() {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    
+    document.getElementById('driver_password').value = password;
+    document.getElementById('driver_password_confirmation').value = password;
+    
+    // Show feedback
+    showPasswordFeedback('Random password generated!');
+  }
+  
+  // Toggle password visibility
+  function togglePasswordVisibility() {
+    const passwordField = document.getElementById('driver_password');
+    const confirmField = document.getElementById('driver_password_confirmation');
+    const btn = document.getElementById('password-visibility-btn');
+    
+    if (passwordField && confirmField && btn) {
+      const isPassword = passwordField.type === 'password';
+      
+      passwordField.type = isPassword ? 'text' : 'password';
+      confirmField.type = isPassword ? 'text' : 'password';
+      
+      btn.innerHTML = isPassword 
+        ? `<svg class="-ml-0.5 mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path></svg>Hide Password`
+        : `<svg class="-ml-0.5 mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>Show Password`;
+    }
+  }
+  
+  // Show password feedback
+  function showPasswordFeedback(message) {
+    let feedback = document.getElementById('password-feedback');
+    if (!feedback) {
+      feedback = document.createElement('div');
+      feedback.id = 'password-feedback';
+      feedback.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-md shadow-lg z-50';
+      document.body.appendChild(feedback);
+    }
+    
+    feedback.textContent = message;
+    feedback.style.display = 'block';
+    
+    setTimeout(() => {
+      feedback.style.display = 'none';
+    }, 2000);
   }
 
   // Run once if fleet provider pre-selected (e.g. on edit form)

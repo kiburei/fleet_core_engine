@@ -5,7 +5,7 @@ class DriversController < ApplicationController
   def index
     @driver = Driver.new
     @per_page = params[:per_page] || 10
-    @current_status = params[:status] || 'active'
+    @current_status = params[:status] || "active"
 
     # Base query
     if params[:fleet_provider_id]
@@ -14,44 +14,44 @@ class DriversController < ApplicationController
     else
       base_drivers = if current_user.admin?
                        Driver.all.includes(:vehicle, :fleet_provider)
-                     else
+      else
                        Driver.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle, :fleet_provider)
-                     end
+      end
     end
 
     # Get all status counts for tabs
     @status_tabs = {
-      'active' => {
-        label: 'Active',
-        count: base_drivers.where(license_status: 'active').count
+      "active" => {
+        label: "Active",
+        count: base_drivers.where(license_status: "active").count
       },
-      'inactive' => {
-        label: 'Inactive', 
-        count: base_drivers.where(license_status: 'inactive').count
+      "inactive" => {
+        label: "Inactive",
+        count: base_drivers.where(license_status: "inactive").count
       },
-      'suspended' => {
-        label: 'Suspended',
-        count: base_drivers.where(license_status: 'suspended').count
+      "suspended" => {
+        label: "Suspended",
+        count: base_drivers.where(license_status: "suspended").count
       }
     }
-    
+
     @total_count = @status_tabs.values.sum { |tab| tab[:count] }
-    @current_status = params[:status] || 'active'
-    
+    @current_status = params[:status] || "active"
+
     # Calculate additional stats for the overview cards
     @stats = {
       total_drivers: @total_count,
-      active_drivers: @status_tabs['active'][:count],
+      active_drivers: @status_tabs["active"][:count],
       online_drivers: base_drivers.where(is_online: true).count,
       app_access_drivers: base_drivers.joins(:user).count
     }
 
     # Filter by status
-    @drivers = if @current_status == 'all'
+    @drivers = if @current_status == "all"
                  base_drivers
-               else
+    else
                  base_drivers.where(license_status: @current_status)
-               end
+    end
 
     # Apply search filter if present
     if params[:search].present?
@@ -61,7 +61,7 @@ class DriversController < ApplicationController
         search_term, search_term, search_term, search_term
       )
     end
-    
+
     @drivers = @drivers.page(params[:page]).per(@per_page)
   end
 
@@ -99,10 +99,49 @@ class DriversController < ApplicationController
     end
 
     @driver = Driver.new(driver_params)
+    # set license status to active by default
+    @driver.license_status ||= "active"
+    # assign fleet provider if not set and user is fleet provider admin/manager
+    if @driver.fleet_provider_id.nil? && (current_user.fleet_provider_admin? || current_user.fleet_provider_manager?)
+      @driver.fleet_provider_id = current_user.fleet_provider_ids.first
+    end
+    @generated_password = nil
+
+    # Handle user account creation if requested
+    if params[:driver][:create_user_account] == "1"
+      email = params[:driver][:email].presence || @driver.generate_email_from_phone
+      password = generate_password
+
+      @user = User.new(
+        email: email,
+        password: password,
+        password_confirmation: password,
+        first_name: @driver.first_name,
+        last_name: @driver.last_name,
+        phone: @driver.phone_number
+      )
+
+      if @user.save
+        @user.add_role(:fleet_provider_driver)
+        @driver.user = @user
+        @driver.email = email
+        @generated_password = password
+      else
+        @driver.errors.add(:base, "User creation failed: #{@user.errors.full_messages.join(', ')}")
+      end
+    end
 
     respond_to do |format|
       if @driver.save
-        format.html { redirect_to @driver, notice: "Driver was successfully created." }
+        if @generated_password
+          # Store credentials in flash for display
+          flash[:generated_password] = @generated_password
+          flash[:driver_email] = @driver.user.email
+          flash[:driver_name] = @driver.full_name
+          format.html { redirect_to driver_path(@driver, show_credentials: true), notice: "Driver #{@driver.full_name} was successfully created with login credentials." }
+        else
+          format.html { redirect_to @driver, notice: "Driver was successfully created." }
+        end
         format.json { render :show, status: :created, location: @driver }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -118,9 +157,28 @@ class DriversController < ApplicationController
       return
     end
 
+    # Handle password change if provided
+    password_changed = false
+    if params[:driver][:password].present? && @driver.has_user_account?
+      if params[:driver][:password] == params[:driver][:password_confirmation]
+        @driver.user.update!(
+          password: params[:driver][:password],
+          password_confirmation: params[:driver][:password_confirmation]
+        )
+        password_changed = true
+      else
+        @driver.errors.add(:password_confirmation, "doesn't match Password")
+      end
+    end
+
+    # Remove password fields from driver params to avoid saving them to driver record
+    driver_update_params = driver_params.except(:password, :password_confirmation)
+
     respond_to do |format|
-      if @driver.update(driver_params)
-        format.html { redirect_to @driver, notice: "Driver was successfully updated." }
+      if @driver.errors.empty? && @driver.update(driver_update_params)
+        success_message = "Driver was successfully updated."
+        success_message += " Password has been changed." if password_changed
+        format.html { redirect_to @driver, notice: success_message }
         format.json { render :show, status: :ok, location: @driver }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -159,10 +217,10 @@ class DriversController < ApplicationController
     begin
       user = @driver.create_user_account!
       @driver.send_login_credentials
-      
+
       flash[:notice] = "User account created successfully for #{@driver.full_name}."
       flash[:info] = "Login credentials: Email: #{user.email}, Temporary Password: #{@driver.temporary_password}"
-      
+
     rescue ActiveRecord::RecordInvalid => e
       flash[:alert] = "Failed to create user account: #{e.message}"
     rescue => e
@@ -185,16 +243,26 @@ class DriversController < ApplicationController
     end
 
     begin
-      new_password = @driver.reset_password!
-      
+      # Generate new password
+      new_password = generate_password
+
+      # Update ONLY the driver's user account password
+      @driver.user.update!(
+        password: new_password,
+        password_confirmation: new_password
+      )
+
+      # Store credentials for display without affecting current user session
+      flash[:generated_password] = new_password
+      flash[:driver_email] = @driver.user.email
+      flash[:driver_name] = @driver.full_name
       flash[:notice] = "Password reset successfully for #{@driver.full_name}."
-      flash[:info] = "New temporary password: #{new_password}"
-      
+
     rescue => e
       flash[:alert] = "Failed to reset password: #{e.message}"
     end
 
-    redirect_to @driver
+    redirect_to driver_path(@driver, show_credentials: true)
   end
 
   # PATCH /drivers/:id/deactivate_user
@@ -212,7 +280,7 @@ class DriversController < ApplicationController
     begin
       @driver.deactivate_user_account!
       flash[:notice] = "User account deactivated for #{@driver.full_name}."
-      
+
     rescue => e
       flash[:alert] = "Failed to deactivate user account: #{e.message}"
     end
@@ -235,7 +303,7 @@ class DriversController < ApplicationController
     begin
       @driver.reactivate_user_account!
       flash[:notice] = "User account reactivated for #{@driver.full_name}."
-      
+
     rescue => e
       flash[:alert] = "Failed to reactivate user account: #{e.message}"
     end
@@ -251,6 +319,10 @@ class DriversController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def driver_params
-      params.expect(driver: [ :first_name, :middle_name, :last_name, :license_number, :phone_number, :vehicle_id, :profile_picture, :fleet_provider_id, :email, :create_user_account ])
+      params.expect(driver: [ :first_name, :middle_name, :last_name, :license_number, :phone_number, :vehicle_id, :profile_picture, :fleet_provider_id, :email, :create_user_account, :password, :password_confirmation ])
+    end
+
+    def generate_password
+      SecureRandom.base64(12)
     end
 end

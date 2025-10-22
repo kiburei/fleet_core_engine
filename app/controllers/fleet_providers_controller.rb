@@ -5,33 +5,33 @@ class FleetProvidersController < ApplicationController
   def index
     @fleet_provider = FleetProvider.new
     @per_page = params[:per_page] || 10
-    @current_status = params[:status] || 'active'
-    
+    @current_status = params[:status] || "active"
+
     # Base query
     base_fleet_providers = current_user.admin? ? FleetProvider.all : current_user.fleet_providers
-    
+
     # Get all status counts for tabs (handle case inconsistency)
     @status_tabs = {
-      'active' => {
-        label: 'Active',
-        count: base_fleet_providers.where("LOWER(license_status) = ?", 'active').count
+      "active" => {
+        label: "Active",
+        count: base_fleet_providers.where("LOWER(license_status) = ?", "active").count
       },
-      'inactive' => {
-        label: 'Inactive',
-        count: base_fleet_providers.where("LOWER(license_status) = ?", 'inactive').count
+      "inactive" => {
+        label: "Inactive",
+        count: base_fleet_providers.where("LOWER(license_status) = ?", "inactive").count
       }
     }
-    
+
     @total_count = @status_tabs.values.sum { |tab| tab[:count] }
-    @current_status = params[:status] || 'active'
-    
+    @current_status = params[:status] || "active"
+
     # Filter by status (handle case inconsistency)
-    @fleet_providers = if @current_status == 'all'
+    @fleet_providers = if @current_status == "all"
                          base_fleet_providers
-                       else
+    else
                          base_fleet_providers.where("LOWER(license_status) = ?", @current_status.downcase)
-                       end
-    
+    end
+
     # Apply search filter if present
     if params[:search].present?
       search_term = "%#{params[:search]}%"
@@ -40,7 +40,7 @@ class FleetProvidersController < ApplicationController
         search_term, search_term, search_term
       )
     end
-    
+
     @fleet_providers = @fleet_providers.page(params[:page]).per(@per_page)
   end
 
@@ -132,8 +132,8 @@ class FleetProvidersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def fleet_provider_params
-      params.expect(fleet_provider: [ 
-        :name, :registration_number, :physical_address, :phone_number, :email, 
+      params.expect(fleet_provider: [
+        :name, :registration_number, :physical_address, :phone_number, :email,
         :license_status, :license_expiry_date, :logo,
         :is_delivery_enabled, :delivery_radius_km, :min_delivery_fee, :max_delivery_fee,
         :delivery_commission_rate, :delivery_per_km_rate
