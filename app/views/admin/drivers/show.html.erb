@@ -240,17 +240,23 @@
                   Lat: <%= @driver.current_latitude.round(6) %>, 
                   Lng: <%= @driver.current_longitude.round(6) %>
                 </p>
-                <!-- Embedded Google Map -->
-                <iframe
-                  width="100%"
-                  height="300"
-                  style="border:0"
-                  loading="lazy"
-                  allowfullscreen
-                  referrerpolicy="no-referrer-when-downgrade"
-                  src="https://www.google.com/maps/embed/v1/place?key=<%= ENV['GOOGLE_MAPS_API_KEY'] || 'YOUR_API_KEY' %>&q=<%= @driver.current_latitude %>,<%= @driver.current_longitude %>&zoom=15"
-                  class="w-full rounded-lg mb-2">
-                </iframe>
+                <!-- Embedded Map -->
+                <div id="driver-map-<%= @driver.id %>" class="w-full h-64 rounded-lg border border-gray-300 mb-2"></div>
+                <script>
+                  document.addEventListener('DOMContentLoaded', function() {
+                    const mapId = 'driver-map-<%= @driver.id %>';
+                    const lat = <%= @driver.current_latitude %>;
+                    const lng = <%= @driver.current_longitude %>;
+                    
+                    const map = L.map(mapId).setView([lat, lng], 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    }).addTo(map);
+                    L.marker([lat, lng]).addTo(map)
+                      .bindPopup('<%= @driver.full_name %>\'s Location')
+                      .openPopup();
+                  });
+                </script>
                 <a href="https://www.google.com/maps?q=<%= @driver.current_latitude %>,<%= @driver.current_longitude %>" 
                    target="_blank" 
                    class="text-xs text-primary-600 hover:text-primary-800">
