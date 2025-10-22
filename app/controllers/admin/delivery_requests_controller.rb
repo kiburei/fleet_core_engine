@@ -101,16 +101,28 @@ class Admin::DeliveryRequestsController < AdminController
   end
 
   def assign_driver
-    driver = Driver.find(params[:driver_id])
-    
-    if driver.can_accept_delivery?(@delivery_request)
-      @delivery_request.assign_to_driver!(driver)
-      flash[:notice] = "Delivery assigned to #{driver.full_name}"
-    else
-      flash[:alert] = "Cannot assign delivery to #{driver.full_name}. Driver may not be available or outside service area."
+    # GET - Show available drivers for selection
+    if request.get?
+      @available_drivers = find_available_drivers_for_delivery(@delivery_request)
+      render :assign_driver
+    # PATCH - Assign the selected driver
+    elsif request.patch?
+      unless params[:driver_id].present?
+        flash[:alert] = "Please select a driver to assign"
+        redirect_to assign_driver_admin_delivery_request_path(@delivery_request) and return
+      end
+      
+      driver = Driver.find(params[:driver_id])
+      
+      if driver.can_accept_delivery?(@delivery_request)
+        @delivery_request.assign_to_driver!(driver)
+        flash[:notice] = "Delivery assigned to #{driver.full_name}"
+      else
+        flash[:alert] = "Cannot assign delivery to #{driver.full_name}. Driver may not be available or outside service area."
+      end
+      
+      redirect_to admin_delivery_request_path(@delivery_request)
     end
-    
-    redirect_to admin_delivery_request_path(@delivery_request)
   end
 
   def cancel_delivery

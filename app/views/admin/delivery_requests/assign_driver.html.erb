@@ -1,0 +1,124 @@
+<div class="max-w-4xl mx-auto">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Assign Driver</h1>
+    <p class="text-gray-600 mt-1">
+      Delivery Request #<%= @delivery_request.id %> - <%= @delivery_request.request_number %>
+    </p>
+  </div>
+
+  <!-- Current Delivery Info -->
+  <div class="bg-white shadow rounded-lg p-6 mb-6">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">Delivery Details</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-500">Pickup Address</label>
+        <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.pickup_address %></p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-500">Delivery Address</label>
+        <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.delivery_address %></p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-500">Delivery Fee</label>
+        <p class="mt-1 text-sm text-gray-900">$<%= @delivery_request.delivery_fee %></p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-500">Distance</label>
+        <p class="mt-1 text-sm text-gray-900"><%= @delivery_request.estimated_distance_km %> km</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Available Drivers -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">
+      Available Drivers
+      <span class="text-sm font-normal text-gray-500">(<%= @available_drivers.count %> available)</span>
+    </h2>
+
+    <% if @available_drivers.any? %>
+      <div class="space-y-3">
+        <% @available_drivers.each do |driver| %>
+          <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-500 transition-colors">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <div class="flex items-center">
+                  <div>
+                    <h3 class="text-sm font-medium text-gray-900"><%= driver.full_name %></h3>
+                    <p class="text-sm text-gray-500"><%= driver.phone_number %></p>
+                  </div>
+                  
+                  <% if driver.is_online %>
+                    <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Online
+                    </span>
+                  <% end %>
+                </div>
+                
+                <div class="mt-2 grid grid-cols-3 gap-4 text-xs text-gray-500">
+                  <div>
+                    <span class="font-medium">Rating:</span> 
+                    <%= driver.delivery_rating ? "#{driver.delivery_rating.round(1)} ⭐" : "N/A" %>
+                  </div>
+                  <div>
+                    <span class="font-medium">Deliveries:</span> 
+                    <%= driver.total_deliveries || 0 %>
+                  </div>
+                  <% if driver.current_latitude && driver.current_longitude %>
+                    <div>
+                      <span class="font-medium">Distance:</span>
+                      <%= driver.distance_to(@delivery_request.pickup_latitude, @delivery_request.pickup_longitude).round(2) %> km
+                    </div>
+                  <% end %>
+                </div>
+                
+                <% if driver.vehicle %>
+                  <div class="mt-2 text-xs text-gray-500">
+                    <span class="font-medium">Vehicle:</span>
+                    <%= driver.vehicle.year %> <%= driver.vehicle.make %> <%= driver.vehicle.model %> 
+                    (<%= driver.vehicle.license_plate %>)
+                  </div>
+                <% end %>
+              </div>
+              
+              <div class="ml-4">
+                <%= button_to "Assign", 
+                    assign_driver_admin_delivery_request_path(@delivery_request, driver_id: driver.id), 
+                    method: :patch,
+                    class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+                    data: { confirm: "Assign this delivery to #{driver.full_name}?" } %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-8">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No available drivers</h3>
+        <p class="mt-1 text-sm text-gray-500">
+          There are currently no drivers available for this delivery.
+        </p>
+        <div class="mt-6">
+          <%= button_to "Auto-Dispatch", 
+              auto_dispatch_admin_delivery_request_path(@delivery_request),
+              method: :patch,
+              class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mt-6 flex items-center justify-between">
+    <%= link_to "Back to Delivery", 
+        admin_delivery_request_path(@delivery_request),
+        class: "text-sm font-medium text-gray-700 hover:text-gray-900" %>
+        
+    <%= button_to "Auto-Dispatch Instead", 
+        auto_dispatch_admin_delivery_request_path(@delivery_request),
+        method: :patch,
+        class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+  </div>
+</div>

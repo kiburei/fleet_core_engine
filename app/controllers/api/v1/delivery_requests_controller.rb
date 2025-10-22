@@ -12,7 +12,7 @@ class Api::V1::DeliveryRequestsController < Api::V1::BaseController
     end
     
     # Default to recent deliveries
-    deliveries = deliveries.recent.includes(:marketplace_order, :customer)
+    deliveries = deliveries.recent.includes(:marketplace_order, :business_customer)
     
     paginated_deliveries = paginate_collection(deliveries)
 
@@ -43,7 +43,7 @@ class Api::V1::DeliveryRequestsController < Api::V1::BaseController
       )
     end
 
-    paginated_deliveries = paginate_collection(available_deliveries.includes(:marketplace_order, :customer))
+    paginated_deliveries = paginate_collection(available_deliveries.includes(:marketplace_order, :business_customer))
 
     deliveries_data = paginated_deliveries.map do |delivery|
       data = delivery_request_data(delivery)
@@ -242,6 +242,41 @@ class Api::V1::DeliveryRequestsController < Api::V1::BaseController
                   "Driver is now #{available ? 'available' : 'unavailable'}")
   end
 
+  def earnings_summary
+    # Get all completed deliveries for this driver
+    completed_deliveries = current_driver.delivery_requests.where(status: 'delivered')
+    
+    # Total earnings (all time)
+    total_earnings = completed_deliveries.sum(:driver_commission) || 0.0
+    completed_count = completed_deliveries.count
+    
+    # Average earnings per delivery
+    average_earnings = completed_count > 0 ? (total_earnings / completed_count) : 0.0
+    
+    # This month's earnings
+    this_month_start = Time.current.beginning_of_month
+    this_month_end = Time.current.end_of_month
+    this_month_earnings = completed_deliveries
+      .where(delivered_at: this_month_start..this_month_end)
+      .sum(:driver_commission) || 0.0
+    
+    # Last month's earnings
+    last_month_start = 1.month.ago.beginning_of_month
+    last_month_end = 1.month.ago.end_of_month
+    last_month_earnings = completed_deliveries
+      .where(delivered_at: last_month_start..last_month_end)
+      .sum(:driver_commission) || 0.0
+    
+    render_success({
+      total_earnings: total_earnings.round(2),
+      completed_deliveries: completed_count,
+      average_earnings: average_earnings.round(2),
+      this_month_earnings: this_month_earnings.round(2),
+      last_month_earnings: last_month_earnings.round(2),
+      currency: 'KES'
+    })
+  end
+
   private
 
   def ensure_driver
@@ -272,6 +307,7 @@ class Api::V1::DeliveryRequestsController < Api::V1::BaseController
       delivery_contact_phone: delivery.delivery_contact_phone,
       delivery_fee: delivery.delivery_fee,
       driver_commission: delivery.driver_commission,
+      currency: 'KES',
       estimated_distance_km: delivery.estimated_distance_km,
       estimated_duration_minutes: delivery.estimated_duration_minutes,
       requested_at: delivery.requested_at.iso8601,
@@ -292,12 +328,12 @@ class Api::V1::DeliveryRequestsController < Api::V1::BaseController
         phone: delivery.end_customer_phone,
         email: delivery.end_customer_email
       },
-      marketplace_order: {
+      marketplace_order: delivery.marketplace_order ? {
         id: delivery.marketplace_order.id,
         order_number: delivery.marketplace_order.order_number,
         total_amount: delivery.marketplace_order.total_amount,
         total_items: delivery.marketplace_order.total_items
-      }
+      } : nil
     }
   end
 

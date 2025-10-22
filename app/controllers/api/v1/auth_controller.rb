@@ -84,6 +84,39 @@ class Api::V1::AuthController < Api::V1::BaseController
     end
   end
 
+  def change_password
+    current_password = params[:current_password]
+    new_password = params[:new_password]
+    new_password_confirmation = params[:new_password_confirmation]
+    
+    # Validate required fields
+    if current_password.blank? || new_password.blank? || new_password_confirmation.blank?
+      return render_error('All password fields are required', :bad_request)
+    end
+    
+    # Verify current password
+    unless current_user.valid_password?(current_password)
+      return render_error('Current password is incorrect', :unauthorized)
+    end
+    
+    # Verify new password confirmation
+    if new_password != new_password_confirmation
+      return render_error('New password and confirmation do not match', :unprocessable_entity)
+    end
+    
+    # Check password length
+    if new_password.length < 6
+      return render_error('New password must be at least 6 characters long', :unprocessable_entity)
+    end
+    
+    # Update password
+    if current_user.update(password: new_password, password_confirmation: new_password_confirmation)
+      render_success({}, 'Password changed successfully')
+    else
+      render_error('Failed to change password', :unprocessable_entity, current_user.errors)
+    end
+  end
+
   def logout
     # In JWT, we don't need to do anything server-side for logout
     # The client should just discard the token

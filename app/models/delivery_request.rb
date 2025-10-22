@@ -280,6 +280,10 @@ class DeliveryRequest < ApplicationRecord
   end
 
   def notify_customer(type, title, message)
+    # Skip notification if customer is not a User (business_customer is a Customer model)
+    # TODO: Implement customer notification system for Customer model
+    return unless customer.is_a?(User)
+    
     delivery_notifications.create!(
       recipient: customer,
       notification_type: type,
@@ -287,6 +291,8 @@ class DeliveryRequest < ApplicationRecord
       message: message,
       metadata: { delivery_request_id: id }
     )
+  rescue => e
+    Rails.logger.error "Failed to send customer notification: #{e.message}"
   end
 
   def notify_driver(type, title, message)

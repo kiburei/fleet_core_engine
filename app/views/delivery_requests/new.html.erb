@@ -8,6 +8,12 @@
 
 <% content_for :title, "Create New Delivery" %>
 
+<% content_for :head do %>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+          crossorigin=""></script>
+<% end %>
+
 <div class="px-4 mb-16">
   <div class="container mx-auto max-w-4xl">
     <%= form_with model: @delivery_request, local: true, class: "space-y-6", data: { turbo: false } do |f| %>
@@ -100,6 +106,13 @@
             </div>
           </div>
 
+          <!-- Map Preview -->
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Location on Map</label>
+            <div id="pickup-map" class="w-full h-64 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700"></div>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Click on the map to set the exact pickup location</p>
+          </div>
+
           <!-- Coordinates Section (can be hidden/shown) -->
           <div class="coordinates-section">
             <div class="flex items-center justify-between mb-2">
@@ -109,11 +122,11 @@
             <div class="coordinates-inputs hidden grid grid-cols-2 gap-4">
               <div>
                 <%= f.label :pickup_latitude, "Pickup Latitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
-                <%= f.number_field :pickup_latitude, step: :any, class: "form-input text-sm", readonly: true %>
+                <%= f.number_field :pickup_latitude, step: :any, class: "form-input text-sm", readonly: true, id: "pickup_latitude" %>
               </div>
               <div>
                 <%= f.label :pickup_longitude, "Pickup Longitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
-                <%= f.number_field :pickup_longitude, step: :any, class: "form-input text-sm", readonly: true %>
+                <%= f.number_field :pickup_longitude, step: :any, class: "form-input text-sm", readonly: true, id: "pickup_longitude" %>
               </div>
             </div>
           </div>
@@ -164,6 +177,13 @@
             </div>
           </div>
 
+          <!-- Map Preview -->
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Location on Map</label>
+            <div id="delivery-map" class="w-full h-64 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700"></div>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Click on the map to set the exact delivery location</p>
+          </div>
+
           <!-- Coordinates Section (can be hidden/shown) -->
           <div class="coordinates-section">
             <div class="flex items-center justify-between mb-2">
@@ -173,11 +193,11 @@
             <div class="coordinates-inputs hidden grid grid-cols-2 gap-4">
               <div>
                 <%= f.label :delivery_latitude, "Delivery Latitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
-                <%= f.number_field :delivery_latitude, step: :any, class: "form-input text-sm", readonly: true %>
+                <%= f.number_field :delivery_latitude, step: :any, class: "form-input text-sm", readonly: true, id: "delivery_latitude" %>
               </div>
               <div>
                 <%= f.label :delivery_longitude, "Delivery Longitude", class: "block text-sm text-slate-600 dark:text-slate-400 mb-1" %>
-                <%= f.number_field :delivery_longitude, step: :any, class: "form-input text-sm", readonly: true %>
+                <%= f.number_field :delivery_longitude, step: :any, class: "form-input text-sm", readonly: true, id: "delivery_longitude" %>
               </div>
             </div>
           </div>
@@ -622,5 +642,111 @@ class DeliveryRequestForm {
 // Initialize the form when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   new DeliveryRequestForm();
+  initializeMaps();
 });
+
+// Initialize interactive maps
+function initializeMaps() {
+  // Default center (you can change this to your default location)
+  const defaultLat = -1.286389;
+  const defaultLng = 36.817223; // Nairobi, Kenya
+  
+  // Initialize pickup map
+  const pickupMap = L.map('pickup-map').setView([defaultLat, defaultLng], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(pickupMap);
+  
+  let pickupMarker = null;
+  
+  // Click to set pickup location
+  pickupMap.on('click', function(e) {
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+    
+    // Update marker
+    if (pickupMarker) {
+      pickupMarker.setLatLng([lat, lng]);
+    } else {
+      pickupMarker = L.marker([lat, lng]).addTo(pickupMap);
+    }
+    
+    // Update form fields
+    document.getElementById('pickup_latitude').value = lat.toFixed(6);
+    document.getElementById('pickup_longitude').value = lng.toFixed(6);
+    
+    // Reverse geocode to get address
+    reverseGeocode(lat, lng, 'pickup');
+  });
+  
+  // Initialize delivery map  
+  const deliveryMap = L.map('delivery-map').setView([defaultLat, defaultLng], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(deliveryMap);
+  
+  let deliveryMarker = null;
+  
+  // Click to set delivery location
+  deliveryMap.on('click', function(e) {
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+    
+    // Update marker
+    if (deliveryMarker) {
+      deliveryMarker.setLatLng([lat, lng]);
+    } else {
+      deliveryMarker = L.marker([lat, lng]).addTo(deliveryMap);
+    }
+    
+    // Update form fields
+    document.getElementById('delivery_latitude').value = lat.toFixed(6);
+    document.getElementById('delivery_longitude').value = lng.toFixed(6);
+    
+    // Reverse geocode to get address
+    reverseGeocode(lat, lng, 'delivery');
+  });
+  
+  // When address is selected from search, update map
+  const originalSelectSuggestion = DeliveryRequestForm.prototype.selectSuggestion;
+  DeliveryRequestForm.prototype.selectSuggestion = function(item, locationType) {
+    originalSelectSuggestion.call(this, item, locationType);
+    
+    const latitude = parseFloat(item.dataset.latitude);
+    const longitude = parseFloat(item.dataset.longitude);
+    
+    if (locationType === 'pickup') {
+      pickupMap.setView([latitude, longitude], 15);
+      if (pickupMarker) {
+        pickupMarker.setLatLng([latitude, longitude]);
+      } else {
+        pickupMarker = L.marker([latitude, longitude]).addTo(pickupMap);
+      }
+    } else if (locationType === 'delivery') {
+      deliveryMap.setView([latitude, longitude], 15);
+      if (deliveryMarker) {
+        deliveryMarker.setLatLng([latitude, longitude]);
+      } else {
+        deliveryMarker = L.marker([latitude, longitude]).addTo(deliveryMap);
+      }
+    }
+  };
+}
+
+// Reverse geocode to get address from coordinates
+async function reverseGeocode(lat, lng, locationType) {
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+    const data = await response.json();
+    
+    if (data.display_name) {
+      const addressInput = document.querySelector(`[data-location-type="${locationType}"].address-search`);
+      if (addressInput) {
+        addressInput.value = data.display_name;
+      }
+    }
+  } catch (error) {
+    console.error('Reverse geocoding failed:', error);
+  }
+}
 </script>

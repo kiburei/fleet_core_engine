@@ -129,6 +129,7 @@ Rails.application.routes.draw do
       post 'auth/login', to: 'auth#login'
       post 'auth/register', to: 'auth#register'
       post 'auth/logout', to: 'auth#logout'
+      post 'auth/change_password', to: 'auth#change_password'
       get 'auth/profile', to: 'auth#profile'
       patch 'auth/profile', to: 'auth#update_profile'
       patch 'auth/driver_profile', to: 'auth#update_driver_profile'
@@ -148,6 +149,7 @@ Rails.application.routes.draw do
       resources :delivery_requests, only: [:index, :show] do
         collection do
           get 'available'                    # Get available deliveries
+          get 'earnings_summary'            # Get driver earnings summary
           patch 'update_location'           # Update driver location
           get 'driver_status'               # Get driver status
           patch 'go_online'                 # Go online

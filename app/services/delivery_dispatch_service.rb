@@ -72,6 +72,7 @@ class DeliveryDispatchService
         pickup_address: @delivery_request.pickup_address,
         delivery_address: @delivery_request.delivery_address,
         delivery_fee: @delivery_request.delivery_fee,
+        currency: 'KES',
         estimated_distance_km: @delivery_request.distance_km,
         priority: @delivery_request.priority,
         created_at: @delivery_request.created_at.iso8601
