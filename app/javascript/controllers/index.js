@@ -3,7 +3,7 @@ import { Application } from "@hotwired/stimulus"
 const application = Application.start()
 
 // Configure Stimulus development experience
-application.debug = false
+application.debug = true
 window.Stimulus = application
 
 // Import and register standard controllers
@@ -12,12 +12,14 @@ import TestController from "./test_controller"
 import CartController from "./cart_controller"
 import CartViewController from "./cart_view_controller"
 import TabsController from "./tabs_controller"
+import MapController from "./map_controller"
 
 application.register("hello", HelloController)
 application.register("test", TestController)
 application.register("cart", CartController)
 application.register("cart-view", CartViewController)
 application.register("tabs", TabsController)
+application.register("map", MapController)
 
 // Import custom RailsUI controllers
 import ComboSelectController from "./railsui/combo_select_controller"

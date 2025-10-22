@@ -31,6 +31,37 @@
 
 <div class="px-4 mb-16">
   <div class="container mx-auto">
+    <!-- Delivery Route Map -->
+    <% if @delivery_request.pickup_latitude && @delivery_request.pickup_longitude && @delivery_request.delivery_latitude && @delivery_request.delivery_longitude %>
+      <div class="bg-white dark:bg-slate-800 shadow border border-slate-200 dark:border-slate-600/80 rounded-lg p-6 mb-6">
+        <h2 class="text-lg font-medium text-slate-900 dark:text-white mb-4 flex items-center">
+          <%= icon "map", class: "size-5 mr-2 text-primary-600 dark:text-primary-400" %>
+          Delivery Route
+        </h2>
+        <!-- Embedded Google Map with Directions -->
+        <iframe
+          width="100%"
+          height="450"
+          style="border:0"
+          loading="lazy"
+          allowfullscreen
+          referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps/embed/v1/directions?key=<%= ENV['GOOGLE_MAPS_API_KEY'] || 'YOUR_API_KEY' %>&origin=<%= @delivery_request.pickup_latitude %>,<%= @delivery_request.pickup_longitude %>&destination=<%= @delivery_request.delivery_latitude %>,<%= @delivery_request.delivery_longitude %>&mode=driving"
+          class="w-full rounded-lg mb-4">
+        </iframe>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+            <span class="text-slate-700 dark:text-slate-300">Pickup: <%= @delivery_request.pickup_address %></span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+            <span class="text-slate-700 dark:text-slate-300">Dropoff: <%= @delivery_request.delivery_address %></span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
       <!-- Column 1 -->
       <div class="space-y-6">

@@ -5,15 +5,15 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    # Development origins
-    origins 'http://localhost:8100', 'http://localhost:3000', 'https://localhost:8100'
-    
-    # Allow mobile app capacitor origins
-    origins /capacitor:\/\//
-    origins /http:\/\/localhost(:[0-9]+)?/
-    
-    # Production domains
-    origins 'https://delivery.matean.online', 'https://fleet.matean.online'
+    # Development origins, mobile app capacitor origins, and production domains
+    origins 'http://localhost:8100', 
+            'http://localhost:3000', 
+            'https://localhost:3000', 
+            'https://localhost:8100',
+            'https://delivery.matean.online', 
+            'https://fleet.matean.online',
+            /capacitor:\/\//,
+            /http:\/\/localhost(:[0-9]+)?/
 
     resource '*',
       headers: :any,

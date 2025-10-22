@@ -232,24 +232,35 @@
               <% end %>
             </div>
           </div>
-          
           <div>
-            <label class="block text-sm font-medium text-gray-500">Current Location</label>
+            <label class="block text-sm font-medium text-slate-500">Current Location</label>
             <div class="mt-1">
               <% if @driver.current_latitude && @driver.current_longitude %>
-                <p class="text-xs text-gray-600">
+                <p class="text-xs text-gray-600 mb-2">
                   Lat: <%= @driver.current_latitude.round(6) %>, 
                   Lng: <%= @driver.current_longitude.round(6) %>
                 </p>
+                <!-- Embedded Google Map -->
+                <iframe
+                  width="100%"
+                  height="300"
+                  style="border:0"
+                  loading="lazy"
+                  allowfullscreen
+                  referrerpolicy="no-referrer-when-downgrade"
+                  src="https://www.google.com/maps/embed/v1/place?key=<%= ENV['GOOGLE_MAPS_API_KEY'] || 'YOUR_API_KEY' %>&q=<%= @driver.current_latitude %>,<%= @driver.current_longitude %>&zoom=15"
+                  class="w-full rounded-lg mb-2">
+                </iframe>
                 <a href="https://www.google.com/maps?q=<%= @driver.current_latitude %>,<%= @driver.current_longitude %>" 
                    target="_blank" 
                    class="text-xs text-primary-600 hover:text-primary-800">
-                  View on Google Maps →
+                  Open in Google Maps →
                 </a>
               <% else %>
                 <p class="text-sm text-gray-500">Location not available</p>
               <% end %>
             </div>
+          </div>
           </div>
           
           <div>
