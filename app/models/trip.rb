@@ -5,6 +5,8 @@ class Trip < ApplicationRecord
 
   has_one :manifest, dependent: :destroy
 
+  has_many :gps_points, dependent: :nullify
+
   accepts_nested_attributes_for :manifest, allow_destroy: true
 
   status = %w[scheduled in_progress completed cancelled]

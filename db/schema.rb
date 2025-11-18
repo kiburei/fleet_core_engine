@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_15_203739) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_18_204618) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -235,6 +235,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_203739) do
     t.index ["status"], name: "index_delivery_requests_on_status"
   end
 
+  create_table "devices", force: :cascade do |t|
+    t.string "terminal_id"
+    t.integer "vehicle_id", null: false
+    t.datetime "last_heartbeat_at"
+    t.datetime "last_seen_at"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "sim_number"
+    t.string "name"
+    t.index ["terminal_id"], name: "index_devices_on_terminal_id"
+    t.index ["vehicle_id"], name: "index_devices_on_vehicle_id"
+  end
+
   create_table "documents", force: :cascade do |t|
     t.string "title"
     t.string "document_type"
@@ -309,6 +323,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_203739) do
     t.decimal "max_delivery_fee", precision: 8, scale: 2, default: "100.0"
     t.decimal "delivery_per_km_rate", precision: 6, scale: 2, default: "2.0"
     t.index ["is_delivery_enabled"], name: "index_fleet_providers_on_is_delivery_enabled"
+  end
+
+  create_table "gps_points", force: :cascade do |t|
+    t.integer "vehicle_id", null: false
+    t.integer "trip_id", null: false
+    t.float "latitude"
+    t.float "longitude"
+    t.float "speed"
+    t.float "heading"
+    t.datetime "timestamp"
+    t.text "raw_payload"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["trip_id"], name: "index_gps_points_on_trip_id"
+    t.index ["vehicle_id"], name: "index_gps_points_on_vehicle_id"
   end
 
   create_table "incidents", force: :cascade do |t|
@@ -532,11 +561,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_15_203739) do
   add_foreign_key "delivery_requests", "drivers"
   add_foreign_key "delivery_requests", "fleet_providers"
   add_foreign_key "delivery_requests", "marketplace_orders"
+  add_foreign_key "devices", "vehicles"
   add_foreign_key "drivers", "fleet_providers"
   add_foreign_key "drivers", "users"
   add_foreign_key "drivers", "vehicles"
   add_foreign_key "fleet_provider_users", "fleet_providers"
   add_foreign_key "fleet_provider_users", "users"
+  add_foreign_key "gps_points", "trips"
+  add_foreign_key "gps_points", "vehicles"
   add_foreign_key "incidents", "drivers"
   add_foreign_key "incidents", "fleet_providers"
   add_foreign_key "incidents", "vehicles"

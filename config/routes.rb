@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   devise_for :users
   root "dashboard#index"
+  resources :devices
   resources :trips do
     resource :manifest, only: [ :new, :create, :edit, :update, :show ]
   end
@@ -20,6 +21,7 @@ Rails.application.routes.draw do
     resources :maintenances, only: [ :index, :new, :create, :show ]
     resources :incidents, only: [ :index, :new, :create, :show ]
     resources :trips, only: [ :index, :show ]
+    resources :devices, only: [ :new ]
   end
   resources :vehicle_models
   resources :fleet_providers do
@@ -35,7 +37,7 @@ Rails.application.routes.draw do
   resources :incidents do
     resources :documents, only: [ :index, :new, :create, :show ]
   end
-  
+
   # Customer Management & Onboarding
   resources :customers do
     member do
@@ -46,8 +48,8 @@ Rails.application.routes.draw do
     collection do
       post :bulk_actions
       get :analytics
-      get :register, to: 'customers#new_registration'
-      post :register, to: 'customers#create_registration'
+      get :register, to: "customers#new_registration"
+      post :register, to: "customers#create_registration"
       get :onboarding_complete
     end
   end
@@ -67,15 +69,15 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
-    root 'dashboard#index'
+    root "dashboard#index"
     resources :users, only: [ :index, :edit, :show, :update ]
-    
+
     resources :drivers do
       member do
         patch :toggle_status
       end
     end
-    
+
     resources :customers do
       member do
         patch :activate
@@ -89,7 +91,7 @@ Rails.application.routes.draw do
         get :export
       end
     end
-    
+
     resources :delivery_requests do
       member do
         patch :assign_driver
@@ -113,7 +115,7 @@ Rails.application.routes.draw do
   post "marketplace/cart/save", to: "marketplace/cart#save"
   get "marketplace/checkout/new", to: "marketplace/checkout#new"
   post "marketplace/checkout", to: "marketplace/checkout#create"
-  
+
   namespace :marketplace do
     resources :orders
   end
@@ -122,58 +124,58 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       # CORS testing endpoints
-      options 'cors/test', to: 'cors_test#preflight_check'
-      get 'cors/test', to: 'cors_test#test'
-      
+      options "cors/test", to: "cors_test#preflight_check"
+      get "cors/test", to: "cors_test#test"
+
       # Authentication
-      post 'auth/login', to: 'auth#login'
-      post 'auth/register', to: 'auth#register'
-      post 'auth/logout', to: 'auth#logout'
-      post 'auth/change_password', to: 'auth#change_password'
-      get 'auth/profile', to: 'auth#profile'
-      patch 'auth/profile', to: 'auth#update_profile'
-      patch 'auth/driver_profile', to: 'auth#update_driver_profile'
-      patch 'auth/fcm_token', to: 'auth#update_fcm_token'
-      
+      post "auth/login", to: "auth#login"
+      post "auth/register", to: "auth#register"
+      post "auth/logout", to: "auth#logout"
+      post "auth/change_password", to: "auth#change_password"
+      get "auth/profile", to: "auth#profile"
+      patch "auth/profile", to: "auth#update_profile"
+      patch "auth/driver_profile", to: "auth#update_driver_profile"
+      patch "auth/fcm_token", to: "auth#update_fcm_token"
+
       # Location services
       resources :locations, only: [] do
         collection do
-          get 'search'                      # Search places/addresses
-          post 'geocode'                    # Convert address to coordinates
-          post 'reverse_geocode'            # Convert coordinates to address
-          post 'validate_coordinates'       # Validate and geocode multiple addresses
+          get "search"                      # Search places/addresses
+          post "geocode"                    # Convert address to coordinates
+          post "reverse_geocode"            # Convert coordinates to address
+          post "validate_coordinates"       # Validate and geocode multiple addresses
         end
       end
-      
+
       # Delivery requests
-      resources :delivery_requests, only: [:index, :show] do
+      resources :delivery_requests, only: [ :index, :show ] do
         collection do
-          get 'available'                    # Get available deliveries
-          get 'earnings_summary'            # Get driver earnings summary
-          patch 'update_location'           # Update driver location
-          get 'driver_status'               # Get driver status
-          patch 'go_online'                 # Go online
-          patch 'go_offline'                # Go offline
-          patch 'toggle_availability'       # Toggle availability
+          get "available"                    # Get available deliveries
+          get "earnings_summary"            # Get driver earnings summary
+          patch "update_location"           # Update driver location
+          get "driver_status"               # Get driver status
+          patch "go_online"                 # Go online
+          patch "go_offline"                # Go offline
+          patch "toggle_availability"       # Toggle availability
         end
-        
+
         member do
-          patch 'accept'                    # Accept delivery
-          patch 'decline'                   # Decline delivery
-          patch 'pickup'                    # Mark as picked up
-          patch 'mark_in_transit'           # Mark as in transit
-          patch 'deliver'                   # Mark as delivered
-          patch 'cancel'                    # Cancel delivery
+          patch "accept"                    # Accept delivery
+          patch "decline"                   # Decline delivery
+          patch "pickup"                    # Mark as picked up
+          patch "mark_in_transit"           # Mark as in transit
+          patch "deliver"                   # Mark as delivered
+          patch "cancel"                    # Cancel delivery
         end
       end
-      
+
       # Notifications
-      resources :notifications, only: [:index, :show, :update] do
+      resources :notifications, only: [ :index, :show, :update ] do
         member do
-          patch 'mark_read'
+          patch "mark_read"
         end
         collection do
-          patch 'mark_all_read'
+          patch "mark_all_read"
         end
       end
     end

@@ -1,0 +1,35 @@
+<div class="max-w-xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow space-y-6">
+
+  <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+    Register GPS Device
+  </h1>
+
+  <%= form_with model: @device, local: true, class: "space-y-4" do |f| %>
+
+    <div>
+      <%= f.label :name, "Device Name", class: "text-sm text-slate-600 dark:text-slate-300" %>
+      <%= f.text_field :name, class: "input w-full" %>
+    </div>
+
+    <div>
+      <%= f.label :terminal_id, "Terminal ID (IMEI)", class: "text-sm text-slate-600 dark:text-slate-300" %>
+      <%= f.text_field :terminal_id, required: true, class: "input w-full" %>
+    </div>
+
+    <div>
+      <%= f.label :sim_number, "SIM Phone Number", class: "text-sm text-slate-600 dark:text-slate-300" %>
+      <%= f.text_field :sim_number, class: "input w-full" %>
+    </div>
+
+    <div>
+      <%= f.label :vehicle_id, "Assign to Vehicle", class: "text-sm" %>
+      <%= f.collection_select :vehicle_id, Vehicle.all, :id, :registration_number,
+          { prompt: "Select vehicle" },
+          class: "input w-full" %>
+    </div>
+
+    <div class="pt-4">
+      <%= f.submit "Save Device", class: "btn btn-primary w-full" %>
+    </div>
+  <% end %>
+</div>

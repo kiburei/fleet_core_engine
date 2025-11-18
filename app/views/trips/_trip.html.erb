@@ -51,7 +51,7 @@
     <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
       <h2 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Live Trip Map</h2>
       <div class="w-full h-64 bg-slate-200 dark:bg-slate-600 flex items-center justify-center rounded">
-        <p class="text-slate-500">[ Map will render here — integrate with Mapbox or Google Maps ]</p>
+          <div id="trip-map" class="w-full h-96 rounded-md overflow-hidden"></div>
       </div>
     </div>
   <% end %>
@@ -193,3 +193,41 @@
     </div>
   </div>
 </div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const map = L.map("trip-map").setView([0,0], 7);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+  const polyline = L.polyline([], { weight: 5 }).addTo(map);
+  const marker = L.marker([0,0]).addTo(map);
+
+  // preload old GPS points
+  const history = <%= raw @trip.gps_points.select(:latitude, :longitude).map { |p| [p.latitude, p.longitude] }.to_json %>;
+
+  if (history.length > 0) {
+    polyline.setLatLngs(history);
+    marker.setLatLng(history[history.length - 1]);
+    map.fitBounds(polyline.getBounds());
+  }
+
+  // subscribe for live updates
+  const tripId = <%= @trip.id %>;
+  const cable = ActionCable.createConsumer();
+
+  cable.subscriptions.create(
+    { channel: "TripChannel", trip_id: tripId },
+    {
+      received(data) {
+        const latlng = [data.lat, data.lng];
+
+        polyline.addLatLng(latlng);
+        marker.setLatLng(latlng);
+        map.panTo(latlng);
+      }
+    }
+  );
+});
+</script>
