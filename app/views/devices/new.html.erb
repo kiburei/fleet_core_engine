@@ -1,3 +1,14 @@
+<% content_for :header do %>
+  <% header_title = @vehicle ? "#{@vehicle.registration_number} - Device" : "Register Tracking Device" %>
+  <%= render "rui/shared/admin/nav", { header_title: header_title } do %>
+    <% if @vehicle %>
+      <div class="flex gap-3 mb-4">
+        <%= link_to "← Back to Vehicle", vehicle_path(@vehicle), class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  <% end %>
+<% end%>
+
 <div class="max-w-xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow space-y-6">
 
   <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
