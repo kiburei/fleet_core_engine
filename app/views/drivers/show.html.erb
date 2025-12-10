@@ -36,7 +36,7 @@
             <div>
               <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Email</label>
               <div class="mt-1 flex items-center space-x-2">
-                <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono"><%= flash[:driver_email] %></code>
+                <code class="bg-gray-500 px-2 py-1 rounded text-sm font-mono"><%= flash[:driver_email] %></code>
                 <button onclick="copyToClipboard('<%= flash[:driver_email] %>')" 
                         class="text-xs text-blue-600 hover:text-blue-800 focus:outline-none">
                   Copy
@@ -46,7 +46,7 @@
             <div>
               <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide">Password</label>
               <div class="mt-1 flex items-center space-x-2">
-                <code id="password-field" class="bg-yellow-100 px-2 py-1 rounded text-sm font-mono font-bold"><%= flash[:generated_password] %></code>
+                <code id="password-field" class="bg-yellow-500 px-2 py-1 rounded text-sm font-mono font-bold"><%= flash[:generated_password] %></code>
                 <button onclick="copyToClipboard('<%= flash[:generated_password] %>')" 
                         class="text-xs text-blue-600 hover:text-blue-800 focus:outline-none">
                   Copy
