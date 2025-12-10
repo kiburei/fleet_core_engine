@@ -139,7 +139,7 @@
         </div>
         <div class="text-center">
           <div class="text-2xl font-bold text-purple-600">
-            $<%= @driver.respond_to?(:total_earnings) ? ((@driver.total_earnings || 0).round(2)) : '0.00' %>
+            <%= @driver.respond_to?(:total_earnings) ? number_to_currency(((@driver.total_earnings || 0).round(2)), unit: 'KES ') : number_to_currency('0.00', unit: 'KES ') %>
           </div>
           <div class="text-sm text-gray-500">Total Earnings</div>
         </div>

@@ -43,7 +43,7 @@
           <h3 class="text-md font-medium text-slate-900 dark:text-white mb-3">Order Details</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <%= f.label :order_value, "Order Value ($)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
+              <%= f.label :order_value, "Order Value (KES)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
               <%= f.number_field :order_value, step: 0.01, min: 0, class: "form-input", placeholder: "0.00" %>
             </div>
             <div>
@@ -230,12 +230,7 @@
       <div class="bg-white dark:bg-slate-800 shadow border border-slate-200 dark:border-slate-600/80 rounded-lg p-6">
         <h2 class="text-lg font-medium text-slate-900 dark:text-white mb-4">Delivery Details</h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <%= f.label :delivery_fee, "Delivery Fee ($)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
-            <%= f.number_field :delivery_fee, step: 0.01, min: 0, class: "form-input", required: true %>
-          </div>
-
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
           <div>
             <%= f.label :priority, "Priority", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
             <%= f.select :priority,
@@ -246,16 +241,6 @@
                 ], 'normal'),
                 {},
                 { class: "form-select" } %>
-          </div>
-
-          <div>
-            <%= f.label :estimated_distance_km, "Distance (km)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
-            <%= f.number_field :estimated_distance_km, step: 0.1, min: 0, class: "form-input" %>
-          </div>
-
-          <div>
-            <%= f.label :estimated_duration_minutes, "Est. Duration (min)", class: "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" %>
-            <%= f.number_field :estimated_duration_minutes, min: 0, class: "form-input" %>
           </div>
         </div>
       </div>

@@ -177,7 +177,7 @@
                 </div>
                 <div>
                   <p class="text-sm font-semibold text-slate-600 dark:text-slate-400">Total Revenue</p>
-                  <p class="text-2xl font-bold text-slate-900 dark:text-white">$<%= number_with_delimiter(@analytics[:total_revenue]) %></p>
+                  <p class="text-2xl font-bold text-slate-900 dark:text-white"><%= number_to_currency(@analytics[:total_revenue], unit: 'KES ') %></p>
                 </div>
               </div>
               <div class="flex items-center space-x-2">
@@ -185,7 +185,7 @@
                   <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
                   </svg>
-                  <span class="text-sm font-medium">$<%= number_with_delimiter(@analytics[:monthly_revenue]) %></span>
+                  <span class="text-sm font-medium"><%= number_to_currency(@analytics[:monthly_revenue], unit: 'KES ') %></span>
                 </div>
                 <span class="text-xs text-slate-500 dark:text-slate-400">this month</span>
               </div>
@@ -427,7 +427,7 @@
                 </svg>
                 Base Rate
               </dt>
-              <dd class="text-lg font-bold text-slate-900 dark:text-white">$<%= @customer.base_delivery_rate || 'Default' %></dd>
+              <dd class="text-lg font-bold text-slate-900 dark:text-white"><%= number_to_currency(@customer.base_delivery_rate || 'Default', unit: 'KES ') %></dd>
             </div>
             <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
               <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center">
@@ -436,7 +436,7 @@
                 </svg>
                 Per KM Rate
               </dt>
-              <dd class="text-lg font-bold text-slate-900 dark:text-white">$<%= @customer.per_km_rate || 'Default' %></dd>
+              <dd class="text-lg font-bold text-slate-900 dark:text-white"><%= number_to_currency(@customer.per_km_rate || 'Default', unit: 'KES ') %></dd>
             </div>
             <div class="bg-white dark:bg-slate-700 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
               <dt class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center">
@@ -528,7 +528,7 @@
                         <%= delivery.driver&.user&.full_name || 'Unassigned' %>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-white">
-                        $<%= delivery.delivery_fee %>
+                        <%= number_to_currency(delivery.delivery_fee, unit: 'KES ') %>
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
                         <%= delivery.requested_at.strftime('%b %d, %Y') %>

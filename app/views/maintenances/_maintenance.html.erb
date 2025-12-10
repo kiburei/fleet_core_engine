@@ -51,7 +51,7 @@
     <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded shadow">
       <p class="text-xs text-slate-500">Cost</p>
       <p class="text-base font-medium text-slate-900 dark:text-white">
-        <%= number_to_currency(@maintenance.maintenance_cost) %>
+        <%= number_to_currency(@maintenance.maintenance_cost, unit: 'KES') %>
       </p>
     </div>
   </div>

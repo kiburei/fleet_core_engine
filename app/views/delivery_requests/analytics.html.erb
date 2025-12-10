@@ -106,12 +106,12 @@
         <div class="space-y-4">
           <div class="flex justify-between items-center">
             <span class="text-sm text-slate-600 dark:text-slate-400">Total Revenue</span>
-            <span class="text-lg font-semibold text-slate-900 dark:text-white">$<%= @analytics_data[:total_revenue] || 0 %></span>
+            <span class="text-lg font-semibold text-slate-900 dark:text-white"><%= number_to_currency(@analytics_data[:total_revenue] || 0, unit: 'KES ') %></span>
           </div>
           
           <div class="flex justify-between items-center">
             <span class="text-sm text-slate-600 dark:text-slate-400">Driver Earnings</span>
-            <span class="text-lg font-semibold text-slate-900 dark:text-white">$<%= @analytics_data[:driver_earnings] || 0 %></span>
+            <span class="text-lg font-semibold text-slate-900 dark:text-white"><%= number_to_currency(@analytics_data[:driver_earnings] || 0, unit: 'KES ') %></span>
           </div>
           
           <div class="flex justify-between items-center">

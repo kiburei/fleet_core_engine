@@ -298,25 +298,25 @@
             </div>
 
             <div>
-              <%= f.label :base_delivery_rate, "Base Delivery Rate ($)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.label :base_delivery_rate, "Base Delivery Rate (KES)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
               <%= f.number_field :base_delivery_rate, step: 0.01, min: 0, class: "form-input", placeholder: "Leave empty for default rate" %>
               <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">Base fee per delivery (leave empty to use fleet default)</p>
             </div>
 
             <div>
-              <%= f.label :per_km_rate, "Per KM Rate ($)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.label :per_km_rate, "Per KM Rate (KES)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
               <%= f.number_field :per_km_rate, step: 0.01, min: 0, class: "form-input", placeholder: "Leave empty for default rate" %>
               <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">Additional fee per kilometer (leave empty to use fleet default)</p>
             </div>
 
             <div>
-              <%= f.label :minimum_order_value, "Minimum Order Value ($)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.label :minimum_order_value, "Minimum Order Value (KES)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
               <%= f.number_field :minimum_order_value, step: 0.01, min: 0, value: 0, class: "form-input" %>
               <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">Minimum order value for deliveries</p>
             </div>
 
             <div>
-              <%= f.label :free_delivery_threshold, "Free Delivery Threshold ($)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
+              <%= f.label :free_delivery_threshold, "Free Delivery Threshold (KES)", class: "block text-sm font-medium text-slate-900 dark:text-slate-200 mb-1" %>
               <%= f.number_field :free_delivery_threshold, step: 0.01, min: 0, class: "form-input", placeholder: "Optional" %>
               <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">Order value above which delivery is free</p>
             </div>

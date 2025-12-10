@@ -58,7 +58,7 @@
           </div>
           <div class="ml-4">
             <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Total Revenue</p>
-            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">$<%= number_with_delimiter(@analytics_data[:total_customer_revenue]) %></p>
+            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400"><%= number_to_currency(@analytics_data[:total_customer_revenue], unit: 'KES ') %></p>
             <p class="text-xs text-slate-600 dark:text-slate-400">
               from your customers
             </p>

@@ -72,12 +72,12 @@
         </div>
         
         <div>
-          <%= form.label :min_delivery_fee, "Minimum Delivery Fee ($)", class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
+          <%= form.label :min_delivery_fee, "Minimum Delivery Fee (KES)", class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
           <%= form.number_field :min_delivery_fee, step: 0.01, min: 0, value: fleet_provider.min_delivery_fee || 5.0, class: "form-input mt-1 block w-full" %>
         </div>
         
         <div>
-          <%= form.label :max_delivery_fee, "Maximum Delivery Fee ($)", class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
+          <%= form.label :max_delivery_fee, "Maximum Delivery Fee (KES)", class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
           <%= form.number_field :max_delivery_fee, step: 0.01, min: 0, value: fleet_provider.max_delivery_fee || 100.0, class: "form-input mt-1 block w-full" %>
         </div>
         
@@ -88,7 +88,7 @@
         </div>
         
         <div>
-          <%= form.label :delivery_per_km_rate, "Per Kilometer Rate ($)", class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
+          <%= form.label :delivery_per_km_rate, "Per Kilometer Rate (KES)", class: "block text-sm font-medium text-gray-700 dark:text-slate-200" %>
           <%= form.number_field :delivery_per_km_rate, step: 0.01, min: 0, value: fleet_provider.delivery_per_km_rate || 2.0, class: "form-input mt-1 block w-full" %>
           <p class="text-xs text-gray-500 mt-1">Additional fee per kilometer</p>
         </div>

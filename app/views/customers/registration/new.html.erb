@@ -139,7 +139,7 @@
                       </div>
                       <p class="mt-1 text-sm text-gray-600">
                         Delivery radius: <%= provider.delivery_radius_km || 50 %> km |
-                        Min fee: $<%= provider.min_delivery_fee || 5 %>
+                        Min fee: <%= number_to_currency(provider.min_delivery_fee || 5, unit: 'KES ') %>
                       </p>
                     </div>
                   </label>
