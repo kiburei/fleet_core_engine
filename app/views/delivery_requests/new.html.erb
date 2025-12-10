@@ -640,7 +640,7 @@ class DeliveryRequestForm {
 }
 
 // Initialize the form when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('turbo:load', function() {
   new DeliveryRequestForm();
   initializeMaps();
 });
