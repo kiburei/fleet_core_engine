@@ -2,6 +2,11 @@ Rails.application.routes.draw do
   devise_for :users
   root "dashboard#index"
   resources :devices
+  resources :devices do
+    member do
+      post :ping
+    end
+  end
   resources :trips do
     resource :manifest, only: [ :new, :create, :edit, :update, :show ]
   end

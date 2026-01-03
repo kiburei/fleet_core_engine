@@ -1,5 +1,6 @@
 class DevicesController < ApplicationController
   before_action :set_device, only: [ :show, :edit, :update ]
+  before_action :set_device, only: [ :show, :edit, :update, :ping ]
 
   def new
     @device = Device.new(vehicle_id: params[:vehicle_id])
@@ -7,6 +8,30 @@ class DevicesController < ApplicationController
 
   def show
     # set_device will load @device
+  end
+
+  def ping
+    # Try exact terminal id and normalized numeric-only id
+    socket = Jt808::Registry.get_socket(@device.terminal_id)
+
+    if socket.nil?
+      numeric = @device.terminal_id.to_s.gsub(/[^0-9]/, "")
+      socket = Jt808::Registry.get_socket(numeric)
+    end
+
+    if socket
+      begin
+        socket.write("PING\n")
+        flash[:notice] = "Ping sent to device #{@device.terminal_id}"
+      rescue => e
+        Rails.logger.error "Failed to ping device: #{e.message}"
+        flash[:alert] = "Failed to send ping: #{e.message}"
+      end
+    else
+      flash[:alert] = "Device #{@device.terminal_id} is not connected"
+    end
+
+    redirect_back fallback_location: device_path(@device)
   end
 
   def create

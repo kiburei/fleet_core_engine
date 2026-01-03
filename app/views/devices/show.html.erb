@@ -37,6 +37,7 @@
         <% else %>
         <%= link_to "Back to Devices", devices_path, class: "btn btn-primary" %>
         <% end %>
+        <%= button_to "Ping Device", ping_device_path(@device), method: :post, class: "btn btn-secondary ml-2" %>
     </div>
     </div>
 </div>
