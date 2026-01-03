@@ -77,6 +77,8 @@ Rails.application.routes.draw do
     root "dashboard#index"
     resources :users, only: [ :index, :edit, :show, :update ]
 
+    get "jt808/registry", to: "jt808#index"
+
     resources :drivers do
       member do
         patch :toggle_status
