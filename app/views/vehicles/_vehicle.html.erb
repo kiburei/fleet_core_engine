@@ -6,35 +6,35 @@
   <div class="flex items-center gap-6">
     <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center">
       <% if vehicle.logo.attached? %>
-                <%= image_tag url_for(vehicle.logo), alt: vehicle.registration_number,
-                    class: "rounded-full sm:size-10 size-14 object-cover bg-slate-100" %>
-              <% else %>
-                <% reg_number = vehicle.registration_number.to_s %>
-                <div class="flex flex-col items-center justify-center bg-white text-black border border-gray-300 rounded sm:w-15 sm:h-15 w-14 h-14 shadow-inner leading-tight text-center tracking-wider"
-                    style="font-family: 'Courier New', Courier, monospace; font-weight: bold;">
-                  <span class="text-xs-5"><%= reg_number[0, 3] %></span>
-                  <span class="text-xs-5"><%= reg_number[3..] %></span>
-                </div>
-              <% end %>
+        <%= image_tag url_for(vehicle.logo), alt: vehicle.registration_number,
+            class: "rounded-full sm:size-10 size-14 object-cover bg-slate-100" %>
+      <% else %>
+        <% reg_number = vehicle.registration_number.to_s %>
+        <div class="flex flex-col items-center justify-center bg-white text-black border border-gray-300 rounded sm:w-15 sm:h-15 w-14 h-14 shadow-inner leading-tight text-center tracking-wider"
+            style="font-family: 'Courier New', Courier, monospace; font-weight: bold;">
+          <span class="text-xs-5"><%= reg_number[0, 3] %></span>
+          <span class="text-xs-5"><%= reg_number[3..] %></span>
+        </div>
+      <% end %>
     </div>
     <div>
-      <h1 class="text-2xl font-bold text-slate-900 dark:text-white"><%= @vehicle.registration_number %></h1>
-      <p class="text-sm text-slate-500 mt-1">Status: <%= @vehicle.status.capitalize %></p>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white"><%= vehicle.registration_number %></h1>
+      <p class="text-sm text-slate-500 mt-1">Status: <%= vehicle.status.capitalize %></p>
     </div>
   </div>
 
   <!-- Right: Actions -->
   <%# Prefer an explicitly active device, otherwise fall back to any linked device %>
-  <% device = (@vehicle&.active_device || @vehicle&.devices&.first) %>
+  <% device = (vehicle&.active_device || vehicle&.devices&.first) %>
 
   <div class="flex gap-3 mt-4 sm:mt-0 sm:ml-auto">
-    <%= link_to "Documents", vehicle_documents_path(@vehicle), class: "btn btn-primary" %>
+    <%= link_to "Documents", vehicle_documents_path(vehicle), class: "btn btn-primary" %>
     <%= link_to "Assign Driver", "/", class: "btn btn-primary" %>
     <%= link_to "Lease/Hire", "/", class: "btn btn-primary" %>
       <% if device.present? %>
         <%= link_to "Show Device", device_path(device), class: "btn btn-primary" %>
       <% else %>
-        <%= link_to "Assign GPS Device", new_vehicle_device_path(@vehicle), class: "btn btn-primary" %>
+        <%= link_to "Assign GPS Device", new_vehicle_device_path(vehicle), class: "btn btn-primary" %>
       <% end %>
 
   </div>
@@ -45,31 +45,31 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
     <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
       <p class="text-xs text-slate-500">Model</p>
-      <p class="text-base font-medium text-slate-900 dark:text-white"><%= @vehicle.vehicle_model&.model %></p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle.vehicle_model&.model %></p>
     </div>
     <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
       <p class="text-xs text-slate-500">Make</p>
-      <p class="text-base font-medium text-slate-900 dark:text-white"><%= @vehicle.vehicle_model&.make %></p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle.vehicle_model&.make %></p>
     </div>
     <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
-      <%= link_to fleet_provider_path(@vehicle.fleet_provider) do %>
+      <%= link_to fleet_provider_path(vehicle.fleet_provider) do %>
         <p class="text-xs text-slate-500">Fleet Provider</p>
-        <p class="text-base font-medium text-slate-900 dark:text-white"><%= @vehicle.fleet_provider&.name %></p>
+        <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle.fleet_provider&.name %></p>
       <% end %>
     </div>
     <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-md">
       <p class="text-xs text-slate-500">Created At</p>
-      <p class="text-base font-medium text-slate-900 dark:text-white"><%= @vehicle.created_at.strftime('%B %d, %Y') %></p>
+      <p class="text-base font-medium text-slate-900 dark:text-white"><%= vehicle.created_at.strftime('%B %d, %Y') %></p>
     </div>
   </div>
 
   <!-- Driver Info -->
-  <% if @vehicle.driver.present? %>
+  <% if vehicle.driver.present? %>
     <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
-      <%= link_to driver_path(@vehicle.driver) do %>
+      <%= link_to driver_path(vehicle.driver) do %>
         <h2 class="text-lg font-semibold mb-2 text-slate-800 dark:text-white">Assigned Driver</h2>
-        <p class="text-sm"><strong>Name:</strong> <%= @vehicle.driver.full_name %></p>
-        <p class="text-sm"><strong>Phone:</strong> <%= @vehicle.driver.phone_number %></p>
+        <p class="text-sm"><strong>Name:</strong> <%= vehicle.driver.full_name %></p>
+        <p class="text-sm"><strong>Phone:</strong> <%= vehicle.driver.phone_number %></p>
       <% end %>
     </div>
   <% end %>
@@ -77,40 +77,40 @@
   <!-- Dashboard Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
     <!-- Maintenance Card -->
-    <%= link_to vehicle_maintenances_path(@vehicle), class: "bg-blue-500 dark:bg-blue-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
+    <%= link_to vehicle_maintenances_path(vehicle), class: "bg-blue-500 dark:bg-blue-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
       <p class="text-sm text-blue-800 dark:text-blue-300 font-semibold">Maintenances</p>
-      <p class="text-2xl font-bold text-blue-900 dark:text-blue-100 mt-1"><%= @vehicle.maintenances.count %></p>
-      <% total_cost = @vehicle.maintenances.sum(:maintenance_cost) %>
+      <p class="text-2xl font-bold text-blue-900 dark:text-blue-100 mt-1"><%= vehicle.maintenances.count %></p>
+      <% total_cost = vehicle.maintenances.sum(:maintenance_cost) %>
       <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">Total Cost: <%= number_to_currency(total_cost, unit: "KES ") %></p>
     <% end %>
 
     <!-- Incidents Card -->
-    <%= link_to vehicle_incidents_path(@vehicle), class: "bg-red-500 dark:bg-red-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
+    <%= link_to vehicle_incidents_path(vehicle), class: "bg-red-500 dark:bg-red-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
       <p class="text-sm text-red-800 dark:text-red-300 font-semibold">Incidents</p>
-      <p class="text-2xl font-bold text-red-900 dark:text-red-100 mt-1"><%= @vehicle.incidents.count %></p>
+      <p class="text-2xl font-bold text-red-900 dark:text-red-100 mt-1"><%= vehicle.incidents.count %></p>
     <% end %>
 
     <!-- Trips Card -->
-    <%= link_to vehicle_trips_path(@vehicle), class: "bg-purple-500 dark:bg-purple-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
+    <%= link_to vehicle_trips_path(vehicle), class: "bg-purple-500 dark:bg-purple-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
       <p class="text-sm text-purple-800 dark:text-purple-300 font-semibold">Trips</p>
-      <p class="text-2xl font-bold text-purple-900 dark:text-purple-100 mt-1"><%= @vehicle.trips.count %></p>
-      <% active_trips = @vehicle.trips.where(status: ['scheduled', 'in_progress']).count %>
+      <p class="text-2xl font-bold text-purple-900 dark:text-purple-100 mt-1"><%= vehicle.trips.count %></p>
+      <% active_trips = vehicle.trips.where(status: ['scheduled', 'in_progress']).count %>
       <p class="text-sm text-purple-700 dark:text-purple-300 mt-1">Active: <%= active_trips %></p>
     <% end %>
 
     <!-- Documents Card -->
-    <%= link_to vehicle_documents_path(@vehicle), class: "bg-green-500 dark:bg-green-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
+    <%= link_to vehicle_documents_path(vehicle), class: "bg-green-500 dark:bg-green-900/40 rounded-lg p-4 shadow-sm hover:shadow-md transition block" do %>
       <p class="text-sm text-green-800 dark:text-green-300 font-semibold">Documents</p>
-      <p class="text-2xl font-bold text-green-900 dark:text-green-100 mt-1"><%= @vehicle.documents.count %></p>
+      <p class="text-2xl font-bold text-green-900 dark:text-green-100 mt-1"><%= vehicle.documents.count %></p>
     <% end %>
   </div>
 
   <!-- Vehicle Activity Log -->
   <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm">
     <h2 class="text-lg font-semibold mb-3 text-slate-800 dark:text-white">Vehicle Activity Log</h2>
-    <% if @vehicle.activities.any? %>
+    <% if vehicle.activities.any? %>
       <ul class="text-sm text-slate-700 dark:text-slate-300 space-y-1">
-        <% @vehicle.activities.order(created_at: :desc).limit(10).each do |activity| %>
+        <% vehicle.activities.order(created_at: :desc).limit(10).each do |activity| %>
           <li>
             <span class="text-xs text-slate-500"><%= activity.created_at.strftime('%b %d, %Y %H:%M') %></span>
             — <%= activity.description %>
@@ -127,29 +127,52 @@
 
     <h2 class="text-lg font-semibold mb-2 text-slate-800 dark:text-white">GPS Device</h2>
 
-    <% if @vehicle.active_device.present? %>
+    <% if vehicle.active_device.present? %>
       <div class="flex items-center justify-between">
         <div>
           <p class="text-sm">
             <strong>Device ID:</strong>
-            <%= @vehicle.active_device.terminal_id %>
+            <%= vehicle.active_device.terminal_id %>
           </p>
           <p class="text-sm">
             <strong>Last Heartbeat:</strong>
-            <%= @vehicle.active_device.last_heartbeat_at ? @vehicle.active_device.last_heartbeat_at.strftime("%b %d, %Y %H:%M:%S") : "No heartbeat yet" %>
+            <%= vehicle.active_device.last_heartbeat_at ? vehicle.active_device.last_heartbeat_at.strftime("%b %d, %Y %H:%M:%S") : "No heartbeat yet" %>
           </p>
+          <% if vehicle.active_device.last_heartbeat_at.blank? %>
+            <p class="text-sm text-red-600">Telemetry unavailable</p>
+          <% end %>
         </div>
 
         <span class="inline-flex items-center px-3 py-1 rounded-full 
-                    <%= @vehicle.device_online? ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800" %>">
-          <%= @vehicle.device_online? ? "Online" : "Offline" %>
+                    <%= vehicle.device_online? ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800" %>">
+          <%= vehicle.device_online? ? "Online" : "Offline" %>
         </span>
+      </div>
+    <% elsif vehicle.devices.any? %>
+      <% attached = vehicle.devices.first %>
+      <div class="p-3 bg-yellow-50 border border-yellow-200 rounded">
+        <p class="text-sm text-yellow-800 font-semibold">Device attached but not active</p>
+        <p class="text-sm"><strong>Device ID:</strong> <%= attached.terminal_id %></p>
+        <p class="text-sm"><strong>Last Heartbeat:</strong> <%= attached.last_heartbeat_at ? attached.last_heartbeat_at.strftime("%b %d, %Y %H:%M:%S") : "No heartbeat yet" %></p>
+        <% if attached.respond_to?(:status) && attached.status.present? %>
+          <p class="text-sm">Status: <%= attached.status %></p>
+        <% end %>
+        <% if attached.respond_to?(:inactive_reason) && attached.inactive_reason.present? %>
+          <p class="text-sm text-red-600">Reason: <%= attached.inactive_reason %></p>
+        <% end %>
       </div>
     <% else %>
       <p class="text-sm text-slate-500">No device assigned to this vehicle.</p>
     <% end %>
 
     <!-- MAP -->
+    <div id="telemetry-error" class="text-sm text-red-600 <%= vehicle.active_device.present? ? 'hidden' : '' %>">
+      <% if vehicle.active_device.blank? && vehicle.devices.any? %>
+        Cannot show telemetric data: device attached but not active.
+      <% else %>
+        Cannot show telemetric data for this device.
+      <% end %>
+    </div>
     <div id="vehicle-map" class="w-full h-80 rounded-md overflow-hidden"></div>
 
   </div>
@@ -167,11 +190,11 @@
       maxZoom: 19
     }).addTo(map);
 
-    const marker = L.marker([0, 0]).addTo(map);
-
+    let marker = null;
+    const telemetryErrorEl = document.getElementById('telemetry-error');
 
     // --- ActionCable Subscription ---
-    const vehicleId = <%= @vehicle.id %>;
+    const vehicleId = <%= vehicle.id %>;
 
     const cable = ActionCable.createConsumer();
 
@@ -184,8 +207,18 @@
           const lat = data.lat;
           const lng = data.lng;
 
-          marker.setLatLng([lat, lng]);
-          map.setView([lat, lng], 14);
+          if (typeof lat === 'number' && typeof lng === 'number') {
+            if (!marker) {
+              marker = L.marker([lat, lng]).addTo(map);
+            } else {
+              marker.setLatLng([lat, lng]);
+            }
+            map.setView([lat, lng], 14);
+            if (telemetryErrorEl) telemetryErrorEl.classList.add('hidden');
+          } else {
+            console.warn('Received telemetry without valid lat/lng', data);
+            if (telemetryErrorEl) telemetryErrorEl.classList.remove('hidden');
+          }
         }
       }
     );
