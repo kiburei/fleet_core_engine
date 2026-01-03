@@ -1,0 +1,42 @@
+<% content_for :header do %>
+  <% header_title = @vehicle ? "#{@vehicle.registration_number} - Device" : "Tracking Device" %>
+  <%= render "rui/shared/admin/nav", { header_title: header_title } do %>
+    <% if @vehicle %>
+      <div class="flex gap-3 mb-4">
+        <%= link_to "← Back to Vehicle", vehicle_path(@vehicle), class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  <% end %>
+<% end%>
+<div class="pt-4 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
+    <h1 class="text-2xl font-bold mb-4">GPS Device: <%= @device.name.presence || @device.terminal_id %></h1>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+        <p class="text-xs text-slate-500">Terminal ID</p>
+        <p class="text-base font-medium text-slate-900 dark:text-white"><%= @device.terminal_id %></p>
+        </div>
+        <div>
+        <p class="text-xs text-slate-500">Status</p>
+        <p class="text-base font-medium text-slate-900 dark:text-white"><%= @device.status %></p>
+        </div>
+        <div>
+        <p class="text-xs text-slate-500">SIM Number</p>
+        <p class="text-base font-medium text-slate-900 dark:text-white"><%= @device.sim_number %></p>
+        </div>
+        <div>
+        <p class="text-xs text-slate-500">Last Heartbeat</p>
+        <p class="text-base font-medium text-slate-900 dark:text-white"><%= @device.last_heartbeat_at ? @device.last_heartbeat_at.strftime('%b %d, %Y %H:%M:%S') : 'No heartbeat yet' %></p>
+        </div>
+    </div>
+
+    <div class="mt-6">
+        <% if @device.vehicle %>
+        <%= link_to "Back to Vehicle", vehicle_path(@device.vehicle), class: "btn btn-primary" %>
+        <% else %>
+        <%= link_to "Back to Devices", devices_path, class: "btn btn-primary" %>
+        <% end %>
+    </div>
+    </div>
+</div>

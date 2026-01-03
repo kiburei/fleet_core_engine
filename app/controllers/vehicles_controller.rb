@@ -5,7 +5,7 @@ class VehiclesController < ApplicationController
   def index
     @vehicle = Vehicle.new
     @per_page = params[:per_page] || 10
-    @current_status = params[:status] || 'active'
+    @current_status = params[:status] || "active"
 
     begin
       # Base query
@@ -15,39 +15,39 @@ class VehiclesController < ApplicationController
       else
         base_vehicles = if current_user&.admin?
                           Vehicle.all.includes(:vehicle_model, :fleet_provider)
-                        elsif current_user&.fleet_provider_admin? || current_user&.fleet_provider_manager?
+        elsif current_user&.fleet_provider_admin? || current_user&.fleet_provider_manager?
                           Vehicle.where(fleet_provider_id: current_user.fleet_provider_ids).includes(:vehicle_model, :fleet_provider)
-                        else
+        else
                           # Fallback if no user or permissions
                           Vehicle.none
-                        end
+        end
       end
 
       # Get all status counts for tabs
       @status_tabs = {
-        'active' => {
-          label: 'Active',
-          count: base_vehicles.where(status: 'active').count
+        "active" => {
+          label: "Active",
+          count: base_vehicles.where(status: "active").count
         },
-        'inactive' => {
-          label: 'Inactive',
-          count: base_vehicles.where(status: 'inactive').count
+        "inactive" => {
+          label: "Inactive",
+          count: base_vehicles.where(status: "inactive").count
         },
-        'maintenance' => {
-          label: 'Maintenance',
-          count: base_vehicles.where(status: 'maintenance').count
+        "maintenance" => {
+          label: "Maintenance",
+          count: base_vehicles.where(status: "maintenance").count
         }
       }
-      
+
       @total_count = @status_tabs.values.sum { |tab| tab[:count] }
-      @current_status = params[:status] || 'active'
+      @current_status = params[:status] || "active"
 
       # Filter by status
-      @vehicles = if @current_status == 'all'
+      @vehicles = if @current_status == "all"
                     base_vehicles
-                  else
+      else
                     base_vehicles.where(status: @current_status)
-                  end
+      end
 
       # Apply search filter if present
       if params[:search].present?
@@ -57,18 +57,18 @@ class VehiclesController < ApplicationController
           search_term, search_term, search_term
         )
       end
-      
+
       @vehicles = @vehicles.page(params[:page]).per(@per_page)
     rescue => e
       # Error fallback
       Rails.logger.error "VehiclesController#index error: #{e.message}"
       @status_tabs = {
-        'active' => { label: 'Active', count: 0 },
-        'inactive' => { label: 'Inactive', count: 0 },
-        'maintenance' => { label: 'Maintenance', count: 0 }
+        "active" => { label: "Active", count: 0 },
+        "inactive" => { label: "Inactive", count: 0 },
+        "maintenance" => { label: "Maintenance", count: 0 }
       }
       @total_count = 0
-      @current_status = 'active'
+      @current_status = "active"
       @vehicles = Vehicle.none.page(params[:page]).per(@per_page)
     end
   end
@@ -154,11 +154,11 @@ class VehiclesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_vehicle
-      @vehicle = Vehicle.find(params.expect(:id))
+      @vehicle = Vehicle.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
     def vehicle_params
-      params.expect(vehicle: [ :vehicle_model_id, :registration_number, :status, :fleet_provider_id, :logo ])
+      params.require(:vehicle).permit(:vehicle_model_id, :registration_number, :status, :fleet_provider_id, :logo)
     end
 end

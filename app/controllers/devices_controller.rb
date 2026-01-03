@@ -1,8 +1,12 @@
 class DevicesController < ApplicationController
-  before_action :set_device, only: [ :edit, :update ]
+  before_action :set_device, only: [ :show, :edit, :update ]
 
   def new
     @device = Device.new(vehicle_id: params[:vehicle_id])
+  end
+
+  def show
+    # set_device will load @device
   end
 
   def create

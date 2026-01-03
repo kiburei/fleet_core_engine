@@ -24,11 +24,18 @@
   </div>
 
   <!-- Right: Actions -->
+  <%# Prefer an explicitly active device, otherwise fall back to any linked device %>
+  <% device = (@vehicle&.active_device || @vehicle&.devices&.first) %>
+
   <div class="flex gap-3 mt-4 sm:mt-0 sm:ml-auto">
     <%= link_to "Documents", vehicle_documents_path(@vehicle), class: "btn btn-primary" %>
     <%= link_to "Assign Driver", "/", class: "btn btn-primary" %>
     <%= link_to "Lease/Hire", "/", class: "btn btn-primary" %>
-    <%= link_to "Assign GPS Device", new_vehicle_device_path(@vehicle), class: "btn btn-primary" %>
+      <% if device.present? %>
+        <%= link_to "Show Device", device_path(device), class: "btn btn-primary" %>
+      <% else %>
+        <%= link_to "Assign GPS Device", new_vehicle_device_path(@vehicle), class: "btn btn-primary" %>
+      <% end %>
 
   </div>
 </div>

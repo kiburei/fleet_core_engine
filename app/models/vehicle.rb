@@ -15,10 +15,6 @@ class Vehicle < ApplicationRecord
   has_many :devices
   has_many :gps_points
 
-  def active_device
-    devices.find_by(status: :active)
-  end
-
   def device_online?
     active_device&.online?
   end
