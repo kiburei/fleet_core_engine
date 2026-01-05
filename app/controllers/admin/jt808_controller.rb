@@ -48,13 +48,26 @@ module Admin
           # Server Status
           html += "<h3>Server Status</h3>"
           html += "<table border='1' cellpadding='5' style='margin-bottom: 20px;'>"
-          html += "<tr><th>Port</th><th>Status</th><th>Connected Devices</th></tr>"
+          html += "<tr><th>Port</th><th>Status</th><th>Connected Devices</th><th>Server IP Addresses</th></tr>"
           html += "<tr>"
           html += "<td>6808</td>"
           html += "<td>#{server_status[:port_open] ? '✅ Listening' : '❌ Not listening'}</td>"
           html += "<td>#{keys.size}</td>"
+          html += "<td>#{server_status[:server_ips].present? ? server_status[:server_ips].join('<br>') : 'Unable to detect'}</td>"
           html += "</tr>"
           html += "</table>"
+
+          if server_status[:server_ips].present?
+            html += "<div style='background-color: #fff3cd; padding: 10px; margin-bottom: 20px; border: 1px solid #ffc107;'>"
+            html += "<strong>⚠️ Device Configuration Required:</strong><br>"
+            html += "Your JT808 device must be configured with:<br>"
+            html += "<ul>"
+            html += "<li><strong>Server IP:</strong> #{server_status[:server_ips].first} (or one of: #{server_status[:server_ips].join(', ')})</li>"
+            html += "<li><strong>Server Port:</strong> 6808</li>"
+            html += "</ul>"
+            html += "<strong>⚠️ IMPORTANT:</strong> If you see connections from 127.0.0.1 in the logs, the device is configured with localhost instead of the server IP!"
+            html += "</div>"
+          end
 
           # Connected Devices
           html += "<h3>Currently Connected Devices (#{keys.size})</h3>"
@@ -99,19 +112,28 @@ module Admin
           # Troubleshooting Tips
           html += "<h3>Troubleshooting</h3>"
           html += "<ul>"
+          html += "<li><strong>If you see connections from 127.0.0.1 (localhost):</strong>"
+          html += "<ul>"
+          html += "<li style='color: red;'><strong>⚠️ CRITICAL:</strong> This means your device is configured with localhost/127.0.0.1 instead of the server IP!</li>"
+          html += "<li>You MUST configure your device with Server IP = <strong>#{server_status[:server_ips].first || '178.62.101.24'}</strong></li>"
+          html += "<li>Port must be set to <strong>6808</strong></li>"
+          html += "<li>Check your device configuration via SMS commands or configuration software</li>"
+          html += "</ul></li>"
           html += "<li><strong>If no devices are connected:</strong>"
           html += "<ul>"
           html += "<li>Check that your JT808 device is powered on and has network connectivity</li>"
-          html += "<li>Verify the device is configured with: Server IP = #{request.host}, Port = 6808</li>"
+          html += "<li>Verify the device is configured with: Server IP = <strong>#{server_status[:server_ips].first || '178.62.101.24'}</strong>, Port = <strong>6808</strong></li>"
           html += "<li>Check Rails logs for connection attempts (look for 'JT808: New connection from...')</li>"
-          html += "<li>Ensure port 6808 is open in your firewall</li>"
+          html += "<li>Ensure port 6808 is open in your firewall (check with: <code>sudo ufw status</code> or <code>sudo iptables -L</code>)</li>"
           html += "<li>Verify the device's SIM number matches terminal_id or sim_number in the database</li>"
+          html += "<li>Test connectivity from device location: <code>telnet #{server_status[:server_ips].first || '178.62.101.24'} 6808</code></li>"
           html += "</ul></li>"
           html += "<li><strong>If device shows in DB but not connected:</strong>"
           html += "<ul>"
           html += "<li>The device must actively connect and send JT808 packets</li>"
           html += "<li>Check that terminal_id or sim_number matches what the device sends (check logs)</li>"
           html += "<li>Normalized phone numbers are used for matching (non-numeric characters removed)</li>"
+          html += "<li>Check logs for 'JT808: Parsed packet - phone=...' to see what phone number the device sends</li>"
           html += "</ul></li>"
           html += "</ul>"
 
@@ -158,7 +180,19 @@ module Admin
         Rails.logger.error "Error checking server status: #{e.message}"
       end
 
-      { port_open: port_open }
+      # Get server's public IP addresses
+      server_ips = []
+      begin
+        # Get all non-loopback IP addresses
+        Socket.ip_address_list.each do |addr|
+          next if addr.ipv4_loopback? || addr.ipv6_loopback?
+          server_ips << addr.ip_address
+        end
+      rescue => e
+        Rails.logger.error "Error getting server IPs: #{e.message}"
+      end
+
+      { port_open: port_open, server_ips: server_ips }
     end
   end
 end

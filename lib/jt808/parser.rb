@@ -5,22 +5,42 @@ module Jt808
 
     def self.parse(raw_bytes)
       hex = raw_bytes.unpack1("H*")
-      return if hex[0, 2] != START_FLAG || hex[-2, 2] != END_FLAG
+      
+      # Check start flag
+      unless hex[0, 2] == START_FLAG
+        Rails.logger.debug "JT808 Parser: Invalid start flag. Expected '7e', got '#{hex[0, 2]}'"
+        return nil
+      end
+      
+      # Check end flag
+      unless hex[-2, 2] == END_FLAG
+        Rails.logger.debug "JT808 Parser: Invalid end flag. Expected '7e', got '#{hex[-2, 2]}'"
+        return nil
+      end
 
       # Extract the escaped content (between the frame flags)
       escaped = hex[2..-3]
+      return nil if escaped.nil? || escaped.empty?
 
       # Unescape according to JT808 rules
       content = escaped.gsub("7d02", "7e").gsub("7d01", "7d")
 
       # Split payload and checksum (checksum is last byte of content)
-      return if content.length < 2
+      if content.length < 2
+        Rails.logger.debug "JT808 Parser: Content too short (#{content.length} chars)"
+        return nil
+      end
+      
       checksum_hex = content[-2, 2]
       payload_hex  = content[0...-2]
 
       # Validate checksum (XOR of all bytes in payload)
       cs = payload_hex.scan(/../).map { |b| b.to_i(16) }.reduce(0) { |a, v| a ^ v }
-      return if ("%02x" % cs) != checksum_hex.downcase
+      calculated_checksum = "%02x" % cs
+      unless calculated_checksum == checksum_hex.downcase
+        Rails.logger.debug "JT808 Parser: Checksum mismatch. Expected '#{checksum_hex.downcase}', calculated '#{calculated_checksum}'"
+        return nil
+      end
 
       # Parse header fields
       message_id = payload_hex[0, 4].to_i(16)
