@@ -26,5 +26,17 @@ module Jt808
       key = normalize(terminal_id)
       @mutex.synchronize { @map[key] }
     end
+
+    def self.connected_devices
+      @mutex.synchronize { @map.keys.dup }
+    end
+
+    def self.device_count
+      @mutex.synchronize { @map.size }
+    end
+
+    def self.get_all_sockets
+      @mutex.synchronize { @map.dup }
+    end
   end
 end

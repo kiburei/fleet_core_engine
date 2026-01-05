@@ -18,7 +18,7 @@ module Admin
           matched_by: device ? (device.terminal_id == key ? "terminal_id" : "sim_number") : "not_found"
         }
       end
-      
+
       respond_to do |format|
         format.html do
           html = "<h2>JT808 Connected Devices</h2>"
@@ -52,9 +52,8 @@ module Admin
     end
 
     def fetch_registry_keys
-      # Access internal map safely
-      map = Jt808::Registry.instance_variable_get(:@map) rescue {}
-      map.keys
+      # Use the public method instead of accessing private instance variables
+      Jt808::Registry.connected_devices
     end
   end
 end
