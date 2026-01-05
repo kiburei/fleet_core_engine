@@ -19,6 +19,15 @@ class DevicesController < ApplicationController
       socket = Jt808::Registry.get_socket(numeric)
     end
 
+    # Also try sim_number if terminal_id didn't match
+    if socket.nil? && @device.sim_number.present?
+      socket = Jt808::Registry.get_socket(@device.sim_number)
+      if socket.nil?
+        numeric = @device.sim_number.to_s.gsub(/[^0-9]/, "")
+        socket = Jt808::Registry.get_socket(numeric)
+      end
+    end
+
     if socket
       begin
         socket.write("PING\n")
@@ -28,7 +37,7 @@ class DevicesController < ApplicationController
         flash[:alert] = "Failed to send ping: #{e.message}"
       end
     else
-      flash[:alert] = "Device #{@device.terminal_id} is not connected"
+      flash[:alert] = "Device #{@device.terminal_id} is not connected. Check that terminal_id or sim_number matches the device's phone number."
     end
 
     redirect_back fallback_location: device_path(@device)

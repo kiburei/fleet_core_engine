@@ -15,15 +15,53 @@ module Jt808
     end
 
     # ---------------------------------------------------------------------
+    # DEVICE LOOKUP HELPER
+    # ---------------------------------------------------------------------
+    # JT808 devices send their SIM phone number in the packet header.
+    # We try to match by terminal_id first, then fall back to sim_number.
+    def self.find_device_by_phone(phone_number)
+      normalized_phone = normalize_phone(phone_number)
+      
+      # Try matching by terminal_id first
+      device = Device.find_by(terminal_id: normalized_phone)
+      return device if device
+      
+      # Try matching by terminal_id with original phone (in case it has formatting)
+      device = Device.find_by(terminal_id: phone_number)
+      return device if device
+      
+      # Fallback: try matching by sim_number
+      device = Device.find_by(sim_number: normalized_phone)
+      return device if device
+      
+      # Try sim_number with original phone
+      device = Device.find_by(sim_number: phone_number)
+      return device if device
+      
+      nil
+    end
+
+    def self.normalize_phone(phone)
+      phone.to_s.gsub(/[^0-9]/, "")
+    end
+
+    # ---------------------------------------------------------------------
     # HEARTBEAT (0x0002)
     # ---------------------------------------------------------------------
     def self.handle_heartbeat(pkt, socket)
-      device = Device.find_by(terminal_id: pkt[:phone])
+      phone = pkt[:phone]
+      Rails.logger.info "JT808 Heartbeat received from phone: #{phone}"
+      
+      device = find_device_by_phone(phone)
 
       unless device
-        Rails.logger.warn "Heartbeat from unknown device #{pkt[:phone]}"
+        Rails.logger.warn "Heartbeat from unknown device phone: #{phone}"
+        Rails.logger.warn "  Searched for terminal_id='#{phone}' and sim_number='#{phone}' (normalized: '#{normalize_phone(phone)}')"
+        Rails.logger.warn "  Available devices: #{Device.pluck(:terminal_id, :sim_number).map { |t, s| "terminal_id=#{t}, sim_number=#{s}" }.join('; ')}"
         return
       end
+
+      Rails.logger.info "JT808 Heartbeat matched device: terminal_id=#{device.terminal_id}, sim_number=#{device.sim_number}"
 
       # Automatic linking already happens because each device belongs_to :vehicle
       device.update!(
@@ -41,12 +79,19 @@ module Jt808
     # LOCATION REPORT (0x0200)
     # ---------------------------------------------------------------------
     def self.handle_location(pkt, socket)
-      device = Device.find_by(terminal_id: pkt[:phone])
+      phone = pkt[:phone]
+      Rails.logger.info "JT808 Location report received from phone: #{phone}"
+      
+      device = find_device_by_phone(phone)
 
       unless device
-        Rails.logger.warn "Location report from unknown device #{pkt[:phone]}"
+        Rails.logger.warn "Location report from unknown device phone: #{phone}"
+        Rails.logger.warn "  Searched for terminal_id='#{phone}' and sim_number='#{phone}' (normalized: '#{normalize_phone(phone)}')"
+        Rails.logger.warn "  Available devices: #{Device.pluck(:terminal_id, :sim_number).map { |t, s| "terminal_id=#{t}, sim_number=#{s}" }.join('; ')}"
         return
       end
+
+      Rails.logger.info "JT808 Location report matched device: terminal_id=#{device.terminal_id}, sim_number=#{device.sim_number}"
 
       #
       # ---- Automatic Tracking → Vehicle ↔ Device ----
