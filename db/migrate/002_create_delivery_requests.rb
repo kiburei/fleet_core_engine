@@ -2,9 +2,9 @@ class CreateDeliveryRequests < ActiveRecord::Migration[8.0]
   def change
     create_table :delivery_requests do |t|
       t.references :marketplace_order, null: false, foreign_key: false
-      t.references :customer, null: false, foreign_key: { to_table: :users }
-      t.references :driver, null: true, foreign_key: true
-      t.references :fleet_provider, null: false, foreign_key: true
+      t.references :customer, null: false, foreign_key: false
+      t.references :driver, null: true, foreign_key: false
+      t.references :fleet_provider, null: false, foreign_key: false
       
       # Pickup location
       t.string :pickup_address, null: false

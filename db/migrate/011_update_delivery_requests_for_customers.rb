@@ -18,9 +18,7 @@ class UpdateDeliveryRequestsForCustomers < ActiveRecord::Migration[8.0]
     add_column :delivery_requests, :customer_payment_amount, :decimal, precision: 10, scale: 2, default: 0.0
     add_column :delivery_requests, :payment_method, :string # cash, card, split, etc.
     
-    # Update foreign key
-    remove_foreign_key :delivery_requests, :users
-    add_foreign_key :delivery_requests, :customers, column: :business_customer_id
+    # FK to customers added in schema only — early numbered migrations run before timestamped ones
     
     # Add indexes
     add_index :delivery_requests, :end_customer_phone
