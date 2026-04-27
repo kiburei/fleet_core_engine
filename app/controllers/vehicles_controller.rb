@@ -77,7 +77,18 @@ class VehiclesController < ApplicationController
   def show
     unless current_user.fleet_providers.include?(@vehicle.fleet_provider) || current_user.admin?
       redirect_to vehicles_path, alert: "You are not authorized to view this vehicle."
-      nil
+      return
+    end
+
+    traccar_device = @vehicle.devices.where.not(traccar_id: nil).order(updated_at: :desc).first
+    if traccar_device
+      begin
+        positions = TraccarApiService.new.positions(device_id: traccar_device.traccar_id)
+        @traccar_position = Array(positions).first
+        @traccar_device_id = traccar_device.traccar_id
+      rescue TraccarApiService::TraccarError => e
+        Rails.logger.warn "Traccar fetch failed for vehicle #{@vehicle.id}: #{e.message}"
+      end
     end
   end
 
