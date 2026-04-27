@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_18_204618) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_27_000001) do
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
@@ -245,7 +245,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_18_204618) do
     t.datetime "updated_at", null: false
     t.string "sim_number"
     t.string "name"
+    t.integer "traccar_id"
     t.index ["terminal_id"], name: "index_devices_on_terminal_id"
+    t.index ["traccar_id"], name: "index_devices_on_traccar_id", unique: true
     t.index ["vehicle_id"], name: "index_devices_on_vehicle_id"
   end
 

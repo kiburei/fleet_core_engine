@@ -27,10 +27,16 @@ append :linked_dirs,
   "public/uploads",
   "storage"
 
-# rvm — system install at /usr/share/rvm
-set :rvm_type,         :system
+# RVM — system install at /usr/share/rvm (Debian apt install)
+# capistrano-rvm hardcodes /usr/local/rvm and ignores custom paths, so we
+# configure SSHKit's command map directly instead.
 set :rvm_path,         "/usr/share/rvm"
 set :rvm_ruby_version, File.read(".ruby-version").strip rescue "3.3.0"
+
+rvm_prefix = "#{fetch(:rvm_path)}/bin/rvm #{fetch(:rvm_ruby_version)} do"
+SSHKit.config.command_map.prefix[:ruby].unshift(rvm_prefix)
+SSHKit.config.command_map.prefix[:rake].unshift(rvm_prefix)
+SSHKit.config.command_map.prefix[:bundle].unshift(rvm_prefix)
 
 # Bundler
 set :bundle_without,   %w[development test]
