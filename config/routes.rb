@@ -176,6 +176,11 @@ Rails.application.routes.draw do
         end
       end
 
+      # Traccar GPS integration
+      get  'traccar/devices',                                    to: 'traccar#devices'
+      post 'traccar/vehicles/:vehicle_id/assign_tracker',        to: 'traccar#assign_tracker'
+      get  'traccar/vehicles/:vehicle_id/position',              to: 'traccar#position'
+
       # Notifications
       resources :notifications, only: [ :index, :show, :update ] do
         member do
