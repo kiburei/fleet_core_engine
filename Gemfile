@@ -84,7 +84,6 @@ group :development do
   gem "capistrano",                  "~> 3.18", require: false
   gem "capistrano-rails",            "~> 1.6",  require: false
   gem "capistrano-bundler",          "~> 2.1",  require: false
-  gem "capistrano-rvm",              "~> 0.1",  require: false
   gem "capistrano3-puma",            "~> 6.0",  require: false
   gem "capistrano-yarn",                        require: false
 end
