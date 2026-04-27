@@ -1,4 +1,9 @@
 class Api::V1::TraccarController < Api::V1::BaseController
+  # These endpoints are used by the web admin UI (Devise session) as well as
+  # mobile clients (JWT). Skip JWT auth and fall back to Devise instead.
+  skip_before_action :authenticate_api_user!
+  before_action :authenticate_user!
+
   before_action :set_vehicle, only: [ :assign_tracker, :position ]
 
   # GET /api/v1/traccar/devices
