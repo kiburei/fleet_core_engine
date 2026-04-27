@@ -125,54 +125,97 @@
   <!-- LIVE GPS & DEVICE STATUS -->
   <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded shadow-sm space-y-4">
 
-    <h2 class="text-lg font-semibold mb-2 text-slate-800 dark:text-white">GPS Device</h2>
-
-    <% if vehicle.active_device.present? %>
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm">
-            <strong>Device ID:</strong>
-            <%= vehicle.active_device.terminal_id %>
-          </p>
-          <p class="text-sm">
-            <strong>Last Heartbeat:</strong>
-            <%= vehicle.active_device.last_heartbeat_at ? vehicle.active_device.last_heartbeat_at.strftime("%b %d, %Y %H:%M:%S") : "No heartbeat yet" %>
-          </p>
-          <% if vehicle.active_device.last_heartbeat_at.blank? %>
-            <p class="text-sm text-red-600">Telemetry unavailable</p>
-          <% end %>
-        </div>
-
-        <span class="inline-flex items-center px-3 py-1 rounded-full 
-                    <%= vehicle.device_online? ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800" %>">
-          <%= vehicle.device_online? ? "Online" : "Offline" %>
-        </span>
-      </div>
-    <% elsif vehicle.devices.any? %>
-      <% attached = vehicle.devices.first %>
-      <div class="p-3 bg-yellow-50 border border-yellow-200 rounded">
-        <p class="text-sm text-yellow-800 font-semibold">Device attached but not active</p>
-        <p class="text-sm"><strong>Device ID:</strong> <%= attached.terminal_id %></p>
-        <p class="text-sm"><strong>Last Heartbeat:</strong> <%= attached.last_heartbeat_at ? attached.last_heartbeat_at.strftime("%b %d, %Y %H:%M:%S") : "No heartbeat yet" %></p>
-        <% if attached.respond_to?(:status) && attached.status.present? %>
-          <p class="text-sm">Status: <%= attached.status %></p>
-        <% end %>
-        <% if attached.respond_to?(:inactive_reason) && attached.inactive_reason.present? %>
-          <p class="text-sm text-red-600">Reason: <%= attached.inactive_reason %></p>
-        <% end %>
-      </div>
-    <% else %>
-      <p class="text-sm text-slate-500">No device assigned to this vehicle.</p>
-    <% end %>
-
-    <!-- MAP -->
-    <div id="telemetry-error" class="text-sm text-red-600 <%= vehicle.active_device.present? ? 'hidden' : '' %>">
-      <% if vehicle.active_device.blank? && vehicle.devices.any? %>
-        Cannot show telemetric data: device attached but not active.
-      <% else %>
-        Cannot show telemetric data for this device.
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-white">GPS Tracker</h2>
+      <% if defined?(@traccar_device_id) && @traccar_device_id.present? %>
+        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">Traccar #<%= @traccar_device_id %></span>
       <% end %>
     </div>
+
+    <%# ── Device identity row ─────────────────────────────────────────── %>
+    <% active_dev = vehicle.active_device || vehicle.devices.first %>
+    <% if active_dev.present? %>
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="space-y-1">
+          <p class="text-sm">
+            <span class="text-slate-500">Terminal ID:</span>
+            <span class="font-medium"><%= active_dev.terminal_id.presence || "—" %></span>
+          </p>
+          <% if active_dev.traccar_id.present? %>
+            <p class="text-sm">
+              <span class="text-slate-500">Traccar Device ID:</span>
+              <span class="font-medium"><%= active_dev.traccar_id %></span>
+            </p>
+          <% end %>
+          <p class="text-sm">
+            <span class="text-slate-500">Last JT808 heartbeat:</span>
+            <span class="font-medium">
+              <%= active_dev.last_heartbeat_at ? active_dev.last_heartbeat_at.strftime("%b %d, %Y %H:%M:%S") : "No heartbeat yet" %>
+            </span>
+          </p>
+        </div>
+
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                    <%= vehicle.device_online? ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800" %>">
+          <%= vehicle.device_online? ? "● Online" : "○ Offline" %>
+        </span>
+      </div>
+
+      <% unless vehicle.active_device %>
+        <div class="p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+          Device attached but status is not <em>active</em>.
+          <%= link_to "View device", device_path(active_dev), class: "underline font-medium" %>
+        </div>
+      <% end %>
+
+    <% else %>
+      <p class="text-sm text-slate-500">
+        No device assigned.
+        <%= link_to "Assign GPS Device", new_vehicle_device_path(vehicle), class: "underline text-blue-600" %>
+      </p>
+    <% end %>
+
+    <%# ── Traccar last-known position ─────────────────────────────────── %>
+    <% if defined?(@traccar_position) && @traccar_position.present? %>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-md text-sm">
+        <div>
+          <p class="text-xs text-slate-500">Latitude</p>
+          <p class="font-medium" id="traccar-lat"><%= @traccar_position['latitude'] %></p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-500">Longitude</p>
+          <p class="font-medium" id="traccar-lng"><%= @traccar_position['longitude'] %></p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-500">Speed</p>
+          <p class="font-medium"><%= @traccar_position['speed'].to_f.round(1) %> km/h</p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-500">Last fix</p>
+          <p class="font-medium"><%= @traccar_position['deviceTime'] ? Time.parse(@traccar_position['deviceTime']).strftime("%b %d %H:%M") : "—" %></p>
+        </div>
+        <% if @traccar_position['address'].present? %>
+          <div class="col-span-2 sm:col-span-4">
+            <p class="text-xs text-slate-500">Address</p>
+            <p class="font-medium"><%= @traccar_position['address'] %></p>
+          </div>
+        <% end %>
+      </div>
+    <% elsif active_dev&.traccar_id.present? %>
+      <p class="text-sm text-slate-400 italic">Traccar position unavailable right now.</p>
+    <% end %>
+
+    <%# ── Link-to-Traccar nudge when device has no traccar_id ─────────── %>
+    <% if active_dev.present? && active_dev.traccar_id.blank? %>
+      <div class="p-3 bg-slate-100 dark:bg-slate-600 rounded text-sm text-slate-600 dark:text-slate-300">
+        This device is not linked to Traccar.
+        <%= link_to "Link on device page", device_path(active_dev), class: "underline font-medium" %>
+        to enable Traccar tracking.
+      </div>
+    <% end %>
+
+    <%# ── Map ─────────────────────────────────────────────────────────── %>
+    <div id="telemetry-error" class="text-sm text-red-600 hidden"></div>
     <div id="vehicle-map" class="w-full h-80 rounded-md overflow-hidden"></div>
 
   </div>
@@ -182,42 +225,52 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    // Seed from Traccar last-known position if available, otherwise default
+    <% if defined?(@traccar_position) && @traccar_position.present? %>
+      const seedLat = <%= @traccar_position['latitude'] %>;
+      const seedLng = <%= @traccar_position['longitude'] %>;
+    <% else %>
+      const seedLat = 0, seedLng = 0;
+    <% end %>
 
-    // --- Initialize map ---
-    const map = L.map("vehicle-map").setView([0, 0], 7);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19
-    }).addTo(map);
+    const map = L.map("vehicle-map").setView([seedLat, seedLng], seedLat === 0 ? 3 : 14);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
 
     let marker = null;
-    const telemetryErrorEl = document.getElementById('telemetry-error');
+    const telemetryErrorEl = document.getElementById("telemetry-error");
 
-    // --- ActionCable Subscription ---
+    // Place initial marker from Traccar seed
+    if (seedLat !== 0 || seedLng !== 0) {
+      marker = L.marker([seedLat, seedLng])
+        .addTo(map)
+        .bindPopup("Last Traccar position")
+        .openPopup();
+    }
+
+    // Live updates via ActionCable (JT808 protocol)
     const vehicleId = <%= vehicle.id %>;
-
     const cable = ActionCable.createConsumer();
 
     cable.subscriptions.create(
       { channel: "VehicleChannel", vehicle_id: vehicleId },
       {
         received(data) {
-          console.log("GPS UPDATE:", data);
-
           const lat = data.lat;
           const lng = data.lng;
 
-          if (typeof lat === 'number' && typeof lng === 'number') {
+          if (typeof lat === "number" && typeof lng === "number") {
             if (!marker) {
               marker = L.marker([lat, lng]).addTo(map);
             } else {
               marker.setLatLng([lat, lng]);
             }
             map.setView([lat, lng], 14);
-            if (telemetryErrorEl) telemetryErrorEl.classList.add('hidden');
+            marker.bindPopup("Live JT808 position").openPopup();
+            telemetryErrorEl.classList.add("hidden");
           } else {
-            console.warn('Received telemetry without valid lat/lng', data);
-            if (telemetryErrorEl) telemetryErrorEl.classList.remove('hidden');
+            console.warn("Received telemetry without valid lat/lng", data);
+            telemetryErrorEl.textContent = "Received invalid telemetry data.";
+            telemetryErrorEl.classList.remove("hidden");
           }
         }
       }

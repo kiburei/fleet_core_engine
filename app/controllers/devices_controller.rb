@@ -7,7 +7,23 @@ class DevicesController < ApplicationController
   end
 
   def show
-    # set_device will load @device
+    if @device.traccar_id.present?
+      begin
+        svc = TraccarApiService.new
+        @traccar_device   = svc.device(@device.traccar_id)
+        positions         = svc.positions(device_id: @device.traccar_id)
+        @traccar_position = Array(positions).first
+      rescue TraccarApiService::TraccarError => e
+        @traccar_error = e.message
+      end
+    else
+      begin
+        @available_traccar_devices = TraccarApiService.new.devices || []
+      rescue TraccarApiService::TraccarError => e
+        @available_traccar_devices = []
+        @traccar_error = e.message
+      end
+    end
   end
 
   def ping
@@ -69,6 +85,6 @@ class DevicesController < ApplicationController
   end
 
   def device_params
-    params.require(:device).permit(:terminal_id, :sim_number, :name, :vehicle_id, :status)
+    params.require(:device).permit(:terminal_id, :sim_number, :name, :vehicle_id, :status, :traccar_id)
   end
 end
