@@ -107,59 +107,70 @@
 
       <%# ── Last known Traccar position ──────────────────────────────── %>
       <% if @traccar_position.present? %>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-md text-sm">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-blue-50 border border-blue-200 rounded-md text-sm">
           <div>
             <p class="text-xs text-slate-500">Latitude</p>
-            <p class="font-medium"><%= @traccar_position['latitude'] %></p>
+            <p class="font-medium text-slate-900"><%= @traccar_position['latitude'] %></p>
           </div>
           <div>
             <p class="text-xs text-slate-500">Longitude</p>
-            <p class="font-medium"><%= @traccar_position['longitude'] %></p>
+            <p class="font-medium text-slate-900"><%= @traccar_position['longitude'] %></p>
           </div>
           <div>
             <p class="text-xs text-slate-500">Speed</p>
-            <p class="font-medium"><%= @traccar_position['speed'].to_f.round(1) %> km/h</p>
+            <p class="font-medium text-slate-900"><%= @traccar_position['speed'].to_f.round(1) %> km/h</p>
           </div>
           <div>
             <p class="text-xs text-slate-500">Course</p>
-            <p class="font-medium"><%= @traccar_position['course'].to_f.round(0) %>°</p>
+            <p class="font-medium text-slate-900"><%= @traccar_position['course'].to_f.round(0) %>°</p>
           </div>
           <div>
             <p class="text-xs text-slate-500">Altitude</p>
-            <p class="font-medium"><%= @traccar_position['altitude'].to_f.round(1) %> m</p>
+            <p class="font-medium text-slate-900"><%= @traccar_position['altitude'].to_f.round(1) %> m</p>
           </div>
           <div>
             <p class="text-xs text-slate-500">Accuracy</p>
-            <p class="font-medium"><%= @traccar_position['accuracy'].to_f.round(1) %> m</p>
+            <p class="font-medium text-slate-900"><%= @traccar_position['accuracy'].to_f.round(1) %> m</p>
           </div>
           <div class="col-span-2">
             <p class="text-xs text-slate-500">Last fix</p>
-            <p class="font-medium">
+            <p class="font-medium text-slate-900">
               <%= @traccar_position['deviceTime'] ? Time.parse(@traccar_position['deviceTime']).strftime('%b %d, %Y %H:%M:%S') : '—' %>
             </p>
           </div>
           <% if @traccar_position['address'].present? %>
             <div class="col-span-2 sm:col-span-4">
               <p class="text-xs text-slate-500">Address</p>
-              <p class="font-medium"><%= @traccar_position['address'] %></p>
+              <p class="font-medium text-slate-900"><%= @traccar_position['address'] %></p>
             </div>
           <% end %>
         </div>
 
-        <%# ── Mini map seeded from Traccar position ─────────────────── %>
-        <div id="device-map" class="w-full h-64 rounded-md overflow-hidden"></div>
+        <%# ── Map ─────────────────────────────────────────────────────── %>
+        <div id="device-map" class="w-full rounded-md overflow-hidden" style="height: 360px;"></div>
 
         <script>
-          document.addEventListener("DOMContentLoaded", function () {
+          (function () {
             const lat = <%= @traccar_position['latitude'] %>;
             const lng = <%= @traccar_position['longitude'] %>;
-            const map = L.map("device-map").setView([lat, lng], 14);
-            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
-            L.marker([lat, lng])
-              .addTo(map)
-              .bindPopup("<%= j @device.name.presence || @device.terminal_id %> — last Traccar position")
-              .openPopup();
-          });
+            const label = "<%= j(@device.name.presence || @device.terminal_id) %>";
+
+            function initDeviceMap() {
+              const container = document.getElementById("device-map");
+              if (!container) return;
+              if (container._leaflet_id) return;
+
+              const map = L.map("device-map").setView([lat, lng], 14);
+              L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+              L.marker([lat, lng])
+                .addTo(map)
+                .bindPopup(label + " — last Traccar position")
+                .openPopup();
+            }
+
+            document.addEventListener("turbo:load", initDeviceMap);
+            if (document.readyState !== "loading") initDeviceMap();
+          })();
         </script>
       <% elsif @traccar_error.blank? %>
         <p class="text-sm text-slate-400 italic">No position data available from Traccar yet.</p>

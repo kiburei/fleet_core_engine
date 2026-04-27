@@ -177,27 +177,27 @@
 
     <%# ── Traccar last-known position ─────────────────────────────────── %>
     <% if defined?(@traccar_position) && @traccar_position.present? %>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-md text-sm">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm">
         <div>
           <p class="text-xs text-slate-500">Latitude</p>
-          <p class="font-medium" id="traccar-lat"><%= @traccar_position['latitude'] %></p>
+          <p class="font-medium text-slate-900" id="traccar-lat"><%= @traccar_position['latitude'] %></p>
         </div>
         <div>
           <p class="text-xs text-slate-500">Longitude</p>
-          <p class="font-medium" id="traccar-lng"><%= @traccar_position['longitude'] %></p>
+          <p class="font-medium text-slate-900" id="traccar-lng"><%= @traccar_position['longitude'] %></p>
         </div>
         <div>
           <p class="text-xs text-slate-500">Speed</p>
-          <p class="font-medium"><%= @traccar_position['speed'].to_f.round(1) %> km/h</p>
+          <p class="font-medium text-slate-900"><%= @traccar_position['speed'].to_f.round(1) %> km/h</p>
         </div>
         <div>
           <p class="text-xs text-slate-500">Last fix</p>
-          <p class="font-medium"><%= @traccar_position['deviceTime'] ? Time.parse(@traccar_position['deviceTime']).strftime("%b %d %H:%M") : "—" %></p>
+          <p class="font-medium text-slate-900"><%= @traccar_position['deviceTime'] ? Time.parse(@traccar_position['deviceTime']).strftime("%b %d %H:%M") : "—" %></p>
         </div>
         <% if @traccar_position['address'].present? %>
           <div class="col-span-2 sm:col-span-4">
             <p class="text-xs text-slate-500">Address</p>
-            <p class="font-medium"><%= @traccar_position['address'] %></p>
+            <p class="font-medium text-slate-900"><%= @traccar_position['address'] %></p>
           </div>
         <% end %>
       </div>
@@ -216,7 +216,7 @@
 
     <%# ── Map ─────────────────────────────────────────────────────────── %>
     <div id="telemetry-error" class="text-sm text-red-600 hidden"></div>
-    <div id="vehicle-map" class="w-full h-80 rounded-md overflow-hidden"></div>
+    <div id="vehicle-map" class="w-full rounded-md overflow-hidden" style="height: 400px;"></div>
 
   </div>
 
@@ -224,56 +224,69 @@
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // Seed from Traccar last-known position if available, otherwise default
+  (function () {
     <% if defined?(@traccar_position) && @traccar_position.present? %>
       const seedLat = <%= @traccar_position['latitude'] %>;
       const seedLng = <%= @traccar_position['longitude'] %>;
     <% else %>
       const seedLat = 0, seedLng = 0;
     <% end %>
-
-    const map = L.map("vehicle-map").setView([seedLat, seedLng], seedLat === 0 ? 3 : 14);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
-
-    let marker = null;
-    const telemetryErrorEl = document.getElementById("telemetry-error");
-
-    // Place initial marker from Traccar seed
-    if (seedLat !== 0 || seedLng !== 0) {
-      marker = L.marker([seedLat, seedLng])
-        .addTo(map)
-        .bindPopup("Last Traccar position")
-        .openPopup();
-    }
-
-    // Live updates via ActionCable (JT808 protocol)
     const vehicleId = <%= vehicle.id %>;
-    const cable = ActionCable.createConsumer();
 
-    cable.subscriptions.create(
-      { channel: "VehicleChannel", vehicle_id: vehicleId },
-      {
-        received(data) {
-          const lat = data.lat;
-          const lng = data.lng;
+    let map = null;
+    let marker = null;
+    let cableSubscription = null;
 
-          if (typeof lat === "number" && typeof lng === "number") {
-            if (!marker) {
-              marker = L.marker([lat, lng]).addTo(map);
+    function initMap() {
+      const container = document.getElementById("vehicle-map");
+      if (!container) return;
+      // Avoid double-init when Turbo caches the page
+      if (container._leaflet_id) return;
+
+      const telemetryErrorEl = document.getElementById("telemetry-error");
+
+      map = L.map("vehicle-map").setView(
+        seedLat !== 0 ? [seedLat, seedLng] : [-1.2921, 36.8219],
+        seedLat !== 0 ? 14 : 7
+      );
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+
+      if (seedLat !== 0 || seedLng !== 0) {
+        marker = L.marker([seedLat, seedLng])
+          .addTo(map)
+          .bindPopup("Last known position (Traccar)")
+          .openPopup();
+      }
+
+      const cable = ActionCable.createConsumer();
+      cableSubscription = cable.subscriptions.create(
+        { channel: "VehicleChannel", vehicle_id: vehicleId },
+        {
+          received(data) {
+            const lat = data.lat;
+            const lng = data.lng;
+            if (typeof lat === "number" && typeof lng === "number") {
+              if (!marker) {
+                marker = L.marker([lat, lng]).addTo(map);
+              } else {
+                marker.setLatLng([lat, lng]);
+              }
+              map.setView([lat, lng], 14);
+              marker.bindPopup("Live position (JT808)").openPopup();
+              if (telemetryErrorEl) telemetryErrorEl.classList.add("hidden");
             } else {
-              marker.setLatLng([lat, lng]);
+              if (telemetryErrorEl) {
+                telemetryErrorEl.textContent = "Received invalid telemetry data.";
+                telemetryErrorEl.classList.remove("hidden");
+              }
             }
-            map.setView([lat, lng], 14);
-            marker.bindPopup("Live JT808 position").openPopup();
-            telemetryErrorEl.classList.add("hidden");
-          } else {
-            console.warn("Received telemetry without valid lat/lng", data);
-            telemetryErrorEl.textContent = "Received invalid telemetry data.";
-            telemetryErrorEl.classList.remove("hidden");
           }
         }
-      }
-    );
-  });
+      );
+    }
+
+    // Works on both hard load and Turbo navigation
+    document.addEventListener("turbo:load", initMap);
+    if (document.readyState !== "loading") initMap();
+  })();
 </script>
