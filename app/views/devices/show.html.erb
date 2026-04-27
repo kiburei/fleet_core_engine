@@ -1,5 +1,5 @@
 <% content_for :header do %>
-  <% header_title = @device.vehicle ? "#{@device.vehicle.registration_number} - Device" : "Tracking Device" %>
+  <% header_title = @device.vehicle ? "#{@device.vehicle.registration_number} — Device" : "Tracking Device" %>
   <%= render "rui/shared/admin/nav", { header_title: header_title } do %>
     <div class="flex gap-3 mb-4">
       <% if @device.vehicle %>
@@ -16,15 +16,37 @@
 
   <%# ── Device identity card ──────────────────────────────────────────── %>
   <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow space-y-4">
-    <div class="flex items-center justify-between flex-wrap gap-3">
-      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
-        GPS Device: <%= @device.name.presence || @device.terminal_id %>
-      </h1>
 
-      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                  <%= @device.online? ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800" %>">
-        <%= @device.online? ? "● Online" : "○ Offline" %>
-      </span>
+    <div class="flex items-start justify-between flex-wrap gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+          <%= @device.name.presence || @device.terminal_id %>
+        </h1>
+        <% if @device.vehicle %>
+          <p class="text-sm text-slate-500 mt-0.5">
+            Assigned to <%= link_to @device.vehicle.registration_number, vehicle_path(@device.vehicle), class: "text-blue-600 hover:underline font-medium" %>
+          </p>
+        <% end %>
+      </div>
+
+      <%# Primary status: Traccar when linked, local status otherwise %>
+      <% if @traccar_device.present? %>
+        <% ts = @traccar_device['status'].to_s.downcase %>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium
+                    <%= ts == 'online' ? 'bg-green-100 text-green-800' : ts == 'offline' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-600' %>">
+          <%= ts == 'online' ? '●' : '○' %> <%= ts.capitalize %>
+          <span class="text-xs opacity-70">via Traccar</span>
+        </span>
+      <% elsif @device.traccar_id.present? && @traccar_error.present? %>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+          ⚠ Traccar unreachable
+        </span>
+      <% else %>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                    <%= @device.status == 'active' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600' %>">
+          <%= @device.status&.capitalize || 'Unknown' %>
+        </span>
+      <% end %>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -37,43 +59,30 @@
         <p class="font-medium text-slate-900 dark:text-white"><%= @device.sim_number.presence || "—" %></p>
       </div>
       <div>
-        <p class="text-xs text-slate-500">Status</p>
-        <p class="font-medium text-slate-900 dark:text-white"><%= @device.status&.capitalize || "—" %></p>
+        <p class="text-xs text-slate-500">Traccar ID</p>
+        <p class="font-medium text-slate-900 dark:text-white"><%= @device.traccar_id.presence || "Not linked" %></p>
       </div>
       <div>
-        <p class="text-xs text-slate-500">Last JT808 Heartbeat</p>
+        <p class="text-xs text-slate-500">Last JT808 heartbeat</p>
         <p class="font-medium text-slate-900 dark:text-white">
           <%= @device.last_heartbeat_at ? @device.last_heartbeat_at.strftime('%b %d, %Y %H:%M:%S') : 'No heartbeat yet' %>
         </p>
       </div>
-      <div>
-        <p class="text-xs text-slate-500">Traccar Device ID</p>
-        <p class="font-medium text-slate-900 dark:text-white">
-          <%= @device.traccar_id.present? ? @device.traccar_id : "Not linked" %>
-        </p>
-      </div>
-      <% if @device.vehicle %>
-        <div>
-          <p class="text-xs text-slate-500">Vehicle</p>
-          <%= link_to @device.vehicle.registration_number, vehicle_path(@device.vehicle),
-              class: "font-medium text-blue-600 hover:underline" %>
-        </div>
-      <% end %>
     </div>
 
     <div class="flex gap-3 pt-2 flex-wrap">
-      <%= button_to "Ping Device (JT808)", ping_device_path(@device), method: :post,
+      <%= button_to "Ping Device", ping_device_path(@device), method: :post,
           class: "btn btn-secondary" %>
     </div>
   </div>
 
-  <%# ── Traccar integration section ──────────────────────────────────── %>
+  <%# ── Traccar section ──────────────────────────────────────────────── %>
   <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow space-y-4">
 
     <div class="flex items-center gap-3">
-      <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Traccar Integration</h2>
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-white">Traccar</h2>
       <% if @device.traccar_id.present? %>
-        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">Linked</span>
+        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">Linked #<%= @device.traccar_id %></span>
       <% else %>
         <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-full font-medium">Not linked</span>
       <% end %>
@@ -87,25 +96,31 @@
 
     <% if @device.traccar_id.present? %>
 
-      <%# ── Linked: show Traccar device info ────────────────────────── %>
+      <%# ── Traccar device metadata ──────────────────────────────────── %>
       <% if @traccar_device.present? %>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
           <div>
-            <p class="text-xs text-slate-500">Traccar name</p>
-            <p class="font-medium"><%= @traccar_device['name'] %></p>
+            <p class="text-xs text-slate-500">Name in Traccar</p>
+            <p class="font-medium text-slate-900 dark:text-white"><%= @traccar_device['name'] %></p>
           </div>
           <div>
             <p class="text-xs text-slate-500">Unique ID</p>
-            <p class="font-medium"><%= @traccar_device['uniqueId'] %></p>
+            <p class="font-medium text-slate-900 dark:text-white"><%= @traccar_device['uniqueId'] %></p>
           </div>
           <div>
-            <p class="text-xs text-slate-500">Traccar status</p>
-            <p class="font-medium"><%= @traccar_device['status']&.capitalize || "—" %></p>
+            <p class="text-xs text-slate-500">Last update</p>
+            <p class="font-medium text-slate-900 dark:text-white">
+              <% if @traccar_device['lastUpdate'].present? %>
+                <%= Time.parse(@traccar_device['lastUpdate']).strftime('%b %d, %Y %H:%M') rescue '—' %>
+              <% else %>
+                —
+              <% end %>
+            </p>
           </div>
         </div>
       <% end %>
 
-      <%# ── Last known Traccar position ──────────────────────────────── %>
+      <%# ── Last known position ──────────────────────────────────────── %>
       <% if @traccar_position.present? %>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-blue-50 border border-blue-200 rounded-md text-sm">
           <div>
@@ -146,26 +161,21 @@
           <% end %>
         </div>
 
-        <%# ── Map ─────────────────────────────────────────────────────── %>
+        <%# ── Map ────────────────────────────────────────────────────── %>
         <div id="device-map" class="w-full rounded-md overflow-hidden" style="height: 360px;"></div>
 
         <script>
           (function () {
-            const lat = <%= @traccar_position['latitude'] %>;
-            const lng = <%= @traccar_position['longitude'] %>;
+            const lat   = <%= @traccar_position['latitude'] %>;
+            const lng   = <%= @traccar_position['longitude'] %>;
             const label = "<%= j(@device.name.presence || @device.terminal_id) %>";
 
             function initDeviceMap() {
-              const container = document.getElementById("device-map");
-              if (!container) return;
-              if (container._leaflet_id) return;
-
+              const el = document.getElementById("device-map");
+              if (!el || el._leaflet_id) return;
               const map = L.map("device-map").setView([lat, lng], 14);
               L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
-              L.marker([lat, lng])
-                .addTo(map)
-                .bindPopup(label + " — last Traccar position")
-                .openPopup();
+              L.marker([lat, lng]).addTo(map).bindPopup(label + " — last Traccar position").openPopup();
             }
 
             document.addEventListener("turbo:load", initDeviceMap);
@@ -173,46 +183,39 @@
           })();
         </script>
       <% elsif @traccar_error.blank? %>
-        <p class="text-sm text-slate-400 italic">No position data available from Traccar yet.</p>
+        <p class="text-sm text-slate-400 italic">No position data from Traccar yet.</p>
       <% end %>
 
-      <%# ── Unlink button ────────────────────────────────────────────── %>
+      <%# ── Unlink ───────────────────────────────────────────────────── %>
       <%= form_with url: device_path(@device), method: :patch, class: "pt-2" do |f| %>
-        <%= f.hidden_field :device, value: nil %>
         <input type="hidden" name="device[traccar_id]" value="">
         <%= f.submit "Unlink from Traccar", class: "btn btn-danger btn-sm",
-            data: { confirm: "Remove Traccar link from this device?" } %>
+            data: { confirm: "Remove the Traccar link from this device?" } %>
       <% end %>
 
     <% else %>
 
-      <%# ── Not linked: show picker of available Traccar devices ────── %>
+      <%# ── Not linked: picker showing only unlinked Traccar devices ── %>
       <% if @available_traccar_devices.any? %>
         <p class="text-sm text-slate-600 dark:text-slate-400">
-          Select a Traccar device to link to this local device record.
-          Once linked, live position data will be fetched from Traccar.
+          Select a Traccar device to link. Only devices not already assigned to another vehicle are shown.
         </p>
 
         <%= form_with url: device_path(@device), method: :patch, class: "space-y-3" do |f| %>
-          <div>
-            <label class="text-sm text-slate-600 dark:text-slate-300 block mb-1">
-              Traccar Device
-            </label>
-            <select name="device[traccar_id]" class="input w-full max-w-sm">
-              <option value="">— Select a Traccar device —</option>
-              <% @available_traccar_devices.each do |td| %>
-                <option value="<%= td['id'] %>">
-                  #<%= td['id'] %> — <%= td['name'] %> (<%= td['uniqueId'] %>)
-                </option>
-              <% end %>
-            </select>
-          </div>
+          <select name="device[traccar_id]" class="input w-full max-w-sm text-slate-900">
+            <option value="">— Select a Traccar device —</option>
+            <% @available_traccar_devices.each do |td| %>
+              <option value="<%= td['id'] %>">
+                #<%= td['id'] %> — <%= td['name'] %> (<%= td['uniqueId'] %>)
+              </option>
+            <% end %>
+          </select>
           <%= f.submit "Link to Traccar", class: "btn btn-primary" %>
         <% end %>
 
       <% elsif @traccar_error.blank? %>
         <p class="text-sm text-slate-500">
-          No devices found in Traccar. Register the device in Traccar first, then return here to link it.
+          All Traccar devices are already assigned, or none are registered yet.
         </p>
       <% end %>
 
