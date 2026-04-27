@@ -14,6 +14,7 @@ set :keep_releases, 5
 
 # Linked files are symlinked into each release from the shared/ directory
 append :linked_files,
+  "config/database.yml",
   "config/master.key",
   "config/credentials.yml.enc",
   ".env"
