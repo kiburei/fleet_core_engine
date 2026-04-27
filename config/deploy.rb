@@ -46,6 +46,8 @@ set :bundle_flags,     "--deployment --quiet"
 # Assets (propshaft + jsbundling)
 set :assets_roles, [:web]
 
+set :puma_systemctl_user, :system
+
 # Puma
 set :puma_bind,        "tcp://0.0.0.0:3000"
 set :puma_state,       "#{shared_path}/tmp/pids/puma.state"
