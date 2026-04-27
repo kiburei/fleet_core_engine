@@ -27,11 +27,9 @@ append :linked_dirs,
   "public/uploads",
   "storage"
 
-# rbenv — must match the Ruby version on the server
-set :rbenv_type,       :system          # :user if rbenv is installed per-user
-set :rbenv_ruby,       File.read(".ruby-version").strip rescue "3.3.0"
-set :rbenv_prefix,     "RBENV_ROOT=/usr/local/rbenv RBENV_VERSION=#{fetch(:rbenv_ruby)} /usr/local/rbenv/bin/rbenv exec"
-set :rbenv_path,       "/usr/local/rbenv"
+# rvm — must match the Ruby version on the server
+set :rvm_type,         :system          # :user if rvm is installed per-user (~/.rvm)
+set :rvm_ruby_version, File.read(".ruby-version").strip rescue "3.3.0"
 
 # Bundler
 set :bundle_without,   %w[development test]

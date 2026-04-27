@@ -15,8 +15,8 @@ require "capistrano/bundler"
 require "capistrano/rails/assets"
 require "capistrano/rails/migrations"
 
-# rbenv
-require "capistrano/rbenv"
+# rvm
+require "capistrano/rvm"
 
 # Puma
 require "capistrano/puma"
