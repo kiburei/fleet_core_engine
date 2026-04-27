@@ -25,17 +25,16 @@ echo "<your-public-key>" >> ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-**3. Install rbenv + Ruby 3.3.0**
+**3. Verify RVM + Ruby 3.3.0** (RVM is already installed on the server)
 ```bash
-su - deploy
-git clone https://github.com/rbenv/rbenv.git /usr/local/rbenv
-git clone https://github.com/rbenv/ruby-build.git /usr/local/rbenv/plugins/ruby-build
-echo 'export RBENV_ROOT=/usr/local/rbenv' >> /etc/profile.d/rbenv.sh
-echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> /etc/profile.d/rbenv.sh
-echo 'eval "$(rbenv init -)"' >> /etc/profile.d/rbenv.sh
-source /etc/profile.d/rbenv.sh
-rbenv install 3.3.0
-rbenv global 3.3.0
+# Check rvm and ruby version
+rvm --version
+rvm list
+ruby --version   # should be 3.3.0
+
+# If 3.3.0 is not installed yet
+rvm install 3.3.0
+rvm use 3.3.0 --default
 gem install bundler
 ```
 
@@ -131,7 +130,7 @@ After=network.target
 Type=simple
 User=deploy
 WorkingDirectory=/var/www/fleet_core_engine/current
-ExecStart=/usr/local/rbenv/bin/rbenv exec bundle exec puma -C config/puma.rb
+ExecStart=/bin/bash -lc 'bundle exec puma -C config/puma.rb'
 ExecReload=/bin/kill -SIGUSR2 $MAINPID
 KillMode=process
 Restart=on-failure
