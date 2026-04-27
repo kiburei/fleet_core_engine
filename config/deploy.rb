@@ -27,8 +27,9 @@ append :linked_dirs,
   "public/uploads",
   "storage"
 
-# rvm — must match the Ruby version on the server
-set :rvm_type,         :system          # :user if rvm is installed per-user (~/.rvm)
+# rvm — system install at /usr/share/rvm
+set :rvm_type,         :system
+set :rvm_path,         "/usr/share/rvm"
 set :rvm_ruby_version, File.read(".ruby-version").strip rescue "3.3.0"
 
 # Bundler
