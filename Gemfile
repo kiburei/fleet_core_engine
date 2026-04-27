@@ -61,6 +61,7 @@ gem "rack-cors"  # For mobile app API access
 gem "fcm"  # For push notifications
 gem "money-rails"  # For currency handling in delivery fees
 gem "state_machines-activerecord"  # For order state management
+gem "connection_pool", "~> 2.5"    # 3.0.x has a Ruby 3.3 syntax error
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
