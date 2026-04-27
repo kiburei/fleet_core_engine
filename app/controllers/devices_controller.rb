@@ -3,7 +3,14 @@ class DevicesController < ApplicationController
   before_action :set_device, only: [ :show, :edit, :update, :ping ]
 
   def new
-    @device = Device.new(vehicle_id: params[:vehicle_id])
+    @vehicle = Vehicle.find_by(id: params[:vehicle_id])
+    @device  = Device.new(vehicle_id: @vehicle&.id)
+    begin
+      @available_traccar_devices = TraccarApiService.new.devices || []
+    rescue TraccarApiService::TraccarError => e
+      @available_traccar_devices = []
+      @traccar_error = e.message
+    end
   end
 
   def show
