@@ -62,8 +62,8 @@ class CreateCustomers < ActiveRecord::Migration[8.0]
       t.datetime :suspended_at
       
       # Relationships
-      t.references :fleet_provider, null: false, foreign_key: true
-      t.references :account_manager, null: true, foreign_key: { to_table: :users } # Staff member managing this account
+      t.references :fleet_provider, null: false, foreign_key: false
+      t.references :account_manager, null: true, foreign_key: false # Staff member managing this account
       
       # Agreement & Legal
       t.datetime :agreement_signed_at

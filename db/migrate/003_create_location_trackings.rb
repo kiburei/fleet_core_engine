@@ -1,8 +1,8 @@
 class CreateLocationTrackings < ActiveRecord::Migration[8.0]
   def change
     create_table :location_trackings do |t|
-      t.references :driver, null: false, foreign_key: true
-      t.references :delivery_request, null: true, foreign_key: true
+      t.references :driver, null: false, foreign_key: false
+      t.references :delivery_request, null: true, foreign_key: false
       
       t.decimal :latitude, precision: 10, scale: 6, null: false
       t.decimal :longitude, precision: 10, scale: 6, null: false

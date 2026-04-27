@@ -1,7 +1,7 @@
 class CreateCustomerPricingRules < ActiveRecord::Migration[8.0]
   def change
     create_table :customer_pricing_rules do |t|
-      t.references :customer, null: false, foreign_key: true
+      t.references :customer, null: false, foreign_key: false
       
       # Rule details
       t.string :rule_name, null: false
