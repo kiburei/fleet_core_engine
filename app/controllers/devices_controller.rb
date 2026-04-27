@@ -1,12 +1,11 @@
 class DevicesController < ApplicationController
-  before_action :set_device, only: [ :show, :edit, :update ]
   before_action :set_device, only: [ :show, :edit, :update, :ping ]
 
   def new
     @vehicle = Vehicle.find_by(id: params[:vehicle_id])
     @device  = Device.new(vehicle_id: @vehicle&.id)
     begin
-      @available_traccar_devices = TraccarApiService.new.devices || []
+      @available_traccar_devices = unlinked_traccar_devices
     rescue TraccarApiService::TraccarError => e
       @available_traccar_devices = []
       @traccar_error = e.message
@@ -25,7 +24,7 @@ class DevicesController < ApplicationController
       end
     else
       begin
-        @available_traccar_devices = TraccarApiService.new.devices || []
+        @available_traccar_devices = unlinked_traccar_devices
       rescue TraccarApiService::TraccarError => e
         @available_traccar_devices = []
         @traccar_error = e.message
@@ -34,33 +33,35 @@ class DevicesController < ApplicationController
   end
 
   def ping
-    # Try exact terminal id and normalized numeric-only id
-    socket = Jt808::Registry.get_socket(@device.terminal_id)
-
-    if socket.nil?
-      numeric = @device.terminal_id.to_s.gsub(/[^0-9]/, "")
-      socket = Jt808::Registry.get_socket(numeric)
-    end
-
-    # Also try sim_number if terminal_id didn't match
-    if socket.nil? && @device.sim_number.present?
-      socket = Jt808::Registry.get_socket(@device.sim_number)
-      if socket.nil?
-        numeric = @device.sim_number.to_s.gsub(/[^0-9]/, "")
-        socket = Jt808::Registry.get_socket(numeric)
-      end
-    end
+    socket = find_jt808_socket
 
     if socket
       begin
         socket.write("PING\n")
-        flash[:notice] = "Ping sent to device #{@device.terminal_id}"
+        flash[:notice] = "JT808 ping sent to #{@device.name.presence || @device.terminal_id}"
       rescue => e
-        Rails.logger.error "Failed to ping device: #{e.message}"
-        flash[:alert] = "Failed to send ping: #{e.message}"
+        Rails.logger.error "JT808 ping failed: #{e.message}"
+        flash[:alert] = "JT808 ping failed: #{e.message}"
+      end
+      return redirect_back(fallback_location: device_path(@device))
+    end
+
+    if @device.traccar_id.present?
+      begin
+        positions = TraccarApiService.new.positions(device_id: @device.traccar_id)
+        latest    = Array(positions).first
+        if latest
+          device_time = latest["deviceTime"] ? Time.parse(latest["deviceTime"]).strftime("%b %d, %Y %H:%M") : "unknown time"
+          @device.update_column(:last_seen_at, Time.current)
+          flash[:notice] = "Traccar confirms device last reported at #{device_time}."
+        else
+          flash[:alert] = "No position data from Traccar yet — device may not have reported."
+        end
+      rescue TraccarApiService::TraccarError => e
+        flash[:alert] = "Traccar ping failed: #{e.message}"
       end
     else
-      flash[:alert] = "Device #{@device.terminal_id} is not connected. Check that terminal_id or sim_number matches the device's phone number."
+      flash[:alert] = "Device is not connected via JT808 and is not linked to Traccar."
     end
 
     redirect_back fallback_location: device_path(@device)
@@ -93,5 +94,26 @@ class DevicesController < ApplicationController
 
   def device_params
     params.require(:device).permit(:terminal_id, :sim_number, :name, :vehicle_id, :status, :traccar_id)
+  end
+
+  def find_jt808_socket
+    ids = [ @device.terminal_id, @device.sim_number ].compact
+
+    ids.each do |id|
+      socket = Jt808::Registry.get_socket(id)
+      return socket if socket
+
+      numeric = id.gsub(/[^0-9]/, "")
+      socket  = Jt808::Registry.get_socket(numeric)
+      return socket if socket
+    end
+
+    nil
+  end
+
+  def unlinked_traccar_devices
+    all      = TraccarApiService.new.devices || []
+    used_ids = Device.where.not(traccar_id: nil).pluck(:traccar_id)
+    all.reject { |td| used_ids.include?(td["id"]) }
   end
 end
