@@ -2,7 +2,7 @@ class CreateDeliveryNotifications < ActiveRecord::Migration[8.0]
   def change
     create_table :delivery_notifications do |t|
       t.references :delivery_request, null: false, foreign_key: false
-      t.references :recipient, null: false, foreign_key: { to_table: :users }
+      t.references :recipient, null: false, foreign_key: false
       
       t.string :notification_type, null: false  # 'order_assigned', 'picked_up', 'delivered', etc.
       t.string :title, null: false
