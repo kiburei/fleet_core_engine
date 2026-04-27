@@ -1,6 +1,9 @@
 require "socket"
 require_relative "../../lib/jt808/registry"
 
+# Don't start the TCP server during rake tasks or console — only in the web server process
+return if $0.include?("rake") || defined?(Rails::Console) || Rails.env.test?
+
 Thread.new do
   server = TCPServer.new("0.0.0.0", 6808)
   Rails.logger.info "JT808 GPS Server started on port 6808"
