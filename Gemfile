@@ -22,6 +22,8 @@ gem "cssbundling-rails"
 gem "jbuilder"
 # Use RailsUI Template
 gem "railsui"
+# Meta tags for SEO (used by RailsUI's meta partial)
+gem "meta-tags"
 # Use Devise for authentication
 gem "devise", "~> 4.9"
 # Role management for Ruby on Rails
@@ -72,7 +74,7 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
-  
+
   # Load environment variables from .env file
   gem "dotenv-rails"
 end
