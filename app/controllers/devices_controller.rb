@@ -1,4 +1,5 @@
 class DevicesController < ApplicationController
+  before_action :authorize_device_access!
   before_action :set_device, only: [ :show, :edit, :update, :ping ]
 
   def new
@@ -88,8 +89,20 @@ class DevicesController < ApplicationController
 
   private
 
+  def authorize_device_access!
+    unless current_user.admin? || current_user.fleet_provider_admin?
+      redirect_to root_path, alert: "You are not authorized to manage devices."
+    end
+  end
+
+  def fleet_vehicle_scope
+    current_user.admin? ? Vehicle.all : Vehicle.where(fleet_provider_id: current_user.fleet_provider_ids)
+  end
+
   def set_device
-    @device = Device.find(params[:id])
+    @device = Device.joins(:vehicle).merge(fleet_vehicle_scope).find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to root_path, alert: "Device not found."
   end
 
   def device_params
