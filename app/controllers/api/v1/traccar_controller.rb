@@ -3,6 +3,7 @@ class Api::V1::TraccarController < Api::V1::BaseController
   # mobile clients (JWT). Skip JWT auth and fall back to Devise instead.
   skip_before_action :authenticate_api_user!
   before_action :authenticate_user!
+  before_action :authorize_traccar!
 
   before_action :set_vehicle, only: [ :assign_tracker, :position ]
 
@@ -83,8 +84,17 @@ class Api::V1::TraccarController < Api::V1::BaseController
 
   private
 
+  def authorize_traccar!
+    unless current_user.admin? || current_user.fleet_provider_admin?
+      render_error('You are not authorized to access tracker management', :forbidden)
+    end
+  end
+
   def set_vehicle
-    @vehicle = Vehicle.find(params[:vehicle_id])
+    scope = current_user.admin? ? Vehicle.all : Vehicle.where(fleet_provider_id: current_user.fleet_provider_ids)
+    @vehicle = scope.find(params[:vehicle_id])
+  rescue ActiveRecord::RecordNotFound
+    render_error('Vehicle not found', :not_found)
   end
 
   def traccar_service
